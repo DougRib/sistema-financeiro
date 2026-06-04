@@ -42,3 +42,13 @@ export type Transaction = Prisma.TransactionModel
  * 
  */
 export type Budget = Prisma.BudgetModel
+/**
+ * Model Goal
+ * 
+ */
+export type Goal = Prisma.GoalModel
+/**
+ * Model RecurringBill
+ * 
+ */
+export type RecurringBill = Prisma.RecurringBillModel

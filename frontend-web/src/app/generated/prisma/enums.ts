@@ -9,6 +9,16 @@
 * 🟢 You can import this file directly.
 */
 
+export const WalletType = {
+  CHECKING: 'CHECKING',
+  CREDIT: 'CREDIT',
+  INVESTMENT: 'INVESTMENT',
+  OTHER: 'OTHER'
+} as const
+
+export type WalletType = (typeof WalletType)[keyof typeof WalletType]
+
+
 export const TxType = {
   INCOME: 'INCOME',
   EXPENSE: 'EXPENSE',

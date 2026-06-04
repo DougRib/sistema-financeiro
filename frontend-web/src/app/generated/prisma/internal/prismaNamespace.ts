@@ -388,7 +388,9 @@ export const ModelName = {
   Wallet: 'Wallet',
   Category: 'Category',
   Transaction: 'Transaction',
-  Budget: 'Budget'
+  Budget: 'Budget',
+  Goal: 'Goal',
+  RecurringBill: 'RecurringBill'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -404,7 +406,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "wallet" | "category" | "transaction" | "budget"
+    modelProps: "user" | "wallet" | "category" | "transaction" | "budget" | "goal" | "recurringBill"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -778,6 +780,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Goal: {
+      payload: Prisma.$GoalPayload<ExtArgs>
+      fields: Prisma.GoalFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GoalFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoalPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GoalFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoalPayload>
+        }
+        findFirst: {
+          args: Prisma.GoalFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoalPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GoalFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoalPayload>
+        }
+        findMany: {
+          args: Prisma.GoalFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoalPayload>[]
+        }
+        create: {
+          args: Prisma.GoalCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoalPayload>
+        }
+        createMany: {
+          args: Prisma.GoalCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GoalCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoalPayload>[]
+        }
+        delete: {
+          args: Prisma.GoalDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoalPayload>
+        }
+        update: {
+          args: Prisma.GoalUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoalPayload>
+        }
+        deleteMany: {
+          args: Prisma.GoalDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GoalUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GoalUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoalPayload>[]
+        }
+        upsert: {
+          args: Prisma.GoalUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoalPayload>
+        }
+        aggregate: {
+          args: Prisma.GoalAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGoal>
+        }
+        groupBy: {
+          args: Prisma.GoalGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GoalGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GoalCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GoalCountAggregateOutputType> | number
+        }
+      }
+    }
+    RecurringBill: {
+      payload: Prisma.$RecurringBillPayload<ExtArgs>
+      fields: Prisma.RecurringBillFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RecurringBillFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RecurringBillFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPayload>
+        }
+        findFirst: {
+          args: Prisma.RecurringBillFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RecurringBillFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPayload>
+        }
+        findMany: {
+          args: Prisma.RecurringBillFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPayload>[]
+        }
+        create: {
+          args: Prisma.RecurringBillCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPayload>
+        }
+        createMany: {
+          args: Prisma.RecurringBillCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RecurringBillCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPayload>[]
+        }
+        delete: {
+          args: Prisma.RecurringBillDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPayload>
+        }
+        update: {
+          args: Prisma.RecurringBillUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPayload>
+        }
+        deleteMany: {
+          args: Prisma.RecurringBillDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RecurringBillUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RecurringBillUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPayload>[]
+        }
+        upsert: {
+          args: Prisma.RecurringBillUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringBillPayload>
+        }
+        aggregate: {
+          args: Prisma.RecurringBillAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRecurringBill>
+        }
+        groupBy: {
+          args: Prisma.RecurringBillGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RecurringBillGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RecurringBillCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RecurringBillCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -833,6 +983,7 @@ export const WalletScalarFieldEnum = {
   id: 'id',
   name: 'name',
   balance: 'balance',
+  type: 'type',
   userId: 'userId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -859,6 +1010,7 @@ export const TransactionScalarFieldEnum = {
   amount: 'amount',
   occurredAt: 'occurredAt',
   description: 'description',
+  transferGroupId: 'transferGroupId',
   userId: 'userId',
   categoryId: 'categoryId',
   walletId: 'walletId',
@@ -881,6 +1033,37 @@ export const BudgetScalarFieldEnum = {
 } as const
 
 export type BudgetScalarFieldEnum = (typeof BudgetScalarFieldEnum)[keyof typeof BudgetScalarFieldEnum]
+
+
+export const GoalScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  name: 'name',
+  emoji: 'emoji',
+  targetAmount: 'targetAmount',
+  currentAmount: 'currentAmount',
+  deadline: 'deadline',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GoalScalarFieldEnum = (typeof GoalScalarFieldEnum)[keyof typeof GoalScalarFieldEnum]
+
+
+export const RecurringBillScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  name: 'name',
+  amount: 'amount',
+  dueDay: 'dueDay',
+  categoryId: 'categoryId',
+  walletId: 'walletId',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RecurringBillScalarFieldEnum = (typeof RecurringBillScalarFieldEnum)[keyof typeof RecurringBillScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -970,6 +1153,20 @@ export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaMo
 
 
 /**
+ * Reference to a field of type 'WalletType'
+ */
+export type EnumWalletTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'WalletType'>
+    
+
+
+/**
+ * Reference to a field of type 'WalletType[]'
+ */
+export type ListEnumWalletTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'WalletType[]'>
+    
+
+
+/**
  * Reference to a field of type 'TxType'
  */
 export type EnumTxTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TxType'>
@@ -980,6 +1177,13 @@ export type EnumTxTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaMod
  * Reference to a field of type 'TxType[]'
  */
 export type ListEnumTxTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TxType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -1111,6 +1315,8 @@ export type GlobalOmitConfig = {
   category?: Prisma.CategoryOmit
   transaction?: Prisma.TransactionOmit
   budget?: Prisma.BudgetOmit
+  goal?: Prisma.GoalOmit
+  recurringBill?: Prisma.RecurringBillOmit
 }
 
 /* Types for Logging */

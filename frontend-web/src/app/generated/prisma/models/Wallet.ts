@@ -42,6 +42,7 @@ export type WalletMinAggregateOutputType = {
   id: number | null
   name: string | null
   balance: runtime.Decimal | null
+  type: $Enums.WalletType | null
   userId: number | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -51,6 +52,7 @@ export type WalletMaxAggregateOutputType = {
   id: number | null
   name: string | null
   balance: runtime.Decimal | null
+  type: $Enums.WalletType | null
   userId: number | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -60,6 +62,7 @@ export type WalletCountAggregateOutputType = {
   id: number
   name: number
   balance: number
+  type: number
   userId: number
   createdAt: number
   updatedAt: number
@@ -83,6 +86,7 @@ export type WalletMinAggregateInputType = {
   id?: true
   name?: true
   balance?: true
+  type?: true
   userId?: true
   createdAt?: true
   updatedAt?: true
@@ -92,6 +96,7 @@ export type WalletMaxAggregateInputType = {
   id?: true
   name?: true
   balance?: true
+  type?: true
   userId?: true
   createdAt?: true
   updatedAt?: true
@@ -101,6 +106,7 @@ export type WalletCountAggregateInputType = {
   id?: true
   name?: true
   balance?: true
+  type?: true
   userId?: true
   createdAt?: true
   updatedAt?: true
@@ -197,6 +203,7 @@ export type WalletGroupByOutputType = {
   id: number
   name: string
   balance: runtime.Decimal
+  type: $Enums.WalletType
   userId: number
   createdAt: Date
   updatedAt: Date
@@ -229,22 +236,26 @@ export type WalletWhereInput = {
   id?: Prisma.IntFilter<"Wallet"> | number
   name?: Prisma.StringFilter<"Wallet"> | string
   balance?: Prisma.DecimalFilter<"Wallet"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  type?: Prisma.EnumWalletTypeFilter<"Wallet"> | $Enums.WalletType
   userId?: Prisma.IntFilter<"Wallet"> | number
   createdAt?: Prisma.DateTimeFilter<"Wallet"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Wallet"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   transactions?: Prisma.TransactionListRelationFilter
+  bills?: Prisma.RecurringBillListRelationFilter
 }
 
 export type WalletOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   balance?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   transactions?: Prisma.TransactionOrderByRelationAggregateInput
+  bills?: Prisma.RecurringBillOrderByRelationAggregateInput
 }
 
 export type WalletWhereUniqueInput = Prisma.AtLeast<{
@@ -254,17 +265,20 @@ export type WalletWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.WalletWhereInput | Prisma.WalletWhereInput[]
   name?: Prisma.StringFilter<"Wallet"> | string
   balance?: Prisma.DecimalFilter<"Wallet"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  type?: Prisma.EnumWalletTypeFilter<"Wallet"> | $Enums.WalletType
   userId?: Prisma.IntFilter<"Wallet"> | number
   createdAt?: Prisma.DateTimeFilter<"Wallet"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Wallet"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   transactions?: Prisma.TransactionListRelationFilter
+  bills?: Prisma.RecurringBillListRelationFilter
 }, "id">
 
 export type WalletOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   balance?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -282,6 +296,7 @@ export type WalletScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"Wallet"> | number
   name?: Prisma.StringWithAggregatesFilter<"Wallet"> | string
   balance?: Prisma.DecimalWithAggregatesFilter<"Wallet"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  type?: Prisma.EnumWalletTypeWithAggregatesFilter<"Wallet"> | $Enums.WalletType
   userId?: Prisma.IntWithAggregatesFilter<"Wallet"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Wallet"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Wallet"> | Date | string
@@ -290,45 +305,54 @@ export type WalletScalarWhereWithAggregatesInput = {
 export type WalletCreateInput = {
   name: string
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  type?: $Enums.WalletType
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutWalletsInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutWalletInput
+  bills?: Prisma.RecurringBillCreateNestedManyWithoutWalletInput
 }
 
 export type WalletUncheckedCreateInput = {
   id?: number
   name: string
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  type?: $Enums.WalletType
   userId: number
   createdAt?: Date | string
   updatedAt?: Date | string
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutWalletInput
+  bills?: Prisma.RecurringBillUncheckedCreateNestedManyWithoutWalletInput
 }
 
 export type WalletUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  type?: Prisma.EnumWalletTypeFieldUpdateOperationsInput | $Enums.WalletType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutWalletsNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutWalletNestedInput
+  bills?: Prisma.RecurringBillUpdateManyWithoutWalletNestedInput
 }
 
 export type WalletUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  type?: Prisma.EnumWalletTypeFieldUpdateOperationsInput | $Enums.WalletType
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutWalletNestedInput
+  bills?: Prisma.RecurringBillUncheckedUpdateManyWithoutWalletNestedInput
 }
 
 export type WalletCreateManyInput = {
   id?: number
   name: string
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  type?: $Enums.WalletType
   userId: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -337,6 +361,7 @@ export type WalletCreateManyInput = {
 export type WalletUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  type?: Prisma.EnumWalletTypeFieldUpdateOperationsInput | $Enums.WalletType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -345,6 +370,7 @@ export type WalletUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  type?: Prisma.EnumWalletTypeFieldUpdateOperationsInput | $Enums.WalletType
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -364,6 +390,7 @@ export type WalletCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   balance?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -379,6 +406,7 @@ export type WalletMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   balance?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -388,6 +416,7 @@ export type WalletMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   balance?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -402,6 +431,11 @@ export type WalletSumOrderByAggregateInput = {
 export type WalletScalarRelationFilter = {
   is?: Prisma.WalletWhereInput
   isNot?: Prisma.WalletWhereInput
+}
+
+export type WalletNullableScalarRelationFilter = {
+  is?: Prisma.WalletWhereInput | null
+  isNot?: Prisma.WalletWhereInput | null
 }
 
 export type WalletCreateNestedManyWithoutUserInput = {
@@ -454,6 +488,10 @@ export type DecimalFieldUpdateOperationsInput = {
   divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
 }
 
+export type EnumWalletTypeFieldUpdateOperationsInput = {
+  set?: $Enums.WalletType
+}
+
 export type WalletCreateNestedOneWithoutTransactionsInput = {
   create?: Prisma.XOR<Prisma.WalletCreateWithoutTransactionsInput, Prisma.WalletUncheckedCreateWithoutTransactionsInput>
   connectOrCreate?: Prisma.WalletCreateOrConnectWithoutTransactionsInput
@@ -468,21 +506,41 @@ export type WalletUpdateOneRequiredWithoutTransactionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.WalletUpdateToOneWithWhereWithoutTransactionsInput, Prisma.WalletUpdateWithoutTransactionsInput>, Prisma.WalletUncheckedUpdateWithoutTransactionsInput>
 }
 
+export type WalletCreateNestedOneWithoutBillsInput = {
+  create?: Prisma.XOR<Prisma.WalletCreateWithoutBillsInput, Prisma.WalletUncheckedCreateWithoutBillsInput>
+  connectOrCreate?: Prisma.WalletCreateOrConnectWithoutBillsInput
+  connect?: Prisma.WalletWhereUniqueInput
+}
+
+export type WalletUpdateOneWithoutBillsNestedInput = {
+  create?: Prisma.XOR<Prisma.WalletCreateWithoutBillsInput, Prisma.WalletUncheckedCreateWithoutBillsInput>
+  connectOrCreate?: Prisma.WalletCreateOrConnectWithoutBillsInput
+  upsert?: Prisma.WalletUpsertWithoutBillsInput
+  disconnect?: Prisma.WalletWhereInput | boolean
+  delete?: Prisma.WalletWhereInput | boolean
+  connect?: Prisma.WalletWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.WalletUpdateToOneWithWhereWithoutBillsInput, Prisma.WalletUpdateWithoutBillsInput>, Prisma.WalletUncheckedUpdateWithoutBillsInput>
+}
+
 export type WalletCreateWithoutUserInput = {
   name: string
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  type?: $Enums.WalletType
   createdAt?: Date | string
   updatedAt?: Date | string
   transactions?: Prisma.TransactionCreateNestedManyWithoutWalletInput
+  bills?: Prisma.RecurringBillCreateNestedManyWithoutWalletInput
 }
 
 export type WalletUncheckedCreateWithoutUserInput = {
   id?: number
   name: string
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  type?: $Enums.WalletType
   createdAt?: Date | string
   updatedAt?: Date | string
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutWalletInput
+  bills?: Prisma.RecurringBillUncheckedCreateNestedManyWithoutWalletInput
 }
 
 export type WalletCreateOrConnectWithoutUserInput = {
@@ -518,6 +576,7 @@ export type WalletScalarWhereInput = {
   id?: Prisma.IntFilter<"Wallet"> | number
   name?: Prisma.StringFilter<"Wallet"> | string
   balance?: Prisma.DecimalFilter<"Wallet"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  type?: Prisma.EnumWalletTypeFilter<"Wallet"> | $Enums.WalletType
   userId?: Prisma.IntFilter<"Wallet"> | number
   createdAt?: Prisma.DateTimeFilter<"Wallet"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Wallet"> | Date | string
@@ -526,18 +585,22 @@ export type WalletScalarWhereInput = {
 export type WalletCreateWithoutTransactionsInput = {
   name: string
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  type?: $Enums.WalletType
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutWalletsInput
+  bills?: Prisma.RecurringBillCreateNestedManyWithoutWalletInput
 }
 
 export type WalletUncheckedCreateWithoutTransactionsInput = {
   id?: number
   name: string
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  type?: $Enums.WalletType
   userId: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  bills?: Prisma.RecurringBillUncheckedCreateNestedManyWithoutWalletInput
 }
 
 export type WalletCreateOrConnectWithoutTransactionsInput = {
@@ -559,24 +622,87 @@ export type WalletUpdateToOneWithWhereWithoutTransactionsInput = {
 export type WalletUpdateWithoutTransactionsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  type?: Prisma.EnumWalletTypeFieldUpdateOperationsInput | $Enums.WalletType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutWalletsNestedInput
+  bills?: Prisma.RecurringBillUpdateManyWithoutWalletNestedInput
 }
 
 export type WalletUncheckedUpdateWithoutTransactionsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  type?: Prisma.EnumWalletTypeFieldUpdateOperationsInput | $Enums.WalletType
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bills?: Prisma.RecurringBillUncheckedUpdateManyWithoutWalletNestedInput
+}
+
+export type WalletCreateWithoutBillsInput = {
+  name: string
+  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  type?: $Enums.WalletType
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutWalletsInput
+  transactions?: Prisma.TransactionCreateNestedManyWithoutWalletInput
+}
+
+export type WalletUncheckedCreateWithoutBillsInput = {
+  id?: number
+  name: string
+  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  type?: $Enums.WalletType
+  userId: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutWalletInput
+}
+
+export type WalletCreateOrConnectWithoutBillsInput = {
+  where: Prisma.WalletWhereUniqueInput
+  create: Prisma.XOR<Prisma.WalletCreateWithoutBillsInput, Prisma.WalletUncheckedCreateWithoutBillsInput>
+}
+
+export type WalletUpsertWithoutBillsInput = {
+  update: Prisma.XOR<Prisma.WalletUpdateWithoutBillsInput, Prisma.WalletUncheckedUpdateWithoutBillsInput>
+  create: Prisma.XOR<Prisma.WalletCreateWithoutBillsInput, Prisma.WalletUncheckedCreateWithoutBillsInput>
+  where?: Prisma.WalletWhereInput
+}
+
+export type WalletUpdateToOneWithWhereWithoutBillsInput = {
+  where?: Prisma.WalletWhereInput
+  data: Prisma.XOR<Prisma.WalletUpdateWithoutBillsInput, Prisma.WalletUncheckedUpdateWithoutBillsInput>
+}
+
+export type WalletUpdateWithoutBillsInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  type?: Prisma.EnumWalletTypeFieldUpdateOperationsInput | $Enums.WalletType
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutWalletsNestedInput
+  transactions?: Prisma.TransactionUpdateManyWithoutWalletNestedInput
+}
+
+export type WalletUncheckedUpdateWithoutBillsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  type?: Prisma.EnumWalletTypeFieldUpdateOperationsInput | $Enums.WalletType
+  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutWalletNestedInput
 }
 
 export type WalletCreateManyUserInput = {
   id?: number
   name: string
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  type?: $Enums.WalletType
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -584,24 +710,29 @@ export type WalletCreateManyUserInput = {
 export type WalletUpdateWithoutUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  type?: Prisma.EnumWalletTypeFieldUpdateOperationsInput | $Enums.WalletType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transactions?: Prisma.TransactionUpdateManyWithoutWalletNestedInput
+  bills?: Prisma.RecurringBillUpdateManyWithoutWalletNestedInput
 }
 
 export type WalletUncheckedUpdateWithoutUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  type?: Prisma.EnumWalletTypeFieldUpdateOperationsInput | $Enums.WalletType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutWalletNestedInput
+  bills?: Prisma.RecurringBillUncheckedUpdateManyWithoutWalletNestedInput
 }
 
 export type WalletUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  type?: Prisma.EnumWalletTypeFieldUpdateOperationsInput | $Enums.WalletType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -613,10 +744,12 @@ export type WalletUncheckedUpdateManyWithoutUserInput = {
 
 export type WalletCountOutputType = {
   transactions: number
+  bills: number
 }
 
 export type WalletCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   transactions?: boolean | WalletCountOutputTypeCountTransactionsArgs
+  bills?: boolean | WalletCountOutputTypeCountBillsArgs
 }
 
 /**
@@ -636,16 +769,25 @@ export type WalletCountOutputTypeCountTransactionsArgs<ExtArgs extends runtime.T
   where?: Prisma.TransactionWhereInput
 }
 
+/**
+ * WalletCountOutputType without action
+ */
+export type WalletCountOutputTypeCountBillsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RecurringBillWhereInput
+}
+
 
 export type WalletSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
   balance?: boolean
+  type?: boolean
   userId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   transactions?: boolean | Prisma.Wallet$transactionsArgs<ExtArgs>
+  bills?: boolean | Prisma.Wallet$billsArgs<ExtArgs>
   _count?: boolean | Prisma.WalletCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["wallet"]>
 
@@ -653,6 +795,7 @@ export type WalletSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   id?: boolean
   name?: boolean
   balance?: boolean
+  type?: boolean
   userId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -663,6 +806,7 @@ export type WalletSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   id?: boolean
   name?: boolean
   balance?: boolean
+  type?: boolean
   userId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -673,15 +817,17 @@ export type WalletSelectScalar = {
   id?: boolean
   name?: boolean
   balance?: boolean
+  type?: boolean
   userId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type WalletOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "balance" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["wallet"]>
+export type WalletOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "balance" | "type" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["wallet"]>
 export type WalletInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   transactions?: boolean | Prisma.Wallet$transactionsArgs<ExtArgs>
+  bills?: boolean | Prisma.Wallet$billsArgs<ExtArgs>
   _count?: boolean | Prisma.WalletCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type WalletIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -696,11 +842,13 @@ export type $WalletPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
     transactions: Prisma.$TransactionPayload<ExtArgs>[]
+    bills: Prisma.$RecurringBillPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     name: string
     balance: runtime.Decimal
+    type: $Enums.WalletType
     userId: number
     createdAt: Date
     updatedAt: Date
@@ -1100,6 +1248,7 @@ export interface Prisma__WalletClient<T, Null = never, ExtArgs extends runtime.T
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   transactions<T extends Prisma.Wallet$transactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Wallet$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  bills<T extends Prisma.Wallet$billsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Wallet$billsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RecurringBillPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1132,6 +1281,7 @@ export interface WalletFieldRefs {
   readonly id: Prisma.FieldRef<"Wallet", 'Int'>
   readonly name: Prisma.FieldRef<"Wallet", 'String'>
   readonly balance: Prisma.FieldRef<"Wallet", 'Decimal'>
+  readonly type: Prisma.FieldRef<"Wallet", 'WalletType'>
   readonly userId: Prisma.FieldRef<"Wallet", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Wallet", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Wallet", 'DateTime'>
@@ -1557,6 +1707,30 @@ export type Wallet$transactionsArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.TransactionScalarFieldEnum | Prisma.TransactionScalarFieldEnum[]
+}
+
+/**
+ * Wallet.bills
+ */
+export type Wallet$billsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RecurringBill
+   */
+  select?: Prisma.RecurringBillSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RecurringBill
+   */
+  omit?: Prisma.RecurringBillOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RecurringBillInclude<ExtArgs> | null
+  where?: Prisma.RecurringBillWhereInput
+  orderBy?: Prisma.RecurringBillOrderByWithRelationInput | Prisma.RecurringBillOrderByWithRelationInput[]
+  cursor?: Prisma.RecurringBillWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RecurringBillScalarFieldEnum | Prisma.RecurringBillScalarFieldEnum[]
 }
 
 /**

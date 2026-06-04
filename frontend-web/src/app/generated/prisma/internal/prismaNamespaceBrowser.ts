@@ -55,7 +55,9 @@ export const ModelName = {
   Wallet: 'Wallet',
   Category: 'Category',
   Transaction: 'Transaction',
-  Budget: 'Budget'
+  Budget: 'Budget',
+  Goal: 'Goal',
+  RecurringBill: 'RecurringBill'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -90,6 +92,7 @@ export const WalletScalarFieldEnum = {
   id: 'id',
   name: 'name',
   balance: 'balance',
+  type: 'type',
   userId: 'userId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -116,6 +119,7 @@ export const TransactionScalarFieldEnum = {
   amount: 'amount',
   occurredAt: 'occurredAt',
   description: 'description',
+  transferGroupId: 'transferGroupId',
   userId: 'userId',
   categoryId: 'categoryId',
   walletId: 'walletId',
@@ -138,6 +142,37 @@ export const BudgetScalarFieldEnum = {
 } as const
 
 export type BudgetScalarFieldEnum = (typeof BudgetScalarFieldEnum)[keyof typeof BudgetScalarFieldEnum]
+
+
+export const GoalScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  name: 'name',
+  emoji: 'emoji',
+  targetAmount: 'targetAmount',
+  currentAmount: 'currentAmount',
+  deadline: 'deadline',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GoalScalarFieldEnum = (typeof GoalScalarFieldEnum)[keyof typeof GoalScalarFieldEnum]
+
+
+export const RecurringBillScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  name: 'name',
+  amount: 'amount',
+  dueDay: 'dueDay',
+  categoryId: 'categoryId',
+  walletId: 'walletId',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RecurringBillScalarFieldEnum = (typeof RecurringBillScalarFieldEnum)[keyof typeof RecurringBillScalarFieldEnum]
 
 
 export const SortOrder = {
