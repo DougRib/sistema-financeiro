@@ -1,372 +1,484 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
+import { useEffect, useState, useCallback } from "react";
+import { Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  BarChart, Bar,
 } from "recharts";
-import { TransactionForm } from "@/components/transaction-form";
+import { KpiCard } from "@/components/ui/KpiCard";
+import { CardBlock } from "@/components/ui/CardBlock";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { formatCurrency, formatShortDate, formatMonthYear, currentMonth } from "@/lib/format";
 
-// tipo de transação retornado pela API /api/summary
-type Tx = {
-  id: number;
-  type: "INCOME" | "EXPENSE" | "TRANSFER";
-  amount: number;
-  occurredAt: string;
-  description?: string | null;
-  category?: { id: number; name: string } | null;
-  walletId: number;
-};
-
-// formato do resumo que a rota /api/summary retorna
-type SummaryResponse = {
-  ok: true;
+interface SummaryData {
   income: number;
   expense: number;
   balance: number;
   categoriesChart: { name: string; value: number }[];
   dailyChart: { day: number; value: number }[];
-  transactions: Tx[];
-};
+  transactions: {
+    id: number;
+    type: string;
+    amount: number;
+    occurredAt: string;
+    description: string | null;
+    walletId: number;
+    category: { id: number; name: string } | null;
+  }[];
+}
+
+interface Wallet {
+  id: number;
+  name: string;
+  balance: number;
+  type: string;
+}
 
 export default function DashboardPage() {
-  const today = new Date();
-  // mês atual (1–12)
-  const [month] = useState(today.getMonth() + 1);
-  // ano atual
-  const [year] = useState(today.getFullYear());
+  const now = currentMonth();
+  const [month, setMonth] = useState(now.month);
+  const [year, setYear] = useState(now.year);
+  const [summary, setSummary] = useState<SummaryData | null>(null);
+  const [wallets, setWallets] = useState<Wallet[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  // dados do resumo carregado da API
-  const [data, setData] = useState<SummaryResponse | null>(null);
-  // mensagem de erro da tela
-  const [erro, setErro] = useState<string | null>(null);
-  // usado para forçar recarregar o resumo (quando cria ou apaga transação)
-  const [refreshIndex, setRefreshIndex] = useState(0);
-
-  // carrega o resumo do mês da rota /api/summary
-  useEffect(() => {
-    (async () => {
-      try {
-        const r = await fetch(`/api/summary?month=${month}&year=${year}`);
-
-        // se não estiver autenticado, redireciona para login
-        if (r.status === 401) {
-          const url = new URL("/login", window.location.origin);
-          url.searchParams.set("from", "/dashboard");
-          window.location.href = url.toString();
-          return;
-        }
-
-        const j = await r.json();
-
-        // se a API retornou erro, mostra mensagem
-        if (!j.ok) {
-          setErro(j.error || "Erro ao carregar dashboard");
-        } else {
-          // guarda os dados do resumo (income, expense, balance, charts, transactions)
-          setData(j);
-        }
-      } catch {
-        setErro("Erro ao carregar dashboard");
-      }
-    })();
-    // recarrega quando o mês, ano ou refreshIndex mudam
-  }, [month, year, refreshIndex]);
-
-  // logout simples: chama a rota de logout e manda para /login
-  async function handleLogout() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    window.location.href = "/login";
-  }
-
-  // callback chamado pelo TransactionForm depois de criar uma transação
-  function handleCreated() {
-    // força o useEffect recarregar o resumo
-    setRefreshIndex((x) => x + 1);
-  }
-
-  // apagar transação pelo id
-  async function handleDeleteTransaction(id: number) {
-    if (!confirm("Tem certeza que deseja apagar esta transação?")) return;
-
+  const fetchData = useCallback(async () => {
+    setLoading(true);
     try {
-      const r = await fetch(`/api/transactions/${id}`, {
-        method: "DELETE",
+      const [sumRes, wallRes] = await Promise.all([
+        fetch(`/api/summary?month=${month}&year=${year}`),
+        fetch("/api/wallets"),
+      ]);
+      const sumJson = await sumRes.json();
+      const wallJson = await wallRes.json();
+      if (sumJson.ok) setSummary(sumJson);
+      if (wallJson.ok) setWallets(wallJson.wallets);
+    } finally {
+      setLoading(false);
+    }
+  }, [month, year, refreshKey]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  function prevMonth() {
+    if (month === 1) { setMonth(12); setYear((y) => y - 1); }
+    else setMonth((m) => m - 1);
+  }
+  function nextMonth() {
+    if (month === 12) { setMonth(1); setYear((y) => y + 1); }
+    else setMonth((m) => m + 1);
+  }
+
+  const totalBalance = wallets.reduce((sum, w) => sum + Number(w.balance), 0);
+  const income = summary ? Number(summary.income) : 0;
+  const expense = summary ? Number(summary.expense) : 0;
+  const balance = income - expense;
+
+  // Build daily chart data
+  const dailyData = (summary?.dailyChart ?? []).map((d) => ({
+    day: `${String(d.day).padStart(2, "0")}/${String(month).padStart(2, "0")}`,
+    value: d.value,
+  }));
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Topbar */}
+      <div className="h-14 border-b border-border-subtle flex items-center justify-between px-6 flex-shrink-0">
+        <div className="flex items-center gap-3">
+          <h1 className="text-base font-bold text-text">Dashboard</h1>
+          <div className="flex items-center gap-1 bg-card border border-border rounded-lg px-1">
+            <button
+              onClick={prevMonth}
+              className="p-1.5 text-muted hover:text-text transition-colors cursor-pointer"
+            >
+              <ChevronLeft size={14} />
+            </button>
+            <span className="text-xs font-semibold text-text-secondary px-1 min-w-[100px] text-center">
+              {formatMonthYear(month, year)}
+            </span>
+            <button
+              onClick={nextMonth}
+              className="p-1.5 text-muted hover:text-text transition-colors cursor-pointer"
+            >
+              <ChevronRight size={14} />
+            </button>
+          </div>
+        </div>
+        <button
+          onClick={() => setShowForm(true)}
+          className="flex items-center gap-1.5 bg-accent hover:bg-accent-hover text-white text-xs font-bold px-3 py-2 rounded-lg transition-colors cursor-pointer"
+        >
+          <Plus size={14} />
+          Nova transação
+        </button>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto p-6">
+        {loading && !summary && (
+          <div className="flex items-center justify-center py-20">
+            <p className="text-sm text-muted">Carregando...</p>
+          </div>
+        )}
+
+        {!loading || summary ? (
+          <>
+            {/* KPI Grid */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              <KpiCard label="Receitas" value={formatCurrency(income)} variant="income" />
+              <KpiCard label="Despesas" value={formatCurrency(expense)} variant="expense" />
+              <KpiCard
+                label="Saldo do mês"
+                value={formatCurrency(balance)}
+                variant={balance >= 0 ? "accent" : "expense"}
+              />
+              <KpiCard
+                label="Saldo Total"
+                value={formatCurrency(totalBalance)}
+                variant="accent"
+              />
+            </div>
+
+            {/* Charts + Transactions */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* Daily flow chart */}
+              <CardBlock title="Fluxo diário do mês">
+                {dailyData.length === 0 ? (
+                  <EmptyState icon="📊" title="Sem transações neste mês" />
+                ) : (
+                  <ResponsiveContainer width="100%" height={180}>
+                    <AreaChart data={dailyData} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
+                      <defs>
+                        <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
+                      <XAxis dataKey="day" tick={{ fontSize: 10, fill: "#71717a" }} />
+                      <YAxis
+                        tick={{ fontSize: 10, fill: "#71717a" }}
+                        tickFormatter={(v: number) => `R$${Math.abs(v)}`}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          background: "#111113",
+                          border: "1px solid #27272a",
+                          borderRadius: 8,
+                          fontSize: 12,
+                        }}
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      formatter={(v: any) => [formatCurrency(Number(v ?? 0)), "Saldo"]}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="value"
+                        stroke="#8b5cf6"
+                        strokeWidth={2}
+                        fill="url(#colorValue)"
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                )}
+              </CardBlock>
+
+              {/* Recent transactions */}
+              <CardBlock title="Últimas transações">
+                {!summary?.transactions?.length ? (
+                  <EmptyState icon="💸" title="Nenhuma transação neste mês" />
+                ) : (
+                  <div className="flex flex-col">
+                    {summary.transactions.slice(0, 5).map((tx) => (
+                      <div
+                        key={tx.id}
+                        className="flex items-center gap-3 py-2.5 border-b border-border-subtle last:border-0"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-card-hover flex items-center justify-center text-sm flex-shrink-0">
+                          {tx.type === "INCOME" ? "💰" : "💸"}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium text-text truncate">
+                            {tx.description || tx.category?.name || "Sem descrição"}
+                          </p>
+                          <p className="text-[10px] text-muted">
+                            {tx.category?.name ?? "Sem categoria"} · {formatShortDate(tx.occurredAt)}
+                          </p>
+                        </div>
+                        <span
+                          className={`text-xs font-bold flex-shrink-0 ${
+                            tx.type === "INCOME" ? "text-income" : "text-expense"
+                          }`}
+                        >
+                          {tx.type === "INCOME" ? "+" : "-"} {formatCurrency(tx.amount)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardBlock>
+
+              {/* Category breakdown */}
+              {summary?.categoriesChart && summary.categoriesChart.length > 0 && (
+                <CardBlock title="Gastos por categoria" className="lg:col-span-2">
+                  <ResponsiveContainer width="100%" height={160}>
+                    <BarChart
+                      data={summary.categoriesChart}
+                      layout="vertical"
+                      margin={{ left: 40, right: 20 }}
+                    >
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="#27272a"
+                        horizontal={false}
+                      />
+                      <XAxis
+                        type="number"
+                        tick={{ fontSize: 10, fill: "#71717a" }}
+                        tickFormatter={(v: number) => `R$${v}`}
+                      />
+                      <YAxis
+                        type="category"
+                        dataKey="name"
+                        tick={{ fontSize: 11, fill: "#a1a1aa" }}
+                        width={80}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          background: "#111113",
+                          border: "1px solid #27272a",
+                          borderRadius: 8,
+                          fontSize: 12,
+                        }}
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      formatter={(v: any) => [formatCurrency(Number(v ?? 0)), "Total"]}
+                      />
+                      <Bar dataKey="value" fill="#8b5cf6" radius={[0, 4, 4, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardBlock>
+              )}
+            </div>
+          </>
+        ) : null}
+      </div>
+
+      {/* New Transaction Inline Modal */}
+      {showForm && (
+        <NewTransactionPanel
+          onClose={() => setShowForm(false)}
+          onCreated={() => {
+            setShowForm(false);
+            setRefreshKey((k) => k + 1);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────
+// Inline new-transaction panel (slide-in from right)
+// ──────────────────────────────────────────────
+interface NewTransactionPanelProps {
+  onClose: () => void;
+  onCreated: () => void;
+}
+
+function NewTransactionPanel({ onClose, onCreated }: NewTransactionPanelProps) {
+  const [type, setType] = useState<"INCOME" | "EXPENSE">("EXPENSE");
+  const [amount, setAmount] = useState("");
+  const [date, setDate] = useState(() => new Date().toISOString().split("T")[0]);
+  const [description, setDescription] = useState("");
+  const [categoryId, setCategoryId] = useState<string>("");
+  const [walletId, setWalletId] = useState<string>("");
+  const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
+  const [wallets, setWallets] = useState<{ id: number; name: string }[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    Promise.all([
+      fetch("/api/categorias").then((r) => r.json()),
+      fetch("/api/wallets").then((r) => r.json()),
+    ]).then(([cats, walls]) => {
+      if (cats.ok) setCategories(cats.categorias);
+      if (walls.ok) {
+        setWallets(walls.wallets);
+        if (walls.wallets.length > 0) setWalletId(String(walls.wallets[0].id));
+      }
+    });
+  }, []);
+
+  async function handleSave() {
+    if (!amount || !date || !walletId) {
+      setError("Preencha valor, data e carteira");
+      return;
+    }
+    const amountNum = parseFloat(amount.replace(",", "."));
+    if (isNaN(amountNum) || amountNum <= 0) {
+      setError("Valor inválido");
+      return;
+    }
+    setSaving(true);
+    setError(null);
+    try {
+      const r = await fetch("/api/transactions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type,
+          amount: amountNum,
+          occurredAt: new Date(date + "T12:00:00.000Z").toISOString(),
+          description: description || undefined,
+          categoryId: categoryId ? Number(categoryId) : null,
+          walletId: Number(walletId),
+        }),
       });
-
-      const j = await r.json().catch(() => ({}));
-
-      if (!r.ok || j.ok === false) {
-        alert(j.error || "Erro ao apagar transação");
+      const j = await r.json();
+      if (!j.ok) {
+        setError(j.error || "Erro ao salvar");
         return;
       }
-
-      // recarrega o resumo depois de apagar
-      setRefreshIndex((x) => x + 1);
+      onCreated();
     } catch {
-      alert("Erro de rede ao apagar transação");
+      setError("Erro de rede");
+    } finally {
+      setSaving(false);
     }
   }
 
-  // estado de erro: mostra caixa com mensagem
-  if (erro) {
-    return (
-      <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center px-4">
-        <div className="max-w-md w-full rounded-2xl border border-red-500/30 bg-red-500/10 px-6 py-4 text-center text-sm text-red-200">
-          {erro}
-        </div>
-      </main>
-    );
-  }
-
-  // enquanto não carregou os dados, mostra "Carregando..."
-  if (!data) {
-    return (
-      <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center px-4">
-        <p className="text-sm text-slate-300">Carregando dashboard...</p>
-      </main>
-    );
-  }
-
-  // cores usadas no gráfico de pizza
-  const COLORS = ["#22c55e", "#0ea5e9", "#eab308", "#f97316", "#a855f7"];
-
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-50 px-4 py-6 flex flex-col gap-8">
-      {/* Topbar com título, links e botão de sair */}
-      <header className="w-full flex flex-col gap-4 md:flex-row md:items-center md:justify-between px-1 md:px-4">
-        <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-slate-300">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            Sistema de Controle Financeiro
-          </div>
-          <h1 className="mt-3 text-2xl md:text-3xl font-semibold text-white">
-            Dashboard – {month.toString().padStart(2, "0")}/{year}
-          </h1>
-          <p className="text-xs md:text-sm text-slate-400 mt-1">
-            Visão geral do seu mês com receitas, despesas, saldo e transações.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3 self-end">
-          <Link
-            href="/"
-            className="text-xs md:text-sm text-slate-400 hover:text-slate-200 underline-offset-4 hover:underline"
-          >
-            ⟵ Voltar para a página inicial
-          </Link>
-
-          <Link
-            href="/categorias"
-            className="text-xs md:text-sm rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 hover:bg-white/10 hover:border-emerald-400/60 transition"
-          >
-            Gerenciar categorias
-          </Link>
-
+    <>
+      {/* Backdrop */}
+      <div className="fixed inset-0 bg-black/60 z-40" onClick={onClose} />
+      {/* Panel */}
+      <div className="fixed right-0 top-0 h-full w-full max-w-sm bg-sidebar border-l border-border z-50 flex flex-col">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+          <h2 className="text-sm font-bold text-text">Nova transação</h2>
           <button
-            onClick={handleLogout}
-            className="text-xs md:text-sm rounded-xl border border-red-500/40 bg-red-500/10 px-3 py-1.5 text-red-200 hover:bg-red-500/20 transition"
+            onClick={onClose}
+            className="text-muted hover:text-text transition-colors cursor-pointer"
           >
-            Sair
+            ✕
           </button>
         </div>
-      </header>
-
-      {/* Conteúdo principal do dashboard */}
-      <section className="w-full flex flex-col gap-8 px-1 md:px-4">
-        {/* Cards de resumo + formulário de nova transação */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
-          {/* cards de resumo (Receitas, Despesas, Saldo) */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-4 lg:col-span-3">
-            {/* Receitas */}
-            <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-4 space-y-2 transition-all duration-200 hover:-translate-y-1 hover:border-emerald-400/70 hover:bg-white/10 hover:shadow-[0_18px_45px_rgba(0,0,0,0.85)]">
-              <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-emerald-400/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <h2 className="text-sm font-medium text-slate-200">
-                Receitas
-              </h2>
-              <p className="text-2xl font-bold text-emerald-400">
-                R$ {data.income.toFixed(2)}
-              </p>
-              <p className="text-[11px] text-slate-400">
-                Total de entradas registradas neste mês.
-              </p>
-            </div>
-
-            {/* Despesas */}
-            <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-4 space-y-2 transition-all duration-200 hover:-translate-y-1 hover:border-red-400/70 hover:bg-white/10 hover:shadow-[0_18px_45px_rgba(0,0,0,0.85)]">
-              <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-red-400/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <h2 className="text-sm font-medium text-slate-200">
-                Despesas
-              </h2>
-              <p className="text-2xl font-bold text-red-400">
-                R$ {data.expense.toFixed(2)}
-              </p>
-              <p className="text-[11px] text-slate-400">
-                Total de saídas registradas neste mês.
-              </p>
-            </div>
-
-            {/* Saldo */}
-            <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-4 space-y-2 transition-all duration-200 hover:-translate-y-1 hover:border-emerald-400/70 hover:bg-white/10 hover:shadow-[0_18px_45px_rgba(0,0,0,0.85)]">
-              <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-emerald-400/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <h2 className="text-sm font-medium text-slate-200">
-                Saldo do mês
-              </h2>
-              <p
-                className={`text-2xl font-bold ${
-                  data.balance >= 0 ? "text-emerald-400" : "text-red-400"
+        <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-4">
+          {/* Type toggle */}
+          <div className="flex gap-2">
+            {(["INCOME", "EXPENSE"] as const).map((t) => (
+              <button
+                key={t}
+                onClick={() => setType(t)}
+                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                  type === t
+                    ? t === "INCOME"
+                      ? "bg-income text-[#09090b]"
+                      : "bg-expense text-[#09090b]"
+                    : "bg-card border border-border text-muted hover:text-text"
                 }`}
               >
-                R$ {data.balance.toFixed(2)}
-              </p>
-              <p className="text-[11px] text-slate-400">
-                Resultado entre receitas e despesas do período.
-              </p>
-            </div>
+                {t === "INCOME" ? "Receita" : "Despesa"}
+              </button>
+            ))}
           </div>
 
-          {/* Formulário de nova transação (componente separado) */}
-          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-4 shadow-lg">
-            <h2 className="text-sm font-medium text-slate-200 mb-3">
-              Nova transação
-            </h2>
-            <p className="text-[11px] text-slate-400 mb-3">
-              Registre entradas e saídas para manter o resumo sempre atualizado.
-            </p>
-
-            <TransactionForm onCreated={handleCreated} />
+          {/* Valor */}
+          <div>
+            <label className="block text-[10px] font-semibold uppercase tracking-widest text-subtle mb-1.5">
+              Valor (R$)
+            </label>
+            <input
+              type="text"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="0,00"
+              className="w-full bg-card border border-border rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none focus:border-accent transition-colors"
+            />
           </div>
-        </div>
 
-        {/* Gráfico de pizza de gastos por categoria */}
-        <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-lg">
-          <h2 className="text-sm font-medium text-slate-200 mb-4">
-            Gastos por categoria
-          </h2>
-          {data.categoriesChart.length === 0 ? (
-            <p className="text-xs text-slate-400">
-              Nenhuma despesa categorizada neste mês.
+          {/* Data */}
+          <div>
+            <label className="block text-[10px] font-semibold uppercase tracking-widest text-subtle mb-1.5">
+              Data
+            </label>
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="w-full bg-card border border-border rounded-lg px-3 py-2.5 text-sm text-text outline-none focus:border-accent transition-colors"
+            />
+          </div>
+
+          {/* Descrição */}
+          <div>
+            <label className="block text-[10px] font-semibold uppercase tracking-widest text-subtle mb-1.5">
+              Descrição
+            </label>
+            <input
+              type="text"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Opcional"
+              className="w-full bg-card border border-border rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none focus:border-accent transition-colors"
+            />
+          </div>
+
+          {/* Categoria */}
+          <div>
+            <label className="block text-[10px] font-semibold uppercase tracking-widest text-subtle mb-1.5">
+              Categoria
+            </label>
+            <select
+              value={categoryId}
+              onChange={(e) => setCategoryId(e.target.value)}
+              className="w-full bg-card border border-border rounded-lg px-3 py-2.5 text-sm text-text outline-none focus:border-accent transition-colors cursor-pointer"
+            >
+              <option value="">Sem categoria</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Carteira */}
+          <div>
+            <label className="block text-[10px] font-semibold uppercase tracking-widest text-subtle mb-1.5">
+              Carteira
+            </label>
+            <select
+              value={walletId}
+              onChange={(e) => setWalletId(e.target.value)}
+              className="w-full bg-card border border-border rounded-lg px-3 py-2.5 text-sm text-text outline-none focus:border-accent transition-colors cursor-pointer"
+            >
+              {wallets.map((w) => (
+                <option key={w.id} value={w.id}>
+                  {w.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {error && (
+            <p className="text-xs text-danger bg-[#f43f5e10] border border-[#f43f5e30] rounded-lg px-3 py-2">
+              {error}
             </p>
-          ) : (
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={data.categoriesChart}
-                    dataKey="value"
-                    nameKey="name"
-                    innerRadius={60}
-                    outerRadius={90}
-                    paddingAngle={3}
-                    label={false}
-                  >
-                    {data.categoriesChart.map((_, i) => (
-                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#020617",
-                      border: "1px solid rgba(148, 163, 184, 0.5)",
-                      borderRadius: "0.75rem",
-                      fontSize: "12px",
-                      color: "#e5e7eb",
-                    }}
-                    labelStyle={{ color: "#e5e7eb" }}
-                  />
-                  <Legend
-                    wrapperStyle={{
-                      color: "#e5e7eb",
-                      fontSize: 12,
-                    }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
           )}
         </div>
-
-        {/* Tabela de transações do mês */}
-        <section className="space-y-3">
-          <h2 className="text-sm font-medium text-slate-200">
-            Transações do mês
-          </h2>
-          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl overflow-hidden shadow-lg">
-            <table className="w-full text-xs md:text-sm">
-              <thead className="bg-slate-900/60 border-b border-white/10">
-                <tr>
-                  <th className="p-2 md:p-3 text-left font-medium text-slate-300">
-                    Data
-                  </th>
-                  <th className="p-2 md:p-3 text-left font-medium text-slate-300">
-                    Descrição
-                  </th>
-                  <th className="p-2 md:p-3 text-left font-medium text-slate-300">
-                    Categoria
-                  </th>
-                  <th className="p-2 md:p-3 text-right font-medium text-slate-300">
-                    Valor
-                  </th>
-                  <th className="p-2 md:p-3 text-right font-medium text-slate-300">
-                    Ações
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.transactions.map((t) => (
-                  <tr
-                    key={t.id}
-                    className="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors"
-                  >
-                    <td className="p-2 md:p-3 text-slate-300">
-                      {new Date(t.occurredAt).toLocaleDateString("pt-BR")}
-                    </td>
-                    <td className="p-2 md:p-3 text-slate-200">
-                      {t.description || "-"}
-                    </td>
-                    <td className="p-2 md:p-3 text-slate-300">
-                      {t.category?.name || "Sem categoria"}
-                    </td>
-                    <td
-                      className={`p-2 md:p-3 text-right font-semibold ${
-                        t.type === "INCOME"
-                          ? "text-emerald-400"
-                          : "text-red-400"
-                      }`}
-                    >
-                      {t.type === "INCOME" ? "+" : "-"} R{" "}
-                      {t.amount.toFixed(2)}
-                    </td>
-                    <td className="p-2 md:p-3 text-right">
-                      <button
-                        onClick={() => handleDeleteTransaction(t.id)}
-                        className="text-[11px] md:text-xs text-red-400 hover:text-red-300 hover:underline"
-                      >
-                        apagar
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-                {data.transactions.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={5}
-                      className="p-4 text-center text-slate-400 text-xs"
-                    >
-                      Nenhuma transação neste mês.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      </section>
-    </main>
+        <div className="px-5 py-4 border-t border-border">
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="w-full bg-accent hover:bg-accent-hover text-white text-sm font-bold py-3 rounded-xl transition-colors disabled:opacity-50 cursor-pointer"
+          >
+            {saving ? "Salvando..." : "Salvar transação"}
+          </button>
+        </div>
+      </div>
+    </>
   );
 }
