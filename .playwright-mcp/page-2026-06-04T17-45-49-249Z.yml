@@ -1,0 +1,34 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]: Sistema de Controle Financeiro
+        - heading "Criar uma conta" [level=1] [ref=e7]
+        - paragraph [ref=e8]: Leva só alguns segundos para começar a organizar suas finanças.
+      - generic [ref=e9]:
+        - generic [ref=e10]:
+          - generic [ref=e11]:
+            - text: Nome
+            - textbox "Seu nome completo" [ref=e12]: Douglas Teste
+          - generic [ref=e13]:
+            - text: Email
+            - textbox "seu@email.com" [ref=e14]: douglas@teste.com
+          - generic [ref=e15]:
+            - text: Senha
+            - textbox "Mínimo de 6 caracteres" [ref=e16]: Teste12345
+          - generic [ref=e17]:
+            - text: Confirmar senha
+            - textbox "Repita sua senha" [ref=e18]: Teste12345
+        - paragraph [ref=e35]: "Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__[\"prisma\"].user.findUnique()` invocation in C:\\Users\\dougl\\DevProjects\\sistema-financeiro\\frontend-web\\.next\\dev\\server\\chunks\\[root-of-the-server]__09yvgmt._.js:500:164 497 } 498 const { name, email, password } = parsed.data; 499 // verifica se email já existe → 500 const exists = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__[\"prisma\"].user.findUnique( Using an HTTP connection string is not supported with Prisma Client version 7.8.0 by this version of `prisma dev`. Please either use a direct TCP connection string or upgrade your client to version 7.2.0."
+        - button "Registrar" [ref=e19]
+        - generic [ref=e20]:
+          - paragraph [ref=e21]:
+            - text: Já tem conta?
+            - link "Fazer login" [ref=e22] [cursor=pointer]:
+              - /url: /login
+          - paragraph [ref=e23]:
+            - link "⟵ Voltar para a página inicial" [ref=e24] [cursor=pointer]:
+              - /url: /
+  - button "Open Next.js Dev Tools" [ref=e30] [cursor=pointer]:
+    - img [ref=e31]
+  - alert [ref=e34]

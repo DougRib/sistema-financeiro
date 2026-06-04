@@ -1,0 +1,23 @@
+- main [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]: Sistema de Controle Financeiro
+      - heading "Bem-vindo de volta" [level=1] [ref=e7]
+      - paragraph [ref=e8]: Acesse seu painel para acompanhar seus gastos e saldo do mês.
+    - generic [ref=e9]:
+      - generic [ref=e10]:
+        - generic [ref=e11]:
+          - text: Email
+          - textbox "seu@email.com" [ref=e12]
+        - generic [ref=e13]:
+          - text: Senha
+          - textbox "••••••••" [ref=e14]
+      - button "Entrar" [ref=e15]
+      - generic [ref=e16]:
+        - paragraph [ref=e17]:
+          - text: Ainda não tem conta?
+          - link "Criar conta" [ref=e18] [cursor=pointer]:
+            - /url: /register
+        - paragraph [ref=e19]:
+          - link "⟵ Voltar para a página inicial" [ref=e20] [cursor=pointer]:
+            - /url: /

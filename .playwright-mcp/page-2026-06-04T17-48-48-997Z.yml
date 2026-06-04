@@ -1,0 +1,72 @@
+- generic [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]: Sistema de Controle Financeiro
+        - heading "Dashboard – 06/2026" [level=1] [ref=e8]
+        - paragraph [ref=e9]: Visão geral do seu mês com receitas, despesas, saldo e transações.
+      - generic [ref=e10]:
+        - link "⟵ Voltar para a página inicial" [ref=e11] [cursor=pointer]:
+          - /url: /
+        - link "Gerenciar categorias" [ref=e12] [cursor=pointer]:
+          - /url: /categorias
+        - button "Sair" [ref=e13]
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - generic [ref=e17]:
+            - heading "Receitas" [level=2] [ref=e19]
+            - paragraph [ref=e20]: R$ 0.00
+            - paragraph [ref=e21]: Total de entradas registradas neste mês.
+          - generic [ref=e22]:
+            - heading "Despesas" [level=2] [ref=e24]
+            - paragraph [ref=e25]: R$ 1500.00
+            - paragraph [ref=e26]: Total de saídas registradas neste mês.
+          - generic [ref=e27]:
+            - heading "Saldo do mês" [level=2] [ref=e29]
+            - paragraph [ref=e30]: R$ -1500.00
+            - paragraph [ref=e31]: Resultado entre receitas e despesas do período.
+        - generic [ref=e32]:
+          - heading "Nova transação" [level=2] [ref=e33]
+          - paragraph [ref=e34]: Registre entradas e saídas para manter o resumo sempre atualizado.
+          - generic [ref=e35]:
+            - heading "Nova transação" [level=2] [ref=e36]
+            - generic [ref=e37]:
+              - button "Receita" [active] [ref=e38]
+              - button "Despesa" [ref=e39]
+            - 'textbox "Valor (ex: 123,45)" [ref=e40]'
+            - textbox [ref=e41]
+            - textbox "Descrição" [ref=e42]
+            - paragraph [ref=e43]: Você ainda não tem categorias. Crie algumas em “Gerenciar categorias”.
+            - combobox [ref=e44]:
+              - option "Carteira" [selected]
+            - button "Salvar" [ref=e45]
+      - generic [ref=e46]:
+        - heading "Gastos por categoria" [level=2] [ref=e47]
+        - generic [ref=e75]:
+          - list [ref=e77]:
+            - listitem [ref=e78]:
+              - img "Sem categoria legend icon" [ref=e79]
+              - text: Sem categoria
+          - application [ref=e81]
+      - generic [ref=e49]:
+        - heading "Transações do mês" [level=2] [ref=e50]
+        - table [ref=e52]:
+          - rowgroup [ref=e53]:
+            - row "Data Descrição Categoria Valor Ações" [ref=e54]:
+              - columnheader "Data" [ref=e55]
+              - columnheader "Descrição" [ref=e56]
+              - columnheader "Categoria" [ref=e57]
+              - columnheader "Valor" [ref=e58]
+              - columnheader "Ações" [ref=e59]
+          - rowgroup [ref=e60]:
+            - row "01/06/2026 - Sem categoria - R 1500.00 apagar" [ref=e88]:
+              - cell "01/06/2026" [ref=e89]
+              - cell "-" [ref=e90]
+              - cell "Sem categoria" [ref=e91]
+              - cell "- R 1500.00" [ref=e92]
+              - cell "apagar" [ref=e93]:
+                - button "apagar" [ref=e94]
+  - button "Open Next.js Dev Tools" [ref=e68] [cursor=pointer]:
+    - img [ref=e69]
+  - alert [ref=e72]

@@ -1,0 +1,29 @@
+- main [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]: Sistema de Controle Financeiro
+      - heading "Criar uma conta" [level=1] [ref=e7]
+      - paragraph [ref=e8]: Leva só alguns segundos para começar a organizar suas finanças.
+    - generic [ref=e9]:
+      - generic [ref=e10]:
+        - generic [ref=e11]:
+          - text: Nome
+          - textbox "Seu nome completo" [ref=e12]
+        - generic [ref=e13]:
+          - text: Email
+          - textbox "seu@email.com" [ref=e14]
+        - generic [ref=e15]:
+          - text: Senha
+          - textbox "Mínimo de 6 caracteres" [ref=e16]
+        - generic [ref=e17]:
+          - text: Confirmar senha
+          - textbox "Repita sua senha" [ref=e18]
+      - button "Registrar" [ref=e19]
+      - generic [ref=e20]:
+        - paragraph [ref=e21]:
+          - text: Já tem conta?
+          - link "Fazer login" [ref=e22] [cursor=pointer]:
+            - /url: /login
+        - paragraph [ref=e23]:
+          - link "⟵ Voltar para a página inicial" [ref=e24] [cursor=pointer]:
+            - /url: /
