@@ -1,14 +1,9 @@
 export const runtime = "nodejs";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { verifyJwt } from "@/lib/auth";
-// pega o token no cookie e devolve o id do usuário (sub), se o token for válido
-function getUserId(req: NextRequest) {
-  const token = req.cookies.get("token")?.value;
-  if (!token) return null;
-  const payload = verifyJwt<{ sub: number }>(token);
-  return payload?.sub ?? null;
-}
+import { getUserId } from "@/lib/get-user-id";
+import { z } from "zod";
+
 // identifica o usuário logado
 export async function GET(req: NextRequest) {
   const userId = getUserId(req);
@@ -20,7 +15,7 @@ export async function GET(req: NextRequest) {
       { status: 401 },
     );
   }
-// busca as carteiras do usuário
+  // busca as carteiras do usuário
   const wallets = await prisma.wallet.findMany({
     where: { userId },
     orderBy: { name: "asc" },
@@ -28,4 +23,33 @@ export async function GET(req: NextRequest) {
 
   // retorna as carteiras
   return NextResponse.json({ ok: true, wallets });
+}
+
+export async function POST(req: NextRequest) {
+  const userId = getUserId(req);
+  if (!userId) {
+    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+  }
+
+  const body = await req.json();
+  const parsed = z.object({
+    name: z.string().min(1).max(100),
+    type: z.enum(["CHECKING", "CREDIT", "INVESTMENT", "OTHER"]).default("CHECKING"),
+    balance: z.number().default(0),
+  }).safeParse(body);
+
+  if (!parsed.success) {
+    return NextResponse.json({ ok: false, error: "Dados inválidos" }, { status: 400 });
+  }
+
+  const wallet = await prisma.wallet.create({
+    data: {
+      name: parsed.data.name,
+      type: parsed.data.type,
+      balance: parsed.data.balance,
+      userId,
+    },
+  });
+
+  return NextResponse.json({ ok: true, wallet }, { status: 201 });
 }
