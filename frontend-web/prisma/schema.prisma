@@ -1,0 +1,101 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  name         String
+  email        String    @unique
+  passwordHash String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  wallets      Wallet[]
+  transactions Transaction[]
+  categories   Category[] @relation("UserCategories")
+  budgets      Budget[]
+}
+
+model Wallet {
+  id        Int       @id @default(autoincrement())
+  name      String
+  balance   Decimal   @default(0)
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  transactions Transaction[]
+
+  @@index([userId])
+}
+
+enum TxType {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+model Category {
+  id        Int        @id @default(autoincrement())
+  name      String
+  icon      String?
+  userId    Int?
+  user      User?      @relation("UserCategories", fields: [userId], references: [id])
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  transactions Transaction[]
+  budgets      Budget[]
+
+  @@unique([userId, name])
+}
+
+model Transaction {
+  id          Int       @id @default(autoincrement())
+  type        TxType
+  amount      Decimal
+  occurredAt  DateTime
+  description String?
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id])
+
+  categoryId  Int?
+  category    Category? @relation(fields: [categoryId], references: [id])
+
+  walletId    Int
+  wallet      Wallet    @relation(fields: [walletId], references: [id])
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId, occurredAt])
+  @@index([categoryId])
+  @@index([walletId])
+}
+
+model Budget {
+  id         Int      @id @default(autoincrement())
+  month      Int      // 1..12
+  year       Int
+  limit      Decimal
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, categoryId, month, year])
+}
