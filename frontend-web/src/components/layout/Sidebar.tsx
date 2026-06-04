@@ -87,7 +87,7 @@ export function Sidebar({ userName = "Usuário", userEmail }: SidebarProps) {
       <nav className="flex-1 px-3 pb-4 overflow-y-auto">
         {navSections.map((section) => (
           <div key={section.title} className="mb-3">
-            <p className="text-[9px] uppercase tracking-[2px] font-semibold text-[#3f3f46] px-2 mb-1.5 mt-3">
+            <p className="text-[9px] uppercase tracking-[2px] font-semibold text-white px-2 mb-1.5 mt-3">
               {section.title}
             </p>
             {section.items.map((item) => {

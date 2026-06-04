@@ -1,12 +1,13 @@
 @import "tailwindcss";
 
 @theme {
+  --color-background: linear-gradient(180deg, #0f172a,#4338ca);
   --color-surface: #09090b;
-  --color-card: #111113;
+  --color-card: #111827;
   --color-card-hover: #18181b;
   --color-border: #27272a;
   --color-border-subtle: #1c1c1f;
-  --color-sidebar: #0d0d0f;
+  --color-sidebar: #0A0F1F;
   --color-accent: #8b5cf6;
   --color-accent-hover: #7c3aed;
   --color-accent-muted: #8b5cf620;

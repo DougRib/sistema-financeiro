@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finance OS — Features Expandidas</title>
+<script src="/helper.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #060608; color: #fafafa; font-family: 'Inter', -apple-system, sans-serif; padding: 24px; }
+  h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .subtitle { color: #71717a; font-size: 14px; margin-bottom: 28px; }
+  .screen-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; color: #8b5cf6; margin: 36px 0 12px; }
+  .screen-label:first-of-type { margin-top: 0; }
+
+  .app-shell { display: flex; border-radius: 16px; overflow: hidden; border: 1px solid #27272a; box-shadow: 0 24px 80px rgba(0,0,0,.6); }
+
+  /* SIDEBAR */
+  .sidebar { width: 220px; background: #0d0d0f; border-right: 1px solid #1c1c1f; display: flex; flex-direction: column; padding: 20px 12px; flex-shrink: 0; }
+  .sidebar-logo { display: flex; align-items: center; gap: 10px; padding: 0 8px; margin-bottom: 24px; }
+  .logo-icon { width: 32px; height: 32px; background: #8b5cf6; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; color: #fff; flex-shrink: 0; }
+  .logo-text { font-size: 15px; font-weight: 800; color: #fafafa; }
+  .logo-sub { font-size: 10px; color: #52525b; letter-spacing: 1px; text-transform: uppercase; }
+  .nav-section-label { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; color: #3f3f46; padding: 0 8px; margin: 14px 0 5px; }
+  .nav-item { display: flex; align-items: center; gap: 9px; padding: 7px 10px; border-radius: 7px; font-size: 12px; color: #71717a; cursor: pointer; margin-bottom: 1px; }
+  .nav-item.active { background: #1c1c22; color: #fafafa; font-weight: 600; border-left: 2px solid #8b5cf6; padding-left: 8px; }
+  .nav-icon { font-size: 13px; width: 16px; text-align: center; flex-shrink: 0; }
+  .nav-badge { margin-left: auto; background: #8b5cf620; color: #8b5cf6; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 8px; }
+  .nav-badge-new { margin-left: auto; background: #a3e63520; color: #a3e635; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 8px; }
+  .nav-badge-ai { margin-left: auto; background: linear-gradient(90deg,#8b5cf620,#06b6d420); color: #a78bfa; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 8px; }
+  .sidebar-footer { margin-top: auto; border-top: 1px solid #1c1c1f; padding-top: 10px; }
+  .user-info { display: flex; align-items: center; gap: 9px; padding: 7px 8px; border-radius: 8px; cursor: pointer; }
+  .user-info:hover { background: #18181b; }
+  .avatar { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg,#8b5cf6,#6d28d9); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0; }
+  .user-name { font-size: 12px; font-weight: 600; color: #fafafa; }
+  .user-actions { display: flex; gap: 4px; margin-top: 1px; }
+  .user-link { font-size: 10px; color: #52525b; }
+  .user-link:hover { color: #a78bfa; }
+  .settings-btn { margin-left: auto; width: 26px; height: 26px; border-radius: 6px; background: #18181b; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 13px; flex-shrink: 0; }
+
+  /* MAIN */
+  .main { flex: 1; background: #09090b; display: flex; flex-direction: column; min-width: 0; }
+  .topbar { height: 52px; border-bottom: 1px solid #18181b; display: flex; align-items: center; justify-content: space-between; padding: 0 22px; flex-shrink: 0; }
+  .topbar-title { font-size: 15px; font-weight: 700; }
+  .topbar-sub { font-size: 11px; color: #52525b; margin-top: 1px; }
+  .btn-primary { background: #8b5cf6; color: #fff; font-size: 12px; font-weight: 600; padding: 6px 13px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+  .btn-secondary { background: #18181b; color: #a1a1aa; font-size: 12px; font-weight: 600; padding: 6px 13px; border-radius: 8px; border: 1px solid #27272a; cursor: pointer; }
+  .topbar-actions { display: flex; gap: 8px; align-items: center; }
+  .content { padding: 18px 22px; overflow-y: auto; flex: 1; }
+
+  /* CARDS */
+  .card-block { background: #111113; border: 1px solid #27272a; border-radius: 12px; padding: 16px; }
+  .card-title { font-size: 11px; font-weight: 600; color: #71717a; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 1.2px; }
+  .tag { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
+  .tag-green { background: #a3e63515; color: #a3e635; }
+  .tag-red { background: #fb923c15; color: #fb923c; }
+  .tag-purple { background: #8b5cf620; color: #a78bfa; }
+  .tag-blue { background: #06b6d420; color: #22d3ee; }
+  .tag-yellow { background: #fbbf2420; color: #fbbf24; }
+</style>
+</head>
+<body>
+
+<h1>Finance OS — Features Expandidas</h1>
+<p class="subtitle">6 novas seções integradas ao sistema. Confirme o que está certo antes de implementar.</p>
+
+<!-- ══════════════════════════════════════
+     NOVA SIDEBAR COM TUDO
+══════════════════════════════════════ -->
+<div class="screen-label">① Sidebar Atualizada — Navegação Completa</div>
+<div style="display:flex;gap:16px;">
+
+  <div style="width:220px;background:#0d0d0f;border:1px solid #1c1c1f;border-radius:16px;padding:20px 12px;flex-shrink:0;">
+    <div class="sidebar-logo">
+      <div class="logo-icon">F</div>
+      <div><div class="logo-text">Finança</div><div class="logo-sub">Pessoal</div></div>
+    </div>
+
+    <div class="nav-section-label">Visão Geral</div>
+    <div class="nav-item active"><span class="nav-icon">▣</span> Dashboard</div>
+
+    <div class="nav-section-label">Financeiro</div>
+    <div class="nav-item"><span class="nav-icon">⇅</span> Transações <span class="nav-badge">14</span></div>
+    <div class="nav-item"><span class="nav-icon">⇄</span> Transferências</div>
+    <div class="nav-item"><span class="nav-icon">◉</span> Carteiras</div>
+    <div class="nav-item"><span class="nav-icon">↑</span> Importar Extrato <span class="nav-badge-new">Novo</span></div>
+    <div class="nav-item"><span class="nav-icon">◈</span> Categorias</div>
+
+    <div class="nav-section-label">Planejamento</div>
+    <div class="nav-item"><span class="nav-icon">◻</span> Orçamentos</div>
+    <div class="nav-item"><span class="nav-icon">◎</span> Metas <span class="nav-badge-new">Novo</span></div>
+    <div class="nav-item"><span class="nav-icon">▦</span> Agenda <span class="nav-badge-new">Novo</span></div>
+
+    <div class="nav-section-label">Inteligência</div>
+    <div class="nav-item"><span class="nav-icon">▷</span> Relatórios</div>
+    <div class="nav-item"><span class="nav-icon">✦</span> Insights IA <span class="nav-badge-ai">IA</span></div>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="avatar">D</div>
+        <div style="flex:1;">
+          <div class="user-name">Douglas</div>
+          <div class="user-actions">
+            <span class="user-link">Perfil</span>
+            <span class="user-link" style="color:#3f3f46;margin:0 3px;">·</span>
+            <span class="user-link">Sair</span>
+          </div>
+        </div>
+        <div class="settings-btn">⚙</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex:1;display:flex;flex-direction:column;gap:12px;">
+    <div style="background:#111113;border:1px solid #27272a;border-radius:12px;padding:16px;">
+      <div style="font-size:12px;font-weight:700;color:#fafafa;margin-bottom:8px;">Estrutura de navegação</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div>
+          <div style="font-size:10px;color:#52525b;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Financeiro</div>
+          <div style="font-size:12px;color:#a1a1aa;line-height:2;">⇅ Transações<br>⇄ Transferências <span class="tag tag-blue" style="font-size:9px;">reimplementar</span><br>◉ Carteiras<br>↑ Importar Extrato <span class="tag tag-green" style="font-size:9px;">novo</span><br>◈ Categorias</div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:#52525b;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Planejamento + IA</div>
+          <div style="font-size:12px;color:#a1a1aa;line-height:2;">◻ Orçamentos<br>◎ Metas <span class="tag tag-green" style="font-size:9px;">novo</span><br>▦ Agenda <span class="tag tag-green" style="font-size:9px;">novo</span><br>▷ Relatórios<br>✦ Insights IA <span class="tag tag-yellow" style="font-size:9px;">diferencial</span></div>
+        </div>
+      </div>
+    </div>
+    <div style="background:#13121a;border:1px solid #8b5cf630;border-radius:12px;padding:14px;">
+      <div style="font-size:11px;font-weight:600;color:#a78bfa;margin-bottom:6px;">⚙ Footer do sidebar</div>
+      <div style="font-size:12px;color:#71717a;line-height:1.8;">Avatar + nome do usuário · links "Perfil" e "Sair" · ícone ⚙ leva para <strong style="color:#a1a1aa;">Configurações</strong> (moeda, nome, senha, exclusão de conta)</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN: IMPORTAR EXTRATO
+══════════════════════════════════════ -->
+<div class="screen-label">② Importar Extrato — OFX / CSV</div>
+<div class="app-shell" style="height:440px;">
+  <div class="sidebar">
+    <div class="sidebar-logo"><div class="logo-icon">F</div><div><div class="logo-text">Finança</div><div class="logo-sub">Pessoal</div></div></div>
+    <div class="nav-section-label">Visão Geral</div>
+    <div class="nav-item"><span class="nav-icon">▣</span> Dashboard</div>
+    <div class="nav-section-label">Financeiro</div>
+    <div class="nav-item"><span class="nav-icon">⇅</span> Transações</div>
+    <div class="nav-item"><span class="nav-icon">⇄</span> Transferências</div>
+    <div class="nav-item"><span class="nav-icon">◉</span> Carteiras</div>
+    <div class="nav-item active"><span class="nav-icon">↑</span> Importar Extrato</div>
+    <div class="nav-item"><span class="nav-icon">◈</span> Categorias</div>
+    <div class="nav-section-label">Planejamento</div>
+    <div class="nav-item"><span class="nav-icon">◻</span> Orçamentos</div>
+    <div class="nav-item"><span class="nav-icon">◎</span> Metas</div>
+    <div class="nav-item"><span class="nav-icon">▦</span> Agenda</div>
+    <div class="nav-section-label">Inteligência</div>
+    <div class="nav-item"><span class="nav-icon">▷</span> Relatórios</div>
+    <div class="nav-item"><span class="nav-icon">✦</span> Insights IA</div>
+    <div class="sidebar-footer"><div class="user-info"><div class="avatar">D</div><div style="flex:1;"><div class="user-name">Douglas</div><div class="user-actions"><span class="user-link">Perfil</span><span class="user-link" style="color:#3f3f46;margin:0 3px;">·</span><span class="user-link">Sair</span></div></div><div class="settings-btn">⚙</div></div></div>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <div><div class="topbar-title">Importar Extrato</div><div class="topbar-sub">OFX (banco) ou CSV (fatura de cartão)</div></div>
+    </div>
+    <div class="content" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <!-- Upload zone -->
+      <div>
+        <div style="border:2px dashed #27272a;border-radius:14px;padding:32px 20px;text-align:center;background:#111113;cursor:pointer;transition:border-color .2s;" onmouseover="this.style.borderColor='#8b5cf6'" onmouseout="this.style.borderColor='#27272a'">
+          <div style="font-size:32px;margin-bottom:10px;opacity:0.4;">📄</div>
+          <div style="font-size:14px;font-weight:600;color:#fafafa;margin-bottom:4px;">Arraste o arquivo aqui</div>
+          <div style="font-size:12px;color:#52525b;margin-bottom:16px;">ou clique para selecionar</div>
+          <div style="display:flex;justify-content:center;gap:8px;">
+            <span class="tag tag-purple">.OFX</span>
+            <span class="tag tag-purple">.CSV</span>
+            <span class="tag tag-purple">.QIF</span>
+          </div>
+        </div>
+        <div style="margin-top:12px;background:#18181b;border-radius:10px;padding:12px;border:1px solid #27272a;">
+          <div style="font-size:11px;font-weight:600;color:#a1a1aa;margin-bottom:8px;">Vincular à carteira:</div>
+          <div style="background:#111113;border:1px solid #27272a;border-radius:7px;padding:8px 12px;font-size:12px;color:#71717a;display:flex;justify-content:space-between;">
+            <span>Selecionar carteira...</span><span>▾</span>
+          </div>
+        </div>
+      </div>
+      <!-- Preview table -->
+      <div>
+        <div class="card-block" style="padding:12px;">
+          <div class="card-title">Pré-visualização — 3 de 18 transações</div>
+          <div style="background:#18181b;border-radius:8px;overflow:hidden;">
+            <div style="display:grid;grid-template-columns:70px 1fr 80px 80px;gap:6px;padding:7px 10px;border-bottom:1px solid #27272a;">
+              <div style="font-size:9px;color:#52525b;text-transform:uppercase;">Data</div>
+              <div style="font-size:9px;color:#52525b;text-transform:uppercase;">Descrição</div>
+              <div style="font-size:9px;color:#52525b;text-transform:uppercase;">Valor</div>
+              <div style="font-size:9px;color:#52525b;text-transform:uppercase;">Categoria</div>
+            </div>
+            <div style="display:grid;grid-template-columns:70px 1fr 80px 80px;gap:6px;padding:8px 10px;border-bottom:1px solid #1c1c1f;align-items:center;">
+              <div style="font-size:11px;color:#71717a;">01/06</div>
+              <div style="font-size:11px;color:#fafafa;">PIX SALARIO</div>
+              <div style="font-size:11px;font-weight:700;color:#a3e635;">+8.500</div>
+              <div><div style="background:#1c1c1f;border:1px solid #27272a;border-radius:5px;padding:2px 6px;font-size:10px;color:#71717a;">Renda ▾</div></div>
+            </div>
+            <div style="display:grid;grid-template-columns:70px 1fr 80px 80px;gap:6px;padding:8px 10px;border-bottom:1px solid #1c1c1f;align-items:center;background:#13121a;">
+              <div style="font-size:11px;color:#71717a;">02/06</div>
+              <div style="font-size:11px;color:#fafafa;">IFOOD*PEDIDO</div>
+              <div style="font-size:11px;font-weight:700;color:#fb923c;">-87,50</div>
+              <div><div style="background:#8b5cf620;border:1px solid #8b5cf640;border-radius:5px;padding:2px 6px;font-size:10px;color:#a78bfa;">Alimentação ✓</div></div>
+            </div>
+            <div style="display:grid;grid-template-columns:70px 1fr 80px 80px;gap:6px;padding:8px 10px;align-items:center;">
+              <div style="font-size:11px;color:#71717a;">03/06</div>
+              <div style="font-size:11px;color:#fafafa;">UBER TRIP</div>
+              <div style="font-size:11px;font-weight:700;color:#fb923c;">-32,00</div>
+              <div><div style="background:#1c1c1f;border:1px solid #27272a;border-radius:5px;padding:2px 6px;font-size:10px;color:#71717a;">Transporte ▾</div></div>
+            </div>
+          </div>
+          <div style="margin-top:10px;display:flex;gap:8px;">
+            <div style="flex:1;background:#a3e63510;border:1px solid #a3e63530;border-radius:8px;padding:8px;text-align:center;">
+              <div style="font-size:18px;font-weight:800;color:#a3e635;">16</div>
+              <div style="font-size:10px;color:#52525b;">Auto-categorizadas</div>
+            </div>
+            <div style="flex:1;background:#fb923c10;border:1px solid #fb923c30;border-radius:8px;padding:8px;text-align:center;">
+              <div style="font-size:18px;font-weight:800;color:#fb923c;">2</div>
+              <div style="font-size:10px;color:#52525b;">Revisão manual</div>
+            </div>
+          </div>
+          <div class="btn-primary" style="margin-top:10px;justify-content:center;">Confirmar e Importar 18 transações</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN: METAS DE POUPANÇA
+══════════════════════════════════════ -->
+<div class="screen-label">③ Metas de Poupança</div>
+<div class="app-shell" style="height:400px;">
+  <div class="sidebar">
+    <div class="sidebar-logo"><div class="logo-icon">F</div><div><div class="logo-text">Finança</div><div class="logo-sub">Pessoal</div></div></div>
+    <div class="nav-section-label">Visão Geral</div>
+    <div class="nav-item"><span class="nav-icon">▣</span> Dashboard</div>
+    <div class="nav-section-label">Financeiro</div>
+    <div class="nav-item"><span class="nav-icon">⇅</span> Transações</div>
+    <div class="nav-item"><span class="nav-icon">⇄</span> Transferências</div>
+    <div class="nav-item"><span class="nav-icon">◉</span> Carteiras</div>
+    <div class="nav-item"><span class="nav-icon">↑</span> Importar Extrato</div>
+    <div class="nav-item"><span class="nav-icon">◈</span> Categorias</div>
+    <div class="nav-section-label">Planejamento</div>
+    <div class="nav-item"><span class="nav-icon">◻</span> Orçamentos</div>
+    <div class="nav-item active"><span class="nav-icon">◎</span> Metas</div>
+    <div class="nav-item"><span class="nav-icon">▦</span> Agenda</div>
+    <div class="nav-section-label">Inteligência</div>
+    <div class="nav-item"><span class="nav-icon">▷</span> Relatórios</div>
+    <div class="nav-item"><span class="nav-icon">✦</span> Insights IA</div>
+    <div class="sidebar-footer"><div class="user-info"><div class="avatar">D</div><div style="flex:1;"><div class="user-name">Douglas</div><div class="user-actions"><span class="user-link">Perfil</span><span class="user-link" style="color:#3f3f46;margin:0 3px;">·</span><span class="user-link">Sair</span></div></div><div class="settings-btn">⚙</div></div></div>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title">Metas</div>
+      <div class="btn-primary">+ Nova Meta</div>
+    </div>
+    <div class="content">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+        <!-- Meta 1 -->
+        <div class="card-block">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+            <div style="width:36px;height:36px;background:#fbbf2420;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">🚗</div>
+            <div><div style="font-size:13px;font-weight:700;">Comprar Carro</div><div style="font-size:10px;color:#52525b;">Meta: Dez 2026</div></div>
+          </div>
+          <div style="margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+              <span style="font-size:11px;color:#71717a;">R$ 18.000 / R$ 35.000</span>
+              <span style="font-size:11px;font-weight:700;color:#fbbf24;">51%</span>
+            </div>
+            <div style="height:6px;background:#27272a;border-radius:10px;overflow:hidden;">
+              <div style="height:100%;width:51%;background:linear-gradient(90deg,#fbbf24,#f59e0b);border-radius:10px;"></div>
+            </div>
+          </div>
+          <div style="font-size:10px;color:#52525b;">Faltam R$ 17.000 · 6 meses restantes</div>
+          <div style="font-size:10px;color:#a3e635;margin-top:4px;">↑ Poupar R$ 2.833/mês para atingir</div>
+        </div>
+        <!-- Meta 2 -->
+        <div class="card-block">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+            <div style="width:36px;height:36px;background:#22d3ee20;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">🛡️</div>
+            <div><div style="font-size:13px;font-weight:700;">Reserva Emergência</div><div style="font-size:10px;color:#52525b;">Meta: Mar 2027</div></div>
+          </div>
+          <div style="margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+              <span style="font-size:11px;color:#71717a;">R$ 8.400 / R$ 20.000</span>
+              <span style="font-size:11px;font-weight:700;color:#22d3ee;">42%</span>
+            </div>
+            <div style="height:6px;background:#27272a;border-radius:10px;overflow:hidden;">
+              <div style="height:100%;width:42%;background:linear-gradient(90deg,#22d3ee,#06b6d4);border-radius:10px;"></div>
+            </div>
+          </div>
+          <div style="font-size:10px;color:#52525b;">Faltam R$ 11.600 · 9 meses restantes</div>
+          <div style="font-size:10px;color:#a3e635;margin-top:4px;">↑ Poupar R$ 1.289/mês para atingir</div>
+        </div>
+        <!-- Add new -->
+        <div style="background:#111113;border:2px dashed #27272a;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;cursor:pointer;padding:24px;min-height:140px;" onmouseover="this.style.borderColor='#8b5cf6'" onmouseout="this.style.borderColor='#27272a'">
+          <div style="width:36px;height:36px;border-radius:50%;background:#18181b;display:flex;align-items:center;justify-content:center;font-size:20px;color:#52525b;">+</div>
+          <div style="font-size:12px;color:#52525b;text-align:center;">Criar nova meta</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN: AGENDA / CONTAS FIXAS
+══════════════════════════════════════ -->
+<div class="screen-label">④ Agenda — Contas Fixas e Vencimentos</div>
+<div class="app-shell" style="height:400px;">
+  <div class="sidebar">
+    <div class="sidebar-logo"><div class="logo-icon">F</div><div><div class="logo-text">Finança</div><div class="logo-sub">Pessoal</div></div></div>
+    <div class="nav-section-label">Visão Geral</div>
+    <div class="nav-item"><span class="nav-icon">▣</span> Dashboard</div>
+    <div class="nav-section-label">Financeiro</div>
+    <div class="nav-item"><span class="nav-icon">⇅</span> Transações</div>
+    <div class="nav-item"><span class="nav-icon">⇄</span> Transferências</div>
+    <div class="nav-item"><span class="nav-icon">◉</span> Carteiras</div>
+    <div class="nav-item"><span class="nav-icon">↑</span> Importar Extrato</div>
+    <div class="nav-item"><span class="nav-icon">◈</span> Categorias</div>
+    <div class="nav-section-label">Planejamento</div>
+    <div class="nav-item"><span class="nav-icon">◻</span> Orçamentos</div>
+    <div class="nav-item"><span class="nav-icon">◎</span> Metas</div>
+    <div class="nav-item active"><span class="nav-icon">▦</span> Agenda</div>
+    <div class="nav-section-label">Inteligência</div>
+    <div class="nav-item"><span class="nav-icon">▷</span> Relatórios</div>
+    <div class="nav-item"><span class="nav-icon">✦</span> Insights IA</div>
+    <div class="sidebar-footer"><div class="user-info"><div class="avatar">D</div><div style="flex:1;"><div class="user-name">Douglas</div><div class="user-actions"><span class="user-link">Perfil</span><span class="user-link" style="color:#3f3f46;margin:0 3px;">·</span><span class="user-link">Sair</span></div></div><div class="settings-btn">⚙</div></div></div>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <div><div class="topbar-title">Agenda</div><div class="topbar-sub">Contas fixas e próximos vencimentos</div></div>
+      <div class="btn-primary">+ Adicionar conta fixa</div>
+    </div>
+    <div class="content" style="display:grid;grid-template-columns:1fr 260px;gap:14px;">
+      <!-- List -->
+      <div class="card-block">
+        <div style="display:flex;gap:6px;margin-bottom:14px;">
+          <div style="background:#f43f5e20;border:1px solid #f43f5e40;border-radius:7px;padding:4px 12px;font-size:11px;color:#f43f5e;font-weight:600;">⚠ Vencendo (2)</div>
+          <div style="background:#18181b;border:1px solid #27272a;border-radius:7px;padding:4px 12px;font-size:11px;color:#71717a;">Este mês (5)</div>
+          <div style="background:#18181b;border:1px solid #27272a;border-radius:7px;padding:4px 12px;font-size:11px;color:#71717a;">Todas</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;align-items:center;gap:12px;padding:10px;background:#1c0a0a;border:1px solid #f43f5e30;border-radius:8px;">
+            <div style="width:32px;height:32px;background:#f43f5e20;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;">🏠</div>
+            <div style="flex:1;"><div style="font-size:12px;font-weight:600;">Aluguel</div><div style="font-size:10px;color:#f43f5e;">Vence HOJE · dia 05</div></div>
+            <div style="text-align:right;"><div style="font-size:13px;font-weight:700;color:#fb923c;">R$ 1.800</div><div style="font-size:10px;color:#52525b;">Mensal</div></div>
+            <div style="background:#f43f5e;border-radius:6px;padding:3px 8px;font-size:10px;color:#fff;font-weight:600;cursor:pointer;">Pagar</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:10px;background:#1c0d08;border:1px solid #fb923c30;border-radius:8px;">
+            <div style="width:32px;height:32px;background:#fb923c20;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;">💡</div>
+            <div style="flex:1;"><div style="font-size:12px;font-weight:600;">Conta de Luz</div><div style="font-size:10px;color:#fb923c;">Vence em 2 dias · dia 07</div></div>
+            <div style="text-align:right;"><div style="font-size:13px;font-weight:700;color:#fb923c;">R$ 220</div><div style="font-size:10px;color:#52525b;">Mensal</div></div>
+            <div style="background:#18181b;border:1px solid #27272a;border-radius:6px;padding:3px 8px;font-size:10px;color:#71717a;cursor:pointer;">Pagar</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:10px;background:#111113;border:1px solid #27272a;border-radius:8px;">
+            <div style="width:32px;height:32px;background:#18181b;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;">📺</div>
+            <div style="flex:1;"><div style="font-size:12px;font-weight:600;">Netflix</div><div style="font-size:10px;color:#52525b;">Vence dia 15</div></div>
+            <div style="text-align:right;"><div style="font-size:13px;font-weight:700;color:#fafafa;">R$ 55,90</div><div style="font-size:10px;color:#52525b;">Mensal</div></div>
+            <div style="background:#18181b;border:1px solid #27272a;border-radius:6px;padding:3px 8px;font-size:10px;color:#71717a;cursor:pointer;">Pagar</div>
+          </div>
+        </div>
+      </div>
+      <!-- Summary -->
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="card-block">
+          <div class="card-title">Resumo do mês</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;justify-content:space-between;"><span style="font-size:12px;color:#71717a;">Total em contas fixas</span><span style="font-size:12px;font-weight:700;color:#fafafa;">R$ 2.415</span></div>
+            <div style="display:flex;justify-content:space-between;"><span style="font-size:12px;color:#71717a;">Já pagas</span><span style="font-size:12px;font-weight:700;color:#a3e635;">R$ 340</span></div>
+            <div style="display:flex;justify-content:space-between;"><span style="font-size:12px;color:#71717a;">Pendentes</span><span style="font-size:12px;font-weight:700;color:#fb923c;">R$ 2.075</span></div>
+          </div>
+        </div>
+        <div style="background:#13121a;border:1px solid #8b5cf630;border-radius:10px;padding:12px;">
+          <div style="font-size:10px;color:#a78bfa;font-weight:600;margin-bottom:6px;">✦ Sugestão IA</div>
+          <div style="font-size:11px;color:#71717a;line-height:1.6;">Suas contas fixas representam 28% da sua renda. Dentro do ideal (até 50%).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN: INSIGHTS IA
+══════════════════════════════════════ -->
+<div class="screen-label">⑤ Insights IA — O Diferencial do Sistema</div>
+<div class="app-shell" style="height:460px;">
+  <div class="sidebar">
+    <div class="sidebar-logo"><div class="logo-icon">F</div><div><div class="logo-text">Finança</div><div class="logo-sub">Pessoal</div></div></div>
+    <div class="nav-section-label">Visão Geral</div>
+    <div class="nav-item"><span class="nav-icon">▣</span> Dashboard</div>
+    <div class="nav-section-label">Financeiro</div>
+    <div class="nav-item"><span class="nav-icon">⇅</span> Transações</div>
+    <div class="nav-item"><span class="nav-icon">⇄</span> Transferências</div>
+    <div class="nav-item"><span class="nav-icon">◉</span> Carteiras</div>
+    <div class="nav-item"><span class="nav-icon">↑</span> Importar Extrato</div>
+    <div class="nav-item"><span class="nav-icon">◈</span> Categorias</div>
+    <div class="nav-section-label">Planejamento</div>
+    <div class="nav-item"><span class="nav-icon">◻</span> Orçamentos</div>
+    <div class="nav-item"><span class="nav-icon">◎</span> Metas</div>
+    <div class="nav-item"><span class="nav-icon">▦</span> Agenda</div>
+    <div class="nav-section-label">Inteligência</div>
+    <div class="nav-item"><span class="nav-icon">▷</span> Relatórios</div>
+    <div class="nav-item active"><span class="nav-icon">✦</span> Insights IA</div>
+    <div class="sidebar-footer"><div class="user-info"><div class="avatar">D</div><div style="flex:1;"><div class="user-name">Douglas</div><div class="user-actions"><span class="user-link">Perfil</span><span class="user-link" style="color:#3f3f46;margin:0 3px;">·</span><span class="user-link">Sair</span></div></div><div class="settings-btn">⚙</div></div></div>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <div><div class="topbar-title">Insights IA</div><div class="topbar-sub">Análise personalizada com base nas suas transações</div></div>
+      <div class="btn-secondary">Atualizar análise</div>
+    </div>
+    <div class="content">
+      <!-- Chat-style insights -->
+      <div style="display:grid;grid-template-columns:1fr 320px;gap:14px;height:100%;">
+        <div style="display:flex;flex-direction:column;gap:10px;">
+
+          <div style="background:#13121a;border:1px solid #8b5cf640;border-radius:12px;padding:14px;">
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+              <div style="width:28px;height:28px;background:linear-gradient(135deg,#8b5cf6,#06b6d4);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;">✦</div>
+              <div>
+                <div style="font-size:12px;font-weight:700;color:#a78bfa;margin-bottom:6px;">Gasto com iFood subiu 20%</div>
+                <div style="font-size:12px;color:#a1a1aa;line-height:1.6;">Douglas, você gastou <strong style="color:#fafafa;">R$ 420</strong> com iFood este mês, contra <strong style="color:#fafafa;">R$ 350</strong> em maio — um aumento de 20%. Seu orçamento de alimentação está em 81%. Quer que eu ajuste o limite para R$ 900?</div>
+                <div style="display:flex;gap:6px;margin-top:10px;">
+                  <div style="background:#8b5cf620;border:1px solid #8b5cf640;border-radius:7px;padding:5px 12px;font-size:11px;color:#a78bfa;cursor:pointer;font-weight:600;">Sim, ajustar</div>
+                  <div style="background:#18181b;border:1px solid #27272a;border-radius:7px;padding:5px 12px;font-size:11px;color:#71717a;cursor:pointer;">Ignorar</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="background:#111113;border:1px solid #27272a;border-radius:12px;padding:14px;">
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+              <div style="width:28px;height:28px;background:linear-gradient(135deg,#8b5cf6,#06b6d4);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;">✦</div>
+              <div>
+                <div style="font-size:12px;font-weight:700;color:#a78bfa;margin-bottom:6px;">Você está no caminho certo para a meta do carro</div>
+                <div style="font-size:12px;color:#a1a1aa;line-height:1.6;">Com o saldo atual de <strong style="color:#fafafa;">R$ 5.300</strong> este mês, se mantiver esse ritmo você atingirá a meta "Comprar Carro" em <strong style="color:#fbbf24;">novembro</strong>, um mês antes do prazo.</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="background:#111113;border:1px solid #27272a;border-radius:12px;padding:14px;">
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+              <div style="width:28px;height:28px;background:linear-gradient(135deg,#8b5cf6,#06b6d4);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;">✦</div>
+              <div>
+                <div style="font-size:12px;font-weight:700;color:#a78bfa;margin-bottom:6px;">Padrão detectado: gastos maiores às sextas</div>
+                <div style="font-size:12px;color:#a1a1aa;line-height:1.6;">Nos últimos 3 meses, seus gastos nas sextas-feiras são <strong style="color:#fafafa;">2.3x maiores</strong> que os outros dias. Principalmente em lazer e alimentação.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Input -->
+          <div style="margin-top:auto;display:flex;gap:8px;align-items:center;">
+            <div style="flex:1;background:#18181b;border:1px solid #27272a;border-radius:10px;padding:10px 14px;font-size:12px;color:#52525b;">Pergunte algo... ex: "Como reduzi meus gastos comparado ao ano passado?"</div>
+            <div class="btn-primary" style="flex-shrink:0;padding:10px 14px;">↵</div>
+          </div>
+        </div>
+
+        <!-- Right panel -->
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="card-block">
+            <div class="card-title">Score Financeiro</div>
+            <div style="text-align:center;padding:10px 0;">
+              <div style="font-size:48px;font-weight:900;background:linear-gradient(135deg,#a3e635,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">78</div>
+              <div style="font-size:11px;color:#52525b;margin-top:2px;">Muito Bom</div>
+              <div style="height:6px;background:#27272a;border-radius:10px;margin-top:10px;overflow:hidden;">
+                <div style="height:100%;width:78%;background:linear-gradient(90deg,#a3e635,#22d3ee);border-radius:10px;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="card-block">
+            <div class="card-title">Resumo IA do mês</div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div style="display:flex;justify-content:space-between;font-size:11px;"><span style="color:#71717a;">Taxa de poupança</span><span style="color:#a3e635;font-weight:700;">62%</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;"><span style="color:#71717a;">Categorias no limite</span><span style="color:#fb923c;font-weight:700;">1 de 4</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;"><span style="color:#71717a;">Metas no prazo</span><span style="color:#a3e635;font-weight:700;">2 de 2</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;"><span style="color:#71717a;">Tendência vs mai</span><span style="color:#a3e635;font-weight:700;">↑ Positiva</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

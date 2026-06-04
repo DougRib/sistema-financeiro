@@ -86,7 +86,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col h-full">
       {/* Topbar */}
-      <div className="h-14 border-b border-border-subtle flex items-center justify-between px-6 flex-shrink-0">
+      <div className="h-14 border-b border-border-subtle bg-background flex items-center justify-between px-6 flex-shrink-0">
         <div className="flex items-center gap-3">
           <h1 className="text-base font-bold text-text">Dashboard</h1>
           <div className="flex items-center gap-1 bg-card border border-border rounded-lg px-1">
