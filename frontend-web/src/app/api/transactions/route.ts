@@ -1,18 +1,9 @@
 export const runtime = "nodejs";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { verifyJwt } from "@/lib/auth";
 import { transactionSchema } from "@/lib/validators";
 import type { Prisma } from "@/app/generated/prisma/client";
-
-// pega o token no cookie e devolve o id do usuário (sub), se o token for válido
-function getUserId(req: NextRequest) {
-  const token = req.cookies.get("token")?.value;
-  if (!token) return null;
-
-  const payload = verifyJwt<{ sub: number }>(token);
-  return payload?.sub ?? null;
-}
+import { getUserId } from "@/lib/get-user-id";
 
 export async function GET(req: NextRequest) {
   // identifica o usuário logado
@@ -45,6 +36,32 @@ export async function GET(req: NextRequest) {
       gte: start,
       lt: end,
     };
+  }
+
+  // type filter
+  const typeParam = url.searchParams.get("type");
+  if (typeParam && ["INCOME", "EXPENSE", "TRANSFER"].includes(typeParam)) {
+    where.type = typeParam as "INCOME" | "EXPENSE" | "TRANSFER";
+  }
+
+  // categoryId filter
+  const catParam = url.searchParams.get("categoryId");
+  if (catParam) {
+    const catId = Number(catParam);
+    if (!isNaN(catId)) where.categoryId = catId;
+  }
+
+  // walletId filter
+  const wallParam = url.searchParams.get("walletId");
+  if (wallParam) {
+    const wallId = Number(wallParam);
+    if (!isNaN(wallId)) where.walletId = wallId;
+  }
+
+  // text search
+  const q = url.searchParams.get("q");
+  if (q && q.trim()) {
+    where.description = { contains: q.trim(), mode: "insensitive" as const };
   }
 
   // busca as transações do usuário (com categoria e carteira)
