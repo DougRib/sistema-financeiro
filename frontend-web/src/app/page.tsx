@@ -1,16 +1,26 @@
 export const runtime = "nodejs";
 import Link from "next/link";
+import Image from "next/image";
+import { MiniFinancialChart } from "@/components/ui/MiniFinancialChart";
 
 // página inicial / landing do sistema
 export default function Home() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center px-4">
+    <main className="min-h-screen hero-gradient flex items-center justify-center px-4">
       <div className="w-full max-w-3xl space-y-8">
         {/* topo / “logo” + título */}
         <header className="text-center space-y-3">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-slate-300">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            Sistema de Controle Financeiro
+          <div className="inline-flex items-center ">
+            <Image
+              src="/fc-logo.png"
+              alt="Logo FinControl"
+              width={256}
+              height={64}
+              priority
+              sizes="(max-width: 640px) 176px, (max-width: 1024px) 208px, 256px"
+              className="h-auto w-44 sm:w-52 lg:w-64"
+              loading="eager"
+            />
           </div>
           <h1 className="text-3xl md:text-4xl font-semibold text-white">
             Bem-vindo ao seu controle financeiro
@@ -24,12 +34,7 @@ export default function Home() {
         {/* “cards” de features */}
         <section className="grid gap-4 md:grid-cols-3 text-sm">
           {/* card 1 */}
-          <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-4 space-y-2 transition-all duration-200 hover:-translate-y-1 hover:border-emerald-400/70 hover:bg-white/10 hover:shadow-[0_18px_45px_rgba(0,0,0,0.85)]">
-            {/* linha superior de destaque */}
-            <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-emerald-400/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-            {/* glow */}
-            <div className="pointer-events-none absolute -bottom-10 -right-10 h-32 w-32 rounded-full bg-emerald-500/10 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
+          <div className="glass-card p-5 group">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 group-hover:scale-125 transition-transform" />
@@ -41,26 +46,24 @@ export default function Home() {
               </span>
             </div>
 
-            <p className="text-xs text-slate-400 group-hover:text-slate-200/90 transition-colors">
+            <p className="text-xs text-slate-400 group-hover:text-slate-200/90 transition-colors leading-tight">
               Veja rapidamente quanto entrou, quanto saiu e qual é o seu saldo.
             </p>
-
-            {/* mini barra “gráfico” */}
-            <div className="mt-1.5 flex items-end gap-1.5 h-10">
-              <div className="flex-1 rounded-full bg-slate-800/80 overflow-hidden">
-                <div className="h-full w-2/3 bg-gradient-to-r from-emerald-400 to-emerald-300" />
+            <div className="relative flex flex-col items-end">
+              {/* O gráfico deve ocupar a largura toda e ficar atrás do valor */}
+              <div className="w-full h-16 opacity-80">
+                <MiniFinancialChart />
               </div>
-              <span className="text-[10px] text-slate-400 group-hover:text-emerald-200/90 transition-colors">
+
+              {/* Valor no canto inferior direito */}
+              <span className="text-[11px] font-mono text-white/40 -mt-1 group-hover:text-slate-200/90 transition-colors">
                 R$ •••
               </span>
             </div>
           </div>
 
           {/* card 2 */}
-          <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-4 space-y-2 transition-all duration-200 hover:-translate-y-1 hover:border-emerald-400/70 hover:bg-white/10 hover:shadow-[0_18px_45px_rgba(0,0,0,0.85)]">
-            <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-emerald-400/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-            <div className="pointer-events-none absolute -bottom-10 -right-10 h-32 w-32 rounded-full bg-emerald-500/10 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
+          <div className="glass-card p-5 group">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 group-hover:scale-125 transition-transform" />
@@ -71,7 +74,7 @@ export default function Home() {
               </span>
             </div>
 
-            <p className="text-xs text-slate-400 group-hover:text-slate-200/90 transition-colors">
+            <p className="text-xs text-slate-400 group-hover:text-slate-200/90 transition-colors mb-5 leading-tight">
               Separe seus gastos por categorias e contas para ter tudo sob
               controle.
             </p>
@@ -91,10 +94,7 @@ export default function Home() {
           </div>
 
           {/* card 3 */}
-          <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-4 space-y-2 transition-all duration-200 hover:-translate-y-1 hover:border-emerald-400/70 hover:bg-white/10 hover:shadow-[0_18px_45px_rgba(0,0,0,0.85)]">
-            <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-emerald-400/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-            <div className="pointer-events-none absolute -bottom-10 -right-10 h-32 w-32 rounded-full bg-emerald-500/10 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
+          <div className="glass-card p-5 group">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 group-hover:scale-125 transition-transform" />
@@ -105,7 +105,7 @@ export default function Home() {
               </span>
             </div>
 
-            <p className="text-xs text-slate-400 group-hover:text-slate-200/90 transition-colors">
+            <p className="text-xs text-slate-400 group-hover:text-slate-200/90 transition-colors mb-5 leading-tight">
               Use os resumos do mês para tomar decisões mais inteligentes.
             </p>
 

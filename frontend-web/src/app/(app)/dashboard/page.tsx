@@ -3,13 +3,25 @@
 import { useEffect, useState, useCallback } from "react";
 import { Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  BarChart, Bar,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
 } from "recharts";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { CardBlock } from "@/components/ui/CardBlock";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { formatCurrency, formatShortDate, formatMonthYear, currentMonth } from "@/lib/format";
+import {
+  formatCurrency,
+  formatShortDate,
+  formatMonthYear,
+  currentMonth,
+} from "@/lib/format";
 
 interface SummaryData {
   income: number;
@@ -61,15 +73,23 @@ export default function DashboardPage() {
     }
   }, [month, year, refreshKey]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    (async () => {
+      await fetchData();
+    })();
+  }, [fetchData]);
 
   function prevMonth() {
-    if (month === 1) { setMonth(12); setYear((y) => y - 1); }
-    else setMonth((m) => m - 1);
+    if (month === 1) {
+      setMonth(12);
+      setYear((y) => y - 1);
+    } else setMonth((m) => m - 1);
   }
   function nextMonth() {
-    if (month === 12) { setMonth(1); setYear((y) => y + 1); }
-    else setMonth((m) => m + 1);
+    if (month === 12) {
+      setMonth(1);
+      setYear((y) => y + 1);
+    } else setMonth((m) => m + 1);
   }
 
   const totalBalance = wallets.reduce((sum, w) => sum + Number(w.balance), 0);
@@ -86,7 +106,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col h-full">
       {/* Topbar */}
-      <div className="h-14 border-b border-border-subtle bg-background flex items-center justify-between px-6 flex-shrink-0">
+      <div className="h-14 border-b border-border-subtle sidebar flex items-center justify-between px-6 flex-shrink-0">
         <div className="flex items-center gap-3">
           <h1 className="text-base font-bold text-text">Dashboard</h1>
           <div className="flex items-center gap-1 bg-card border border-border rounded-lg px-1">
@@ -117,7 +137,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-3">
         {loading && !summary && (
           <div className="flex items-center justify-center py-20">
             <p className="text-sm text-muted">Carregando...</p>
@@ -127,9 +147,17 @@ export default function DashboardPage() {
         {!loading || summary ? (
           <>
             {/* KPI Grid */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-              <KpiCard label="Receitas" value={formatCurrency(income)} variant="income" />
-              <KpiCard label="Despesas" value={formatCurrency(expense)} variant="expense" />
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
+              <KpiCard
+                label="Receitas"
+                value={formatCurrency(income)}
+                variant="income"
+              />
+              <KpiCard
+                label="Despesas"
+                value={formatCurrency(expense)}
+                variant="expense"
+              />
               <KpiCard
                 label="Saldo do mês"
                 value={formatCurrency(balance)}
@@ -143,22 +171,42 @@ export default function DashboardPage() {
             </div>
 
             {/* Charts + Transactions */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
               {/* Daily flow chart */}
               <CardBlock title="Fluxo diário do mês">
                 {dailyData.length === 0 ? (
                   <EmptyState icon="📊" title="Sem transações neste mês" />
                 ) : (
                   <ResponsiveContainer width="100%" height={180}>
-                    <AreaChart data={dailyData} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
+                    <AreaChart
+                      data={dailyData}
+                      margin={{ top: 5, right: 5, bottom: 5, left: 5 }}
+                    >
                       <defs>
-                        <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
-                          <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                        <linearGradient
+                          id="colorValue"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="5%"
+                            stopColor="#8b5cf6"
+                            stopOpacity={0.3}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#8b5cf6"
+                            stopOpacity={0}
+                          />
                         </linearGradient>
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-                      <XAxis dataKey="day" tick={{ fontSize: 10, fill: "#71717a" }} />
+                      <XAxis
+                        dataKey="day"
+                        tick={{ fontSize: 10, fill: "#71717a" }}
+                      />
                       <YAxis
                         tick={{ fontSize: 10, fill: "#71717a" }}
                         tickFormatter={(v: number) => `R$${Math.abs(v)}`}
@@ -171,7 +219,10 @@ export default function DashboardPage() {
                           fontSize: 12,
                         }}
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      formatter={(v: any) => [formatCurrency(Number(v ?? 0)), "Saldo"]}
+                        formatter={(v: any) => [
+                          formatCurrency(Number(v ?? 0)),
+                          "Saldo",
+                        ]}
                       />
                       <Area
                         type="monotone"
@@ -201,18 +252,24 @@ export default function DashboardPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-medium text-text truncate">
-                            {tx.description || tx.category?.name || "Sem descrição"}
+                            {tx.description ||
+                              tx.category?.name ||
+                              "Sem descrição"}
                           </p>
                           <p className="text-[10px] text-muted">
-                            {tx.category?.name ?? "Sem categoria"} · {formatShortDate(tx.occurredAt)}
+                            {tx.category?.name ?? "Sem categoria"} ·{" "}
+                            {formatShortDate(tx.occurredAt)}
                           </p>
                         </div>
                         <span
                           className={`text-xs font-bold flex-shrink-0 ${
-                            tx.type === "INCOME" ? "text-income" : "text-expense"
+                            tx.type === "INCOME"
+                              ? "text-income"
+                              : "text-expense"
                           }`}
                         >
-                          {tx.type === "INCOME" ? "+" : "-"} {formatCurrency(tx.amount)}
+                          {tx.type === "INCOME" ? "+" : "-"}{" "}
+                          {formatCurrency(tx.amount)}
                         </span>
                       </div>
                     ))}
@@ -221,45 +278,56 @@ export default function DashboardPage() {
               </CardBlock>
 
               {/* Category breakdown */}
-              {summary?.categoriesChart && summary.categoriesChart.length > 0 && (
-                <CardBlock title="Gastos por categoria" className="lg:col-span-2">
-                  <ResponsiveContainer width="100%" height={160}>
-                    <BarChart
-                      data={summary.categoriesChart}
-                      layout="vertical"
-                      margin={{ left: 40, right: 20 }}
-                    >
-                      <CartesianGrid
-                        strokeDasharray="3 3"
-                        stroke="#27272a"
-                        horizontal={false}
-                      />
-                      <XAxis
-                        type="number"
-                        tick={{ fontSize: 10, fill: "#71717a" }}
-                        tickFormatter={(v: number) => `R$${v}`}
-                      />
-                      <YAxis
-                        type="category"
-                        dataKey="name"
-                        tick={{ fontSize: 11, fill: "#a1a1aa" }}
-                        width={80}
-                      />
-                      <Tooltip
-                        contentStyle={{
-                          background: "#111113",
-                          border: "1px solid #27272a",
-                          borderRadius: 8,
-                          fontSize: 12,
-                        }}
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      formatter={(v: any) => [formatCurrency(Number(v ?? 0)), "Total"]}
-                      />
-                      <Bar dataKey="value" fill="#8b5cf6" radius={[0, 4, 4, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardBlock>
-              )}
+              {summary?.categoriesChart &&
+                summary.categoriesChart.length > 0 && (
+                  <CardBlock
+                    title="Gastos por categoria"
+                    className="lg:col-span-2"
+                  >
+                    <ResponsiveContainer width="100%" height={160}>
+                      <BarChart
+                        data={summary.categoriesChart}
+                        layout="vertical"
+                        margin={{ left: 40, right: 20 }}
+                      >
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          stroke="#27272a"
+                          horizontal={false}
+                        />
+                        <XAxis
+                          type="number"
+                          tick={{ fontSize: 10, fill: "#71717a" }}
+                          tickFormatter={(v: number) => `R$${v}`}
+                        />
+                        <YAxis
+                          type="category"
+                          dataKey="name"
+                          tick={{ fontSize: 11, fill: "#a1a1aa" }}
+                          width={80}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            background: "#111113",
+                            border: "1px solid #27272a",
+                            borderRadius: 8,
+                            fontSize: 12,
+                          }}
+                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                          formatter={(v: any) => [
+                            formatCurrency(Number(v ?? 0)),
+                            "Total",
+                          ]}
+                        />
+                        <Bar
+                          dataKey="value"
+                          fill="#8b5cf6"
+                          radius={[0, 4, 4, 0]}
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </CardBlock>
+                )}
             </div>
           </>
         ) : null}
@@ -290,11 +358,15 @@ interface NewTransactionPanelProps {
 function NewTransactionPanel({ onClose, onCreated }: NewTransactionPanelProps) {
   const [type, setType] = useState<"INCOME" | "EXPENSE">("EXPENSE");
   const [amount, setAmount] = useState("");
-  const [date, setDate] = useState(() => new Date().toISOString().split("T")[0]);
+  const [date, setDate] = useState(
+    () => new Date().toISOString().split("T")[0],
+  );
   const [description, setDescription] = useState("");
   const [categoryId, setCategoryId] = useState<string>("");
   const [walletId, setWalletId] = useState<string>("");
-  const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
+  const [categories, setCategories] = useState<{ id: number; name: string }[]>(
+    [],
+  );
   const [wallets, setWallets] = useState<{ id: number; name: string }[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { loginSchema } from "@/lib/validators";
 
@@ -30,7 +31,10 @@ export default function LoginPage() {
         return;
       }
       const raw = new URLSearchParams(window.location.search).get("from");
-      const from = raw && raw.startsWith("/") && !raw.startsWith("//") ? raw : "/dashboard";
+      const from =
+        raw && raw.startsWith("/") && !raw.startsWith("//")
+          ? raw
+          : "/dashboard";
       window.location.href = from;
     } catch {
       setError("Erro de rede");
@@ -44,14 +48,23 @@ export default function LoginPage() {
       {/* Left panel — branding */}
       <div className="hidden lg:flex w-1/2 bg-[#0d0d14] flex-col justify-center px-16 border-r border-border">
         <div className="flex items-center gap-3 mb-12">
-          <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center text-white font-black text-lg">F</div>
-          <div>
-            <p className="text-base font-black text-text">Finança</p>
-            <p className="text-[9px] uppercase tracking-[2px] text-muted">Sistema de Controle</p>
-          </div>
+          <Image
+            src="/fc-logo.png"
+            alt="Logo FinControl"
+            width={256}
+            height={64}
+            priority
+            sizes="(max-width: 640px) 176px, (max-width: 1024px) 208px, 256px"
+            className="h-auto w-44 sm:w-52 lg:w-64"
+            loading="eager"
+          />
         </div>
         <h1 className="text-4xl font-black text-text leading-tight tracking-tight mb-4">
-          Controle total<br />das suas<br /><span className="text-accent">finanças.</span>
+          Controle total
+          <br />
+          das suas
+          <br />
+          <span className="text-accent">finanças.</span>
         </h1>
         <p className="text-sm text-subtle leading-relaxed mb-10">
           Gerencie receitas, despesas, orçamentos e carteiras em um único lugar.
@@ -63,7 +76,10 @@ export default function LoginPage() {
             "Múltiplas carteiras sincronizadas",
             "Relatórios e Insights com IA",
           ].map((f) => (
-            <li key={f} className="flex items-center gap-3 text-sm text-text-secondary">
+            <li
+              key={f}
+              className="flex items-center gap-3 text-sm text-text-secondary"
+            >
               <div className="w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0" />
               {f}
             </li>
@@ -75,10 +91,16 @@ export default function LoginPage() {
       <div className="flex-1 flex items-center justify-center px-8">
         <div className="w-full max-w-sm">
           <div className="bg-card border border-border rounded-2xl p-8">
-            <h2 className="text-xl font-bold text-text mb-1">Bem-vindo de volta</h2>
-            <p className="text-sm text-muted mb-7">Entre na sua conta para continuar</p>
+            <h2 className="text-xl font-bold text-text mb-1">
+              Bem-vindo de volta
+            </h2>
+            <p className="text-sm text-muted mb-7">
+              Entre na sua conta para continuar
+            </p>
 
-            <label className="block text-[10px] font-semibold uppercase tracking-widest text-subtle mb-1.5">Email</label>
+            <label className="block text-[10px] font-semibold uppercase tracking-widest text-subtle mb-1.5">
+              Email
+            </label>
             <input
               type="email"
               value={email}
@@ -88,7 +110,9 @@ export default function LoginPage() {
               className="w-full bg-[#18181b] border border-border rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none focus:border-accent transition-colors mb-4"
             />
 
-            <label className="block text-[10px] font-semibold uppercase tracking-widest text-subtle mb-1.5">Senha</label>
+            <label className="block text-[10px] font-semibold uppercase tracking-widest text-subtle mb-1.5">
+              Senha
+            </label>
             <input
               type="password"
               value={password}
@@ -114,7 +138,9 @@ export default function LoginPage() {
 
             <p className="text-center text-xs text-muted mt-5">
               Não tem conta?{" "}
-              <Link href="/register" className="text-accent hover:underline">Criar conta grátis</Link>
+              <Link href="/register" className="text-accent hover:underline">
+                Criar conta grátis
+              </Link>
             </p>
           </div>
         </div>
