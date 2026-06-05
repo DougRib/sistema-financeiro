@@ -74,6 +74,14 @@ export async function POST(req: NextRequest) {
 
   const { categoryId, month, year, limit } = parsed.data;
 
+  // Verifica se a categoria pertence ao usuário ou é padrão (userId null)
+  const category = await prisma.category.findFirst({
+    where: { id: categoryId, OR: [{ userId }, { userId: null }] },
+  });
+  if (!category) {
+    return NextResponse.json({ ok: false, error: "Categoria inválida" }, { status: 400 });
+  }
+
   // Upsert — update if exists, create otherwise
   const budget = await prisma.budget.upsert({
     where: { userId_categoryId_month_year: { userId, categoryId, month, year } },
