@@ -26,7 +26,17 @@ export default function CategoriasPage() {
     if (j.ok) setCategorias(j.categorias);
   }
 
-  useEffect(() => { fetchCategorias(); }, []);
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/categorias")
+      .then((r) => r.json())
+      .then((j) => {
+        if (!cancelled && j.ok) setCategorias(j.categorias);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function handleCreate() {
     if (!name.trim()) { setError("Nome obrigatório"); return; }
@@ -58,12 +68,12 @@ export default function CategoriasPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="h-14 border-b border-border flex items-center px-6 flex-shrink-0">
+      <div className="h-14 border-b border-border flex items-center px-4 lg:px-6 flex-shrink-0">
         <h1 className="text-base font-bold text-text">Categorias</h1>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="flex-1 overflow-y-auto p-4 lg:p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
           {/* Create form */}
           <div className="bg-card border border-border rounded-xl p-5">
             <p className="text-xs font-semibold uppercase tracking-widest text-muted mb-4">Nova categoria</p>
@@ -116,7 +126,8 @@ export default function CategoriasPage() {
                       <button
                         onClick={() => handleDelete(c.id)}
                         disabled={deleting === c.id}
-                        className="text-muted hover:text-expense transition-colors cursor-pointer opacity-0 group-hover:opacity-100 ml-1 disabled:opacity-30"
+                        className="text-muted hover:text-expense transition-colors cursor-pointer opacity-100 lg:opacity-0 lg:group-hover:opacity-100 ml-1 disabled:opacity-30 touch-target -mr-1"
+                        aria-label="Excluir"
                       >
                         <Trash2 size={11} />
                       </button>

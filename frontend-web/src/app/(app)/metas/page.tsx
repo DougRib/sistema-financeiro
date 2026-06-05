@@ -67,7 +67,22 @@ export default function MetasPage() {
     } finally { setLoading(false); }
   }
 
-  useEffect(() => { fetchGoals(); }, []);
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/goals")
+      .then((r) => r.json())
+      .then((j) => {
+        if (cancelled) return;
+        if (j.ok) setGoals(j.goals);
+        setLoading(false);
+      })
+      .catch(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function handleCreate() {
     if (!name.trim() || !target) { setError("Nome e valor alvo são obrigatórios"); return; }
@@ -120,17 +135,17 @@ export default function MetasPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="h-14 border-b border-border flex items-center justify-between px-6 flex-shrink-0">
+      <div className="h-14 border-b border-border flex items-center justify-between px-4 lg:px-6 flex-shrink-0">
         <h1 className="text-base font-bold text-text">Metas</h1>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-1.5 bg-accent hover:bg-accent-hover text-white text-xs font-bold px-3 py-2 rounded-lg transition-colors cursor-pointer"
+          className="flex items-center justify-center gap-1.5 bg-gradient-to-r from-[#e6c879] to-[#b8893f] text-[#1a1208] text-xs font-bold px-3 py-2.5 rounded-lg transition-all cursor-pointer hover:shadow-md hover:shadow-accent/20"
         >
           <Plus size={14} /> Nova meta
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-4 lg:p-6">
         {loading ? (
           <div className="text-center py-12 text-sm text-muted">Carregando...</div>
         ) : goals.length === 0 && !showForm ? (

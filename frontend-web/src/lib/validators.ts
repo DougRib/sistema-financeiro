@@ -27,3 +27,16 @@ export const categorySchema = z.object({
   name: z.string().min(2, "Nome muito curto"),
   icon: z.string().optional(),
 });
+
+export const updateProfileSchema = z.object({
+  name: z.string().min(2, "Nome muito curto").max(100),
+  email: z.string().email("Email inválido"),
+});
+
+export const updatePasswordSchema = z.object({
+  currentPassword: z.string().min(1, "Senha atual é obrigatória"),
+  newPassword: z
+    .string()
+    .min(8, "Nova senha deve ter pelo menos 8 caracteres")
+    .max(128),
+});

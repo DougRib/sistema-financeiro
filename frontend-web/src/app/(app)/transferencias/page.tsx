@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { ArrowRight, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { CardBlock } from "@/components/ui/CardBlock";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -38,7 +38,7 @@ export default function TransferenciasPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchTransfers = useCallback(async () => {
+  async function fetchTransfers() {
     setLoading(true);
     try {
       const r = await fetch(`/api/transfers?month=${month}&year=${year}`);
@@ -47,20 +47,42 @@ export default function TransferenciasPage() {
     } finally {
       setLoading(false);
     }
-  }, [month, year]);
-
-  useEffect(() => { fetchTransfers(); }, [fetchTransfers]);
+  }
 
   useEffect(() => {
-    fetch("/api/wallets").then(r => r.json()).then(j => {
-      if (j.ok) {
-        setWallets(j.wallets);
-        if (j.wallets.length >= 2) {
-          setFromWalletId(String(j.wallets[0].id));
-          setToWalletId(String(j.wallets[1].id));
+    let cancelled = false;
+    fetch(`/api/transfers?month=${month}&year=${year}`)
+      .then((r) => r.json())
+      .then((j) => {
+        if (cancelled) return;
+        if (j.ok) setTransfers(j.transfers);
+        setLoading(false);
+      })
+      .catch(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [month, year]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/wallets")
+      .then((r) => r.json())
+      .then((j) => {
+        if (cancelled) return;
+        if (j.ok) {
+          setWallets(j.wallets);
+          if (j.wallets.length >= 2) {
+            setFromWalletId(String(j.wallets[0].id));
+            setToWalletId(String(j.wallets[1].id));
+          }
         }
-      }
-    });
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   async function handleSave() {
@@ -98,24 +120,24 @@ export default function TransferenciasPage() {
   return (
     <div className="flex flex-col h-full">
       {/* Topbar */}
-      <div className="h-14 border-b border-border-subtle flex items-center justify-between px-6 flex-shrink-0">
-        <div className="flex items-center gap-3">
+      <div className="border-b border-border-subtle px-4 lg:px-6 py-3 lg:h-14 lg:py-0 flex-shrink-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div className="flex items-center gap-3 flex-wrap">
           <h1 className="text-base font-bold text-text">Transferências</h1>
           <div className="flex items-center gap-1 bg-card border border-border rounded-lg px-1">
-            <button onClick={prevMonth} className="p-1.5 text-muted hover:text-text transition-colors cursor-pointer"><ChevronLeft size={14} /></button>
-            <span className="text-xs font-semibold text-text-secondary px-1 min-w-[100px] text-center">{formatMonthYear(month, year)}</span>
-            <button onClick={nextMonth} className="p-1.5 text-muted hover:text-text transition-colors cursor-pointer"><ChevronRight size={14} /></button>
+            <button onClick={prevMonth} className="touch-target p-1.5 text-muted hover:text-text transition-colors cursor-pointer"><ChevronLeft size={14} /></button>
+            <span className="text-xs font-semibold text-text-secondary px-1 min-w-[100px] text-center capitalize">{formatMonthYear(month, year)}</span>
+            <button onClick={nextMonth} className="touch-target p-1.5 text-muted hover:text-text transition-colors cursor-pointer"><ChevronRight size={14} /></button>
           </div>
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-1.5 bg-accent hover:bg-accent-hover text-white text-xs font-bold px-3 py-2 rounded-lg transition-colors cursor-pointer"
+          className="flex items-center justify-center gap-1.5 bg-gradient-to-r from-[#e6c879] to-[#b8893f] text-[#1a1208] text-xs font-bold px-3 py-2.5 rounded-lg transition-all cursor-pointer hover:shadow-md hover:shadow-accent/20"
         >
           <Plus size={14} /> Nova transferência
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-4 lg:p-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Transfer list */}
           <div className="lg:col-span-2">

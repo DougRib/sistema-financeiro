@@ -99,14 +99,28 @@ export default function AgendaPage() {
   }
 
   useEffect(() => {
-    fetchBills();
+    let cancelled = false;
     Promise.all([
-      fetch("/api/wallets").then(r => r.json()),
-      fetch("/api/categorias").then(r => r.json()),
-    ]).then(([walls, cats]) => {
-      if (walls.ok) { setWallets(walls.wallets); if (walls.wallets.length > 0) setWalletId(String(walls.wallets[0].id)); }
-      if (cats.ok) setCategories(cats.categorias);
-    });
+      fetch("/api/bills").then((r) => r.json()),
+      fetch("/api/wallets").then((r) => r.json()),
+      fetch("/api/categorias").then((r) => r.json()),
+    ])
+      .then(([billsJson, walls, cats]) => {
+        if (cancelled) return;
+        if (billsJson.ok) setBills(billsJson.bills);
+        if (walls.ok) {
+          setWallets(walls.wallets);
+          if (walls.wallets.length > 0) setWalletId(String(walls.wallets[0].id));
+        }
+        if (cats.ok) setCategories(cats.categorias);
+        setLoading(false);
+      })
+      .catch(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   async function handlePay(id: number) {
@@ -158,24 +172,27 @@ export default function AgendaPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="h-14 border-b border-border flex items-center justify-between px-6 flex-shrink-0">
-        <div>
+      <div className="border-b border-border px-4 lg:px-6 py-3 lg:h-14 lg:py-0 flex-shrink-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div className="flex items-center justify-between gap-3">
           <h1 className="text-base font-bold text-text">Agenda</h1>
+          <span className="text-xs text-muted sm:hidden">
+            <span className="text-expense font-bold">{formatCurrency(totalMonthly)}</span>
+          </span>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-xs text-muted">
+          <span className="text-xs text-muted hidden sm:inline">
             Total mensal: <span className="text-expense font-bold">{formatCurrency(totalMonthly)}</span>
           </span>
           <button
             onClick={() => setShowForm(true)}
-            className="flex items-center gap-1.5 bg-accent hover:bg-accent-hover text-white text-xs font-bold px-3 py-2 rounded-lg transition-colors cursor-pointer"
+            className="flex items-center justify-center gap-1.5 bg-gradient-to-r from-[#e6c879] to-[#b8893f] text-[#1a1208] text-xs font-bold px-3 py-2.5 rounded-lg transition-all cursor-pointer hover:shadow-md hover:shadow-accent/20"
           >
             <Plus size={14} /> Adicionar conta
           </button>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-4 lg:p-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 flex flex-col gap-4">
             {loading ? (

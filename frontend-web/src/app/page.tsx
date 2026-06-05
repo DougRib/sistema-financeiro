@@ -1,16 +1,17 @@
 export const runtime = "nodejs";
 import Link from "next/link";
 import Image from "next/image";
+import { Sparkles } from "lucide-react";
 import { MiniFinancialChart } from "@/components/ui/MiniFinancialChart";
 
-// página inicial / landing do sistema
+// Landing page
 export default function Home() {
   return (
-    <main className="min-h-screen hero-gradient flex items-center justify-center px-4">
-      <div className="w-full max-w-3xl space-y-8">
-        {/* topo / “logo” + título */}
-        <header className="text-center space-y-3">
-          <div className="inline-flex items-center ">
+    <main className="min-h-screen login-left-bg flex items-center justify-center px-4 py-10 relative">
+      <div className="w-full max-w-4xl space-y-8 relative z-10">
+        {/* Logo + Title */}
+        <header className="text-center space-y-4">
+          <div className="inline-flex items-center justify-center">
             <Image
               src="/fc-logo.png"
               alt="Logo FinControl"
@@ -18,139 +19,152 @@ export default function Home() {
               height={64}
               priority
               sizes="(max-width: 640px) 176px, (max-width: 1024px) 208px, 256px"
-              className="h-auto w-44 sm:w-52 lg:w-64"
+              className="w-44 sm:w-52 lg:w-60"
+              style={{ height: "auto" }}
               loading="eager"
             />
           </div>
-          <h1 className="text-3xl md:text-4xl font-semibold text-white">
+          <h1 className="text-3xl md:text-[42px] font-black text-text leading-tight tracking-tight">
             Bem-vindo ao seu controle financeiro
           </h1>
-          <p className="text-sm md:text-base text-slate-400 max-w-2xl mx-auto">
+          <p className="text-sm md:text-base text-text-secondary max-w-2xl mx-auto leading-relaxed">
             Acompanhe seus gastos, organize suas contas e visualize para onde o
             seu dinheiro está indo, tudo em um único lugar.
           </p>
         </header>
 
-        {/* “cards” de features */}
+        {/* Feature cards */}
         <section className="grid gap-4 md:grid-cols-3 text-sm">
-          {/* card 1 */}
-          <div className="glass-card p-5 group">
-            <div className="flex items-center justify-between">
+          {/* Card 1 — Visão clara */}
+          <div className="card-base card-lift p-5 group">
+            <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 group-hover:scale-125 transition-transform" />
-                <h2 className="font-semibold text-slate-50">Visão clara</h2>
+                <span className="h-1.5 w-1.5 rounded-full bg-accent group-hover:scale-125 transition-transform shadow-sm shadow-accent/50" />
+                <h2 className="font-bold text-text">Visão clara</h2>
               </div>
-              {/* mini “badge” */}
-              <span className="text-[10px] px-2 py-0.5 rounded-full border border-white/15 text-slate-300/90 group-hover:border-emerald-400/60 group-hover:text-emerald-200/90 transition-colors">
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full border border-border text-text-secondary group-hover:border-accent/50 group-hover:text-accent transition-colors">
                 Hoje
               </span>
             </div>
 
-            <p className="text-xs text-slate-400 group-hover:text-slate-200/90 transition-colors leading-tight">
+            <p className="text-xs text-text-secondary leading-relaxed mb-3">
               Veja rapidamente quanto entrou, quanto saiu e qual é o seu saldo.
             </p>
+
             <div className="relative flex flex-col items-end">
-              {/* O gráfico deve ocupar a largura toda e ficar atrás do valor */}
-              <div className="w-full h-16 opacity-80">
+              <div className="w-full h-16 opacity-90">
                 <MiniFinancialChart />
               </div>
-
-              {/* Valor no canto inferior direito */}
-              <span className="text-[11px] font-mono text-white/40 -mt-1 group-hover:text-slate-200/90 transition-colors">
+              <span className="text-[11px] font-mono text-text-secondary/60 -mt-1">
                 R$ •••
               </span>
             </div>
           </div>
 
-          {/* card 2 */}
-          <div className="glass-card p-5 group">
-            <div className="flex items-center justify-between">
+          {/* Card 2 — Organização */}
+          <div className="card-base card-lift p-5 group">
+            <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 group-hover:scale-125 transition-transform" />
-                <h2 className="font-semibold text-slate-50">Organização</h2>
+                <span className="h-1.5 w-1.5 rounded-full bg-accent group-hover:scale-125 transition-transform shadow-sm shadow-accent/50" />
+                <h2 className="font-bold text-text">Organização</h2>
               </div>
-              <span className="text-[10px] px-2 py-0.5 rounded-full border border-white/15 text-slate-300/90 group-hover:border-emerald-400/60 group-hover:text-emerald-200/90 transition-colors">
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full border border-border text-text-secondary group-hover:border-accent/50 group-hover:text-accent transition-colors">
                 Categorias
               </span>
             </div>
 
-            <p className="text-xs text-slate-400 group-hover:text-slate-200/90 transition-colors mb-5 leading-tight">
+            <p className="text-xs text-text-secondary leading-relaxed mb-4">
               Separe seus gastos por categorias e contas para ter tudo sob
               controle.
             </p>
 
-            {/* “chips” de categorias */}
-            <div className="mt-1.5 flex flex-wrap gap-1">
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-900/60 text-slate-300 group-hover:bg-emerald-500/20 group-hover:text-emerald-100 transition-colors">
+            <div className="flex flex-wrap gap-1.5">
+              <span className="text-[10px] font-semibold px-2 py-1 rounded-full bg-gradient-to-r from-[#e6c879]/25 to-[#b8893f]/15 text-accent border border-accent/30 transition-all hover:from-[#e6c879]/35 hover:to-[#b8893f]/25">
                 💳 Cartão
               </span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-900/60 text-slate-300 group-hover:bg-emerald-500/20 group-hover:text-emerald-100 transition-colors">
+              <span className="text-[10px] px-2 py-1 rounded-full bg-card-hover text-text-secondary border border-border hover:border-accent/30 hover:text-accent transition-colors">
                 🍔 Alimentação
               </span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-900/60 text-slate-300 group-hover:bg-emerald-500/20 group-hover:text-emerald-100 transition-colors">
+              <span className="text-[10px] px-2 py-1 rounded-full bg-card-hover text-text-secondary border border-border hover:border-accent/30 hover:text-accent transition-colors">
                 🚍 Transporte
               </span>
             </div>
           </div>
 
-          {/* card 3 */}
-          <div className="glass-card p-5 group">
-            <div className="flex items-center justify-between">
+          {/* Card 3 — Planejamento */}
+          <div className="card-base card-lift p-5 group">
+            <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 group-hover:scale-125 transition-transform" />
-                <h2 className="font-semibold text-slate-50">Planejamento</h2>
+                <span className="h-1.5 w-1.5 rounded-full bg-accent group-hover:scale-125 transition-transform shadow-sm shadow-accent/50" />
+                <h2 className="font-bold text-text">Planejamento</h2>
               </div>
-              <span className="text-[10px] px-2 py-0.5 rounded-full border border-white/15 text-slate-300/90 group-hover:border-emerald-400/60 group-hover:text-emerald-200/90 transition-colors">
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full border border-border text-text-secondary group-hover:border-accent/50 group-hover:text-accent transition-colors">
                 Mês atual
               </span>
             </div>
 
-            <p className="text-xs text-slate-400 group-hover:text-slate-200/90 transition-colors mb-5 leading-tight">
+            <p className="text-xs text-text-secondary leading-relaxed mb-5">
               Use os resumos do mês para tomar decisões mais inteligentes.
             </p>
 
-            {/* mini “linha do tempo” */}
-            <div className="mt-1.5 space-y-1">
-              <div className="h-1.5 w-full rounded-full bg-slate-800/80 overflow-hidden">
-                <div className="h-full w-3/4 bg-gradient-to-r from-emerald-400 via-emerald-300 to-emerald-200" />
+            <div className="space-y-2">
+              <div className="h-1.5 w-full rounded-full bg-card-hover overflow-hidden relative">
+                <div
+                  className="h-full rounded-full"
+                  style={{
+                    width: "72%",
+                    background:
+                      "linear-gradient(90deg, #e6c879 0%, #d4a857 50%, #b8893f 100%)",
+                    boxShadow: "0 0 12px rgba(212,175,106,0.5)",
+                  }}
+                />
               </div>
-              <div className="flex justify-between text-[10px] text-slate-500 group-hover:text-slate-300 transition-colors">
+              <div className="flex justify-between text-[10px] text-text-secondary">
                 <span>Início do mês</span>
-                <span>Objetivo</span>
+                <span className="text-accent font-semibold">Objetivo</span>
               </div>
             </div>
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="flex flex-col md:flex-row items-center justify-center gap-4">
-          {/* se estiver logado, middleware deixa entrar; se não, redireciona pro login */}
+        {/* CTAs */}
+        <section className="flex flex-col md:flex-row items-center justify-center gap-3">
           <Link
             href="/dashboard"
-            className="w-full md:w-auto text-center px-6 py-2.5 rounded-xl bg-emerald-500 text-slate-950 text-sm font-medium hover:bg-emerald-400 transition shadow-md shadow-emerald-500/30"
+            className="btn-gold w-full md:w-auto text-center px-6 py-3 text-sm cursor-pointer"
           >
             Ir para meu dashboard
           </Link>
 
           <Link
             href="/login"
-            className="w-full md:w-auto text-center px-6 py-2.5 rounded-xl border border-white/15 bg-white/0 text-sm font-medium text-slate-100 hover:bg-white/5 transition"
+            className="w-full md:w-auto text-center px-6 py-3 rounded-xl border border-accent/30 bg-transparent text-sm font-semibold text-text hover:bg-accent-soft hover:border-accent/60 hover:text-accent transition-all"
           >
             Entrar no sistema
           </Link>
 
           <Link
             href="/register"
-            className="w-full md:w-auto text-center px-6 py-2.5 rounded-xl border border-white/15 bg-white/0 text-sm font-medium text-slate-100 hover:bg-white/5 transition"
+            className="w-full md:w-auto text-center px-6 py-3 rounded-xl border border-accent/30 bg-transparent text-sm font-semibold text-text hover:bg-accent-soft hover:border-accent/60 hover:text-accent transition-all"
           >
             Criar minha conta
           </Link>
         </section>
 
-        <footer className="text-[11px] text-center text-slate-500">
+        <footer className="text-xs text-center text-text-secondary">
           Comece hoje a ter mais controle sobre a sua vida financeira.
         </footer>
       </div>
+
+      {/* Decorative sparkles */}
+      <Sparkles
+        size={28}
+        className="absolute bottom-8 right-8 text-accent/40 pointer-events-none"
+      />
+      <Sparkles
+        size={20}
+        className="absolute top-8 left-8 text-accent/25 pointer-events-none"
+      />
     </main>
   );
 }

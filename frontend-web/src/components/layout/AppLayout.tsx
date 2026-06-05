@@ -1,12 +1,13 @@
 import { cookies } from "next/headers";
 import { Sidebar } from "./Sidebar";
+import { MobileTopbar } from "./MobileTopbar";
+import { BottomNav } from "./BottomNav";
 
 interface AppLayoutProps {
   children: React.ReactNode;
 }
 
 export async function AppLayout({ children }: AppLayoutProps) {
-  // Fetch user info server-side
   let userName = "Usuário";
   let userEmail: string | undefined;
 
@@ -15,7 +16,6 @@ export async function AppLayout({ children }: AppLayoutProps) {
     const token = cookieStore.get("token")?.value;
 
     if (token) {
-      // Import inline to avoid circular dependency
       const { verifyJwt } = await import("@/lib/auth");
       const payload = verifyJwt<{ sub: number }>(token);
       if (payload?.sub) {
@@ -36,10 +36,23 @@ export async function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className="flex min-h-screen bg-sidebar">
-      <Sidebar userName={userName} userEmail={userEmail} />
+      {/* Desktop sidebar */}
+      <div className="hidden lg:block">
+        <Sidebar userName={userName} userEmail={userEmail} />
+      </div>
+
       <main className="flex-1 min-w-0 flex flex-col">
-        {children}
+        {/* Mobile topbar — replaces desktop sidebar at <lg */}
+        <MobileTopbar userName={userName} userEmail={userEmail} />
+
+        {/* Page content — reserves room above bottom-nav on mobile */}
+        <div className="flex-1 flex flex-col pb-bottom-nav lg:pb-0">
+          {children}
+        </div>
       </main>
+
+      {/* Bottom nav — mobile only */}
+      <BottomNav />
     </div>
   );
 }

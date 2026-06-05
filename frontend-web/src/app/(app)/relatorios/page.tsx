@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   BarChart,
@@ -100,46 +100,48 @@ export default function RelatoriosPage() {
   const [data, setData] = useState<AnnualData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const r = await fetch(`/api/reports/annual?year=${year}`);
-      const j = await r.json();
-      if (j.ok) setData(j);
-    } finally {
-      setLoading(false);
-    }
-  }, [year]);
-
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    let cancelled = false;
+    fetch(`/api/reports/annual?year=${year}`)
+      .then((r) => r.json())
+      .then((j) => {
+        if (cancelled) return;
+        if (j.ok) setData(j);
+        setLoading(false);
+      })
+      .catch(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [year]);
 
   const hasData = data && (data.totalIncome > 0 || data.totalExpense > 0);
 
   return (
     <div className="flex flex-col h-full">
       {/* Topbar */}
-      <div className="h-14 border-b border-border flex items-center justify-between px-6 flex-shrink-0">
+      <div className="h-14 border-b border-border flex items-center justify-between px-4 lg:px-6 flex-shrink-0">
         <h1 className="text-base font-bold text-text">Relatórios</h1>
         <div className="flex items-center gap-1 bg-card border border-border rounded-lg px-1">
           <button
             onClick={() => setYear((y) => y - 1)}
-            className="p-1.5 text-muted hover:text-text transition-colors cursor-pointer"
+            className="touch-target p-1.5 text-muted hover:text-text transition-colors cursor-pointer"
           >
             <ChevronLeft size={14} />
           </button>
           <span className="text-xs font-semibold text-text-secondary px-2">{year}</span>
           <button
             onClick={() => setYear((y) => y + 1)}
-            className="p-1.5 text-muted hover:text-text transition-colors cursor-pointer"
+            className="touch-target p-1.5 text-muted hover:text-text transition-colors cursor-pointer"
           >
             <ChevronRight size={14} />
           </button>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-4 lg:p-6">
         {loading ? (
           <div className="py-12 text-center text-sm text-muted">Carregando...</div>
         ) : !hasData ? (

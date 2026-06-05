@@ -3,11 +3,30 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import {
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  LayoutDashboard,
+  Target,
+  Wallet,
+  BarChart3,
+  Sparkles,
+} from "lucide-react";
 import { loginSchema } from "@/lib/validators";
+
+const FEATURES = [
+  { icon: LayoutDashboard, label: "Dashboard com visão mensal completa" },
+  { icon: Target, label: "Orçamentos por categoria com alertas" },
+  { icon: Wallet, label: "Múltiplas carteiras sincronizadas" },
+  { icon: BarChart3, label: "Relatórios e Insights com IA" },
+];
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -32,9 +51,7 @@ export default function LoginPage() {
       }
       const raw = new URLSearchParams(window.location.search).get("from");
       const from =
-        raw && raw.startsWith("/") && !raw.startsWith("//")
-          ? raw
-          : "/dashboard";
+        raw && raw.startsWith("/") && !raw.startsWith("//") ? raw : "/dashboard";
       window.location.href = from;
     } catch {
       setError("Erro de rede");
@@ -44,86 +61,115 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-surface flex">
+    <div className="min-h-screen flex">
       {/* Left panel — branding */}
-      <div className="hidden lg:flex w-1/2 bg-[#0d0d14] flex-col justify-center px-16 border-r border-border">
-        <div className="flex items-center gap-3 mb-12">
-          <Image
-            src="/fc-logo.png"
-            alt="Logo FinControl"
-            width={256}
-            height={64}
-            priority
-            sizes="(max-width: 640px) 176px, (max-width: 1024px) 208px, 256px"
-            className="h-auto w-44 sm:w-52 lg:w-64"
-            loading="eager"
-          />
+      <div className="hidden lg:flex w-1/2 login-left-bg flex-col justify-center px-16 border-r border-border-subtle">
+        <div className="relative z-10 flex flex-col">
+          <div className="mb-10">
+            <Image
+              src="/fc-logo.png"
+              alt="Logo FinControl"
+              width={256}
+              height={64}
+              priority
+              sizes="(max-width: 1024px) 208px, 256px"
+              className="w-52 lg:w-60"
+              style={{ height: "auto" }}
+              loading="eager"
+            />
+          </div>
+
+          <h1 className="text-[44px] font-black text-text leading-[1.1] tracking-tight mb-5">
+            Controle total
+            <br />
+            das suas
+            <br />
+            <span className="text-gold-gradient">finanças.</span>
+          </h1>
+          <p className="text-sm text-text-secondary leading-relaxed mb-10 max-w-md">
+            Gerencie receitas, despesas, orçamentos e carteiras em um único lugar.
+          </p>
+
+          <ul className="flex flex-col gap-3">
+            {FEATURES.map(({ icon: Icon, label }) => (
+              <li
+                key={label}
+                className="flex items-center gap-3 text-sm text-text-secondary"
+              >
+                <span className="w-8 h-8 rounded-lg bg-accent-soft border border-accent/20 flex items-center justify-center flex-shrink-0">
+                  <Icon size={14} className="text-accent" />
+                </span>
+                {label}
+              </li>
+            ))}
+          </ul>
         </div>
-        <h1 className="text-4xl font-black text-text leading-tight tracking-tight mb-4">
-          Controle total
-          <br />
-          das suas
-          <br />
-          <span className="text-accent">finanças.</span>
-        </h1>
-        <p className="text-sm text-subtle leading-relaxed mb-10">
-          Gerencie receitas, despesas, orçamentos e carteiras em um único lugar.
-        </p>
-        <ul className="flex flex-col gap-3">
-          {[
-            "Dashboard com visão mensal completa",
-            "Orçamentos por categoria com alertas",
-            "Múltiplas carteiras sincronizadas",
-            "Relatórios e Insights com IA",
-          ].map((f) => (
-            <li
-              key={f}
-              className="flex items-center gap-3 text-sm text-text-secondary"
-            >
-              <div className="w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0" />
-              {f}
-            </li>
-          ))}
-        </ul>
       </div>
 
       {/* Right panel — form */}
-      <div className="flex-1 flex items-center justify-center px-8">
-        <div className="w-full max-w-sm">
-          <div className="bg-card border border-border rounded-2xl p-8">
+      <div className="flex-1 login-right-bg flex items-center justify-center px-6 py-10 relative">
+        <div className="w-full max-w-sm relative z-10">
+          <div className="login-glass-card p-7">
             <h2 className="text-xl font-bold text-text mb-1">
               Bem-vindo de volta
             </h2>
-            <p className="text-sm text-muted mb-7">
+            <p className="text-xs text-text-secondary mb-6">
               Entre na sua conta para continuar
             </p>
 
-            <label className="block text-[10px] font-semibold uppercase tracking-widest text-subtle mb-1.5">
-              Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-              placeholder="seu@email.com"
-              className="w-full bg-[#18181b] border border-border rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none focus:border-accent transition-colors mb-4"
-            />
+            <div className="mb-4">
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-text-secondary mb-1.5">
+                Email
+              </label>
+              <div className="relative">
+                <Mail
+                  size={14}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none"
+                />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+                  placeholder="seu@email.com"
+                  className="login-input"
+                  autoComplete="email"
+                />
+              </div>
+            </div>
 
-            <label className="block text-[10px] font-semibold uppercase tracking-widest text-subtle mb-1.5">
-              Senha
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-              placeholder="••••••••"
-              className="w-full bg-[#18181b] border border-border rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none focus:border-accent transition-colors mb-4"
-            />
+            <div className="mb-5">
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-text-secondary mb-1.5">
+                Senha
+              </label>
+              <div className="relative">
+                <Lock
+                  size={14}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none"
+                />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+                  placeholder="••••••••"
+                  className="login-input pr-10"
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-accent transition-colors cursor-pointer"
+                  tabIndex={-1}
+                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                >
+                  {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                </button>
+              </div>
+            </div>
 
             {error && (
-              <p className="text-xs text-danger bg-[#f43f5e10] border border-[#f43f5e30] rounded-lg px-3 py-2 mb-4">
+              <p className="text-xs text-expense bg-expense/10 border border-expense/30 rounded-lg px-3 py-2 mb-4">
                 {error}
               </p>
             )}
@@ -131,19 +177,28 @@ export default function LoginPage() {
             <button
               onClick={handleLogin}
               disabled={loading}
-              className="w-full bg-accent hover:bg-accent-hover text-white text-sm font-bold py-3 rounded-xl transition-colors disabled:opacity-50 cursor-pointer"
+              className="btn-gold w-full text-sm py-3 cursor-pointer"
             >
               {loading ? "Entrando..." : "Entrar"}
             </button>
 
-            <p className="text-center text-xs text-muted mt-5">
+            <p className="text-center text-xs text-text-secondary mt-5">
               Não tem conta?{" "}
-              <Link href="/register" className="text-accent hover:underline">
+              <Link
+                href="/register"
+                className="text-accent font-semibold hover:text-accent-hover transition-colors"
+              >
                 Criar conta grátis
               </Link>
             </p>
           </div>
         </div>
+
+        {/* Decorative sparkle in bottom-right */}
+        <Sparkles
+          size={28}
+          className="absolute bottom-8 right-8 text-accent/40 pointer-events-none"
+        />
       </div>
     </div>
   );
