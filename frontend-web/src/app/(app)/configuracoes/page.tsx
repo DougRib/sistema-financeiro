@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { User, Lock, LogOut, Users, Trash2, Check, X, ShieldCheck } from "lucide-react";
+import { TwoFactorSetup } from "@/components/ui/TwoFactorSetup";
+import { Modal } from "@/components/ui/Modal";
 import { CardBlock } from "@/components/ui/CardBlock";
 import { formatDate } from "@/lib/format";
 import { useToast } from "@/components/ui/Toast";
@@ -12,6 +14,8 @@ interface UserProfile {
   name: string;
   email: string;
   createdAt: string;
+  emailVerified?: boolean;
+  twoFactorEnabled?: boolean;
 }
 
 interface Stats {
@@ -527,43 +531,16 @@ export default function ConfiguracoesPage() {
                 </div>
               )}
 
-              {/* Security tab — sessões + 2FA */}
+              {/* Security tab — 2FA + sessões */}
               {tab === "seguranca" && (
-                <div className="flex flex-col gap-4">
-                  <CardBlock title="Autenticação em dois fatores (2FA)">
-                    <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-accent-soft border border-accent/30 flex items-center justify-center text-accent flex-shrink-0">
-                        <ShieldCheck size={18} />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-bold text-text">2FA por TOTP</p>
-                        <p className="text-[11px] text-text-secondary mt-1 leading-relaxed">
-                          Adicione uma camada extra de proteção exigindo um código de 6 dígitos do seu app autenticador
-                          (Google Authenticator, 1Password, Authy) a cada login.
-                        </p>
-                        <span className="inline-block mt-3 text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full bg-yellow-500/15 text-yellow-400">
-                          Em breve
-                        </span>
-                      </div>
-                    </div>
-                  </CardBlock>
-
-                  <CardBlock title="Sessões ativas">
-                    <p className="text-[11px] text-text-secondary mb-3 leading-relaxed">
-                      Toda vez que você faz login, criamos uma sessão. Trocar a senha encerra todas as sessões em outros
-                      dispositivos automaticamente.
-                    </p>
-                    <button
-                      onClick={async () => {
-                        await fetch("/api/auth/logout", { method: "POST" });
-                        router.push("/login");
-                      }}
-                      className="text-xs font-semibold text-expense hover:underline cursor-pointer"
-                    >
-                      Encerrar a sessão atual
-                    </button>
-                  </CardBlock>
-                </div>
+                <SecurityTab
+                  user={user}
+                  onUserChange={setUser}
+                  onLogout={async () => {
+                    await fetch("/api/auth/logout", { method: "POST" });
+                    router.push("/login");
+                  }}
+                />
               )}
             </>
           ) : (
@@ -644,6 +621,202 @@ function ShareRow({ share, isOwner, onAccept, onRevoke, onDelete }: ShareRowProp
           </button>
         )}
       </div>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────
+// Security tab — 2FA + sessões
+// ──────────────────────────────────────────────
+interface SecurityTabProps {
+  user: UserProfile;
+  onUserChange: (u: UserProfile) => void;
+  onLogout: () => void;
+}
+
+function SecurityTab({ user, onUserChange, onLogout }: SecurityTabProps) {
+  const [setupOpen, setSetupOpen] = useState(false);
+  const [disableOpen, setDisableOpen] = useState(false);
+  const [disablePw, setDisablePw] = useState("");
+  const [resendingVerify, setResendingVerify] = useState(false);
+  const toast = useToast();
+
+  async function handleDisable() {
+    if (!disablePw) {
+      toast.error("Informe sua senha");
+      return;
+    }
+    try {
+      const r = await fetch("/api/auth/2fa/disable", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: disablePw }),
+      });
+      const j = await r.json();
+      if (!j.ok) {
+        toast.error("Não foi possível desativar", { description: j.error });
+        return;
+      }
+      onUserChange({ ...user, twoFactorEnabled: false });
+      setDisableOpen(false);
+      setDisablePw("");
+      toast.success("2FA desativado");
+    } catch {
+      toast.error("Erro de rede");
+    }
+  }
+
+  async function handleResendVerify() {
+    setResendingVerify(true);
+    try {
+      const r = await fetch("/api/auth/resend-verification", { method: "POST" });
+      const j = await r.json();
+      if (j.ok) toast.success("Email de verificação enviado");
+      else toast.error("Erro", { description: j.error });
+    } catch {
+      toast.error("Erro de rede");
+    } finally {
+      setResendingVerify(false);
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      {/* Email verification status */}
+      {user.emailVerified === false && (
+        <CardBlock>
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-xl bg-yellow-500/15 border border-yellow-500/30 flex items-center justify-center text-yellow-400 flex-shrink-0">
+              <ShieldCheck size={18} />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-bold text-text">Email não verificado</p>
+              <p className="text-[11px] text-text-secondary mt-1 leading-relaxed">
+                Confirme seu email para receber alertas importantes e recuperar sua conta caso esqueça a senha.
+              </p>
+              <button
+                onClick={handleResendVerify}
+                disabled={resendingVerify}
+                className="mt-3 text-xs font-semibold text-accent hover:underline cursor-pointer disabled:opacity-50"
+              >
+                {resendingVerify ? "Enviando..." : "Reenviar email de verificação"}
+              </button>
+            </div>
+          </div>
+        </CardBlock>
+      )}
+
+      {/* 2FA */}
+      <CardBlock title="Autenticação em dois fatores (2FA)">
+        <div className="flex items-start gap-4">
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 border ${
+            user.twoFactorEnabled
+              ? "bg-income/15 border-income/30 text-income"
+              : "bg-accent-soft border-accent/30 text-accent"
+          }`}>
+            <ShieldCheck size={18} />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-bold text-text">
+              2FA por TOTP
+              {user.twoFactorEnabled && (
+                <span className="ml-2 text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-full bg-income/15 text-income">
+                  Ativo
+                </span>
+              )}
+            </p>
+            <p className="text-[11px] text-text-secondary mt-1 leading-relaxed">
+              {user.twoFactorEnabled
+                ? "A cada login, será solicitado um código de 6 dígitos do seu app autenticador."
+                : "Adicione uma camada extra de proteção exigindo um código de 6 dígitos do seu app autenticador (Google Authenticator, 1Password, Authy)."}
+            </p>
+            {user.twoFactorEnabled ? (
+              <button
+                onClick={() => setDisableOpen(true)}
+                className="mt-3 text-xs font-semibold text-expense hover:underline cursor-pointer"
+              >
+                Desativar 2FA
+              </button>
+            ) : (
+              <button
+                onClick={() => setSetupOpen(true)}
+                className="mt-3 inline-flex items-center gap-1.5 bg-gradient-to-r from-[#e6c879] to-[#b8893f] text-[#1a1208] text-xs font-bold px-4 py-2 rounded-lg cursor-pointer"
+              >
+                <ShieldCheck size={12} /> Ativar 2FA
+              </button>
+            )}
+          </div>
+        </div>
+      </CardBlock>
+
+      <CardBlock title="Sessão atual">
+        <p className="text-[11px] text-text-secondary mb-3 leading-relaxed">
+          Trocar a senha encerra todas as sessões em outros dispositivos automaticamente.
+        </p>
+        <button
+          onClick={onLogout}
+          className="text-xs font-semibold text-expense hover:underline cursor-pointer"
+        >
+          Encerrar a sessão atual
+        </button>
+      </CardBlock>
+
+      <TwoFactorSetup
+        open={setupOpen}
+        onClose={() => {
+          setSetupOpen(false);
+          // Refetch profile pra refletir twoFactorEnabled atualizado
+          fetch("/api/user")
+            .then((r) => r.json())
+            .then((j) => {
+              if (j.ok) onUserChange(j.user);
+            })
+            .catch(() => {});
+        }}
+      />
+
+      <Modal
+        open={disableOpen}
+        onClose={() => {
+          setDisableOpen(false);
+          setDisablePw("");
+        }}
+        title="Desativar 2FA"
+        description="Confirme sua senha para desativar a autenticação em dois fatores"
+        icon={<ShieldCheck size={18} />}
+        size="sm"
+        footer={
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                setDisableOpen(false);
+                setDisablePw("");
+              }}
+              className="flex-1 bg-card-hover border border-border rounded-lg text-xs font-semibold text-text-secondary py-2.5 cursor-pointer"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleDisable}
+              className="flex-1 bg-expense text-white text-xs font-bold py-2.5 rounded-lg cursor-pointer"
+            >
+              Desativar
+            </button>
+          </div>
+        }
+      >
+        <label className="text-[10px] uppercase tracking-widest font-bold text-text-secondary mb-1.5 block">
+          Senha atual
+        </label>
+        <input
+          autoFocus
+          type="password"
+          value={disablePw}
+          onChange={(e) => setDisablePw(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleDisable()}
+          className="w-full bg-card-hover border border-border rounded-lg px-3 py-2.5 text-sm text-text outline-none focus:border-accent transition-colors"
+        />
+      </Modal>
     </div>
   );
 }

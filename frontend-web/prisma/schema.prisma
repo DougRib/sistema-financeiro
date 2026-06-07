@@ -146,6 +146,14 @@ model Wallet {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 
+  // Cartão de crédito (quando type=CREDIT)
+  // Limite de crédito disponível.
+  creditLimit  Decimal? @db.Decimal(12, 2)
+  /// Dia do mês em que a fatura fecha (1-31).
+  closingDay   Int?
+  /// Dia do mês em que a fatura vence (1-31).
+  dueDay       Int?
+
   transactions Transaction[]
   bills        RecurringBill[]
 
@@ -190,12 +198,20 @@ model Transaction {
   walletId    Int
   wallet      Wallet    @relation(fields: [walletId], references: [id])
 
+  // Parcelamento: agrupa N transações da mesma compra parcelada.
+  // installmentGroupId é um UUID compartilhado por todas as parcelas.
+  // installmentNumber/installmentTotal são 1-baseados (ex: 3/12).
+  installmentGroupId String?
+  installmentNumber  Int?
+  installmentTotal   Int?
+
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
   @@index([userId, occurredAt])
   @@index([categoryId])
   @@index([walletId])
+  @@index([installmentGroupId])
 }
 
 model Budget {

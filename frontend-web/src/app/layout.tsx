@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/components/ui/Toast";
 import { PrivacyProvider } from "@/components/ui/PrivacyContext";
-import { ApiClientSetup } from "@/components/ApiClientSetup";
 
 export const runtime = "nodejs";
 
@@ -141,7 +140,6 @@ export default function RootLayout({
   return (
     <html lang="pt-br">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <ApiClientSetup />
         <PrivacyProvider>
           <ToastProvider>{children}</ToastProvider>
         </PrivacyProvider>

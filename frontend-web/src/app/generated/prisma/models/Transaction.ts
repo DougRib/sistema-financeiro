@@ -32,6 +32,8 @@ export type TransactionAvgAggregateOutputType = {
   userId: number | null
   categoryId: number | null
   walletId: number | null
+  installmentNumber: number | null
+  installmentTotal: number | null
 }
 
 export type TransactionSumAggregateOutputType = {
@@ -40,6 +42,8 @@ export type TransactionSumAggregateOutputType = {
   userId: number | null
   categoryId: number | null
   walletId: number | null
+  installmentNumber: number | null
+  installmentTotal: number | null
 }
 
 export type TransactionMinAggregateOutputType = {
@@ -52,6 +56,9 @@ export type TransactionMinAggregateOutputType = {
   userId: number | null
   categoryId: number | null
   walletId: number | null
+  installmentGroupId: string | null
+  installmentNumber: number | null
+  installmentTotal: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -66,6 +73,9 @@ export type TransactionMaxAggregateOutputType = {
   userId: number | null
   categoryId: number | null
   walletId: number | null
+  installmentGroupId: string | null
+  installmentNumber: number | null
+  installmentTotal: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -80,6 +90,9 @@ export type TransactionCountAggregateOutputType = {
   userId: number
   categoryId: number
   walletId: number
+  installmentGroupId: number
+  installmentNumber: number
+  installmentTotal: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -92,6 +105,8 @@ export type TransactionAvgAggregateInputType = {
   userId?: true
   categoryId?: true
   walletId?: true
+  installmentNumber?: true
+  installmentTotal?: true
 }
 
 export type TransactionSumAggregateInputType = {
@@ -100,6 +115,8 @@ export type TransactionSumAggregateInputType = {
   userId?: true
   categoryId?: true
   walletId?: true
+  installmentNumber?: true
+  installmentTotal?: true
 }
 
 export type TransactionMinAggregateInputType = {
@@ -112,6 +129,9 @@ export type TransactionMinAggregateInputType = {
   userId?: true
   categoryId?: true
   walletId?: true
+  installmentGroupId?: true
+  installmentNumber?: true
+  installmentTotal?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -126,6 +146,9 @@ export type TransactionMaxAggregateInputType = {
   userId?: true
   categoryId?: true
   walletId?: true
+  installmentGroupId?: true
+  installmentNumber?: true
+  installmentTotal?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -140,6 +163,9 @@ export type TransactionCountAggregateInputType = {
   userId?: true
   categoryId?: true
   walletId?: true
+  installmentGroupId?: true
+  installmentNumber?: true
+  installmentTotal?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -241,6 +267,9 @@ export type TransactionGroupByOutputType = {
   userId: number
   categoryId: number | null
   walletId: number
+  installmentGroupId: string | null
+  installmentNumber: number | null
+  installmentTotal: number | null
   createdAt: Date
   updatedAt: Date
   _count: TransactionCountAggregateOutputType | null
@@ -278,6 +307,9 @@ export type TransactionWhereInput = {
   userId?: Prisma.IntFilter<"Transaction"> | number
   categoryId?: Prisma.IntNullableFilter<"Transaction"> | number | null
   walletId?: Prisma.IntFilter<"Transaction"> | number
+  installmentGroupId?: Prisma.StringNullableFilter<"Transaction"> | string | null
+  installmentNumber?: Prisma.IntNullableFilter<"Transaction"> | number | null
+  installmentTotal?: Prisma.IntNullableFilter<"Transaction"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -295,6 +327,9 @@ export type TransactionOrderByWithRelationInput = {
   userId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrderInput | Prisma.SortOrder
   walletId?: Prisma.SortOrder
+  installmentGroupId?: Prisma.SortOrderInput | Prisma.SortOrder
+  installmentNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  installmentTotal?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
@@ -315,6 +350,9 @@ export type TransactionWhereUniqueInput = Prisma.AtLeast<{
   userId?: Prisma.IntFilter<"Transaction"> | number
   categoryId?: Prisma.IntNullableFilter<"Transaction"> | number | null
   walletId?: Prisma.IntFilter<"Transaction"> | number
+  installmentGroupId?: Prisma.StringNullableFilter<"Transaction"> | string | null
+  installmentNumber?: Prisma.IntNullableFilter<"Transaction"> | number | null
+  installmentTotal?: Prisma.IntNullableFilter<"Transaction"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -332,6 +370,9 @@ export type TransactionOrderByWithAggregationInput = {
   userId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrderInput | Prisma.SortOrder
   walletId?: Prisma.SortOrder
+  installmentGroupId?: Prisma.SortOrderInput | Prisma.SortOrder
+  installmentNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  installmentTotal?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.TransactionCountOrderByAggregateInput
@@ -354,6 +395,9 @@ export type TransactionScalarWhereWithAggregatesInput = {
   userId?: Prisma.IntWithAggregatesFilter<"Transaction"> | number
   categoryId?: Prisma.IntNullableWithAggregatesFilter<"Transaction"> | number | null
   walletId?: Prisma.IntWithAggregatesFilter<"Transaction"> | number
+  installmentGroupId?: Prisma.StringNullableWithAggregatesFilter<"Transaction"> | string | null
+  installmentNumber?: Prisma.IntNullableWithAggregatesFilter<"Transaction"> | number | null
+  installmentTotal?: Prisma.IntNullableWithAggregatesFilter<"Transaction"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Transaction"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Transaction"> | Date | string
 }
@@ -364,6 +408,9 @@ export type TransactionCreateInput = {
   occurredAt: Date | string
   description?: string | null
   transferGroupId?: string | null
+  installmentGroupId?: string | null
+  installmentNumber?: number | null
+  installmentTotal?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutTransactionsInput
@@ -381,6 +428,9 @@ export type TransactionUncheckedCreateInput = {
   userId: number
   categoryId?: number | null
   walletId: number
+  installmentGroupId?: string | null
+  installmentNumber?: number | null
+  installmentTotal?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -391,6 +441,9 @@ export type TransactionUpdateInput = {
   occurredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   transferGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  installmentGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  installmentNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  installmentTotal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutTransactionsNestedInput
@@ -408,6 +461,9 @@ export type TransactionUncheckedUpdateInput = {
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   categoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   walletId?: Prisma.IntFieldUpdateOperationsInput | number
+  installmentGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  installmentNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  installmentTotal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -422,6 +478,9 @@ export type TransactionCreateManyInput = {
   userId: number
   categoryId?: number | null
   walletId: number
+  installmentGroupId?: string | null
+  installmentNumber?: number | null
+  installmentTotal?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -432,6 +491,9 @@ export type TransactionUpdateManyMutationInput = {
   occurredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   transferGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  installmentGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  installmentNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  installmentTotal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -446,6 +508,9 @@ export type TransactionUncheckedUpdateManyInput = {
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   categoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   walletId?: Prisma.IntFieldUpdateOperationsInput | number
+  installmentGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  installmentNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  installmentTotal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -470,6 +535,9 @@ export type TransactionCountOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   walletId?: Prisma.SortOrder
+  installmentGroupId?: Prisma.SortOrder
+  installmentNumber?: Prisma.SortOrder
+  installmentTotal?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -480,6 +548,8 @@ export type TransactionAvgOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   walletId?: Prisma.SortOrder
+  installmentNumber?: Prisma.SortOrder
+  installmentTotal?: Prisma.SortOrder
 }
 
 export type TransactionMaxOrderByAggregateInput = {
@@ -492,6 +562,9 @@ export type TransactionMaxOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   walletId?: Prisma.SortOrder
+  installmentGroupId?: Prisma.SortOrder
+  installmentNumber?: Prisma.SortOrder
+  installmentTotal?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -506,6 +579,9 @@ export type TransactionMinOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   walletId?: Prisma.SortOrder
+  installmentGroupId?: Prisma.SortOrder
+  installmentNumber?: Prisma.SortOrder
+  installmentTotal?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -516,6 +592,8 @@ export type TransactionSumOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   walletId?: Prisma.SortOrder
+  installmentNumber?: Prisma.SortOrder
+  installmentTotal?: Prisma.SortOrder
 }
 
 export type TransactionCreateNestedManyWithoutUserInput = {
@@ -654,6 +732,9 @@ export type TransactionCreateWithoutUserInput = {
   occurredAt: Date | string
   description?: string | null
   transferGroupId?: string | null
+  installmentGroupId?: string | null
+  installmentNumber?: number | null
+  installmentTotal?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   category?: Prisma.CategoryCreateNestedOneWithoutTransactionsInput
@@ -669,6 +750,9 @@ export type TransactionUncheckedCreateWithoutUserInput = {
   transferGroupId?: string | null
   categoryId?: number | null
   walletId: number
+  installmentGroupId?: string | null
+  installmentNumber?: number | null
+  installmentTotal?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -712,6 +796,9 @@ export type TransactionScalarWhereInput = {
   userId?: Prisma.IntFilter<"Transaction"> | number
   categoryId?: Prisma.IntNullableFilter<"Transaction"> | number | null
   walletId?: Prisma.IntFilter<"Transaction"> | number
+  installmentGroupId?: Prisma.StringNullableFilter<"Transaction"> | string | null
+  installmentNumber?: Prisma.IntNullableFilter<"Transaction"> | number | null
+  installmentTotal?: Prisma.IntNullableFilter<"Transaction"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
 }
@@ -722,6 +809,9 @@ export type TransactionCreateWithoutWalletInput = {
   occurredAt: Date | string
   description?: string | null
   transferGroupId?: string | null
+  installmentGroupId?: string | null
+  installmentNumber?: number | null
+  installmentTotal?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutTransactionsInput
@@ -737,6 +827,9 @@ export type TransactionUncheckedCreateWithoutWalletInput = {
   transferGroupId?: string | null
   userId: number
   categoryId?: number | null
+  installmentGroupId?: string | null
+  installmentNumber?: number | null
+  installmentTotal?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -773,6 +866,9 @@ export type TransactionCreateWithoutCategoryInput = {
   occurredAt: Date | string
   description?: string | null
   transferGroupId?: string | null
+  installmentGroupId?: string | null
+  installmentNumber?: number | null
+  installmentTotal?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutTransactionsInput
@@ -788,6 +884,9 @@ export type TransactionUncheckedCreateWithoutCategoryInput = {
   transferGroupId?: string | null
   userId: number
   walletId: number
+  installmentGroupId?: string | null
+  installmentNumber?: number | null
+  installmentTotal?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -827,6 +926,9 @@ export type TransactionCreateManyUserInput = {
   transferGroupId?: string | null
   categoryId?: number | null
   walletId: number
+  installmentGroupId?: string | null
+  installmentNumber?: number | null
+  installmentTotal?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -837,6 +939,9 @@ export type TransactionUpdateWithoutUserInput = {
   occurredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   transferGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  installmentGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  installmentNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  installmentTotal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneWithoutTransactionsNestedInput
@@ -852,6 +957,9 @@ export type TransactionUncheckedUpdateWithoutUserInput = {
   transferGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   walletId?: Prisma.IntFieldUpdateOperationsInput | number
+  installmentGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  installmentNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  installmentTotal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -865,6 +973,9 @@ export type TransactionUncheckedUpdateManyWithoutUserInput = {
   transferGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   walletId?: Prisma.IntFieldUpdateOperationsInput | number
+  installmentGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  installmentNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  installmentTotal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -878,6 +989,9 @@ export type TransactionCreateManyWalletInput = {
   transferGroupId?: string | null
   userId: number
   categoryId?: number | null
+  installmentGroupId?: string | null
+  installmentNumber?: number | null
+  installmentTotal?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -888,6 +1002,9 @@ export type TransactionUpdateWithoutWalletInput = {
   occurredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   transferGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  installmentGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  installmentNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  installmentTotal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutTransactionsNestedInput
@@ -903,6 +1020,9 @@ export type TransactionUncheckedUpdateWithoutWalletInput = {
   transferGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   categoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  installmentGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  installmentNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  installmentTotal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -916,6 +1036,9 @@ export type TransactionUncheckedUpdateManyWithoutWalletInput = {
   transferGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   categoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  installmentGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  installmentNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  installmentTotal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -929,6 +1052,9 @@ export type TransactionCreateManyCategoryInput = {
   transferGroupId?: string | null
   userId: number
   walletId: number
+  installmentGroupId?: string | null
+  installmentNumber?: number | null
+  installmentTotal?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -939,6 +1065,9 @@ export type TransactionUpdateWithoutCategoryInput = {
   occurredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   transferGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  installmentGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  installmentNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  installmentTotal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutTransactionsNestedInput
@@ -954,6 +1083,9 @@ export type TransactionUncheckedUpdateWithoutCategoryInput = {
   transferGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   walletId?: Prisma.IntFieldUpdateOperationsInput | number
+  installmentGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  installmentNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  installmentTotal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -967,6 +1099,9 @@ export type TransactionUncheckedUpdateManyWithoutCategoryInput = {
   transferGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   walletId?: Prisma.IntFieldUpdateOperationsInput | number
+  installmentGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  installmentNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  installmentTotal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -983,6 +1118,9 @@ export type TransactionSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   userId?: boolean
   categoryId?: boolean
   walletId?: boolean
+  installmentGroupId?: boolean
+  installmentNumber?: boolean
+  installmentTotal?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1000,6 +1138,9 @@ export type TransactionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   userId?: boolean
   categoryId?: boolean
   walletId?: boolean
+  installmentGroupId?: boolean
+  installmentNumber?: boolean
+  installmentTotal?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1017,6 +1158,9 @@ export type TransactionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   userId?: boolean
   categoryId?: boolean
   walletId?: boolean
+  installmentGroupId?: boolean
+  installmentNumber?: boolean
+  installmentTotal?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1034,11 +1178,14 @@ export type TransactionSelectScalar = {
   userId?: boolean
   categoryId?: boolean
   walletId?: boolean
+  installmentGroupId?: boolean
+  installmentNumber?: boolean
+  installmentTotal?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type TransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "amount" | "occurredAt" | "description" | "transferGroupId" | "userId" | "categoryId" | "walletId" | "createdAt" | "updatedAt", ExtArgs["result"]["transaction"]>
+export type TransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "amount" | "occurredAt" | "description" | "transferGroupId" | "userId" | "categoryId" | "walletId" | "installmentGroupId" | "installmentNumber" | "installmentTotal" | "createdAt" | "updatedAt", ExtArgs["result"]["transaction"]>
 export type TransactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   category?: boolean | Prisma.Transaction$categoryArgs<ExtArgs>
@@ -1072,6 +1219,9 @@ export type $TransactionPayload<ExtArgs extends runtime.Types.Extensions.Interna
     userId: number
     categoryId: number | null
     walletId: number
+    installmentGroupId: string | null
+    installmentNumber: number | null
+    installmentTotal: number | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["transaction"]>
@@ -1509,6 +1659,9 @@ export interface TransactionFieldRefs {
   readonly userId: Prisma.FieldRef<"Transaction", 'Int'>
   readonly categoryId: Prisma.FieldRef<"Transaction", 'Int'>
   readonly walletId: Prisma.FieldRef<"Transaction", 'Int'>
+  readonly installmentGroupId: Prisma.FieldRef<"Transaction", 'String'>
+  readonly installmentNumber: Prisma.FieldRef<"Transaction", 'Int'>
+  readonly installmentTotal: Prisma.FieldRef<"Transaction", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Transaction", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Transaction", 'DateTime'>
 }

@@ -43,6 +43,8 @@ export type UserMinAggregateOutputType = {
   updatedAt: Date | null
   twoFactorEnabled: boolean | null
   twoFactorSecret: string | null
+  emailVerified: boolean | null
+  emailVerifiedAt: Date | null
 }
 
 export type UserMaxAggregateOutputType = {
@@ -54,6 +56,8 @@ export type UserMaxAggregateOutputType = {
   updatedAt: Date | null
   twoFactorEnabled: boolean | null
   twoFactorSecret: string | null
+  emailVerified: boolean | null
+  emailVerifiedAt: Date | null
 }
 
 export type UserCountAggregateOutputType = {
@@ -65,6 +69,9 @@ export type UserCountAggregateOutputType = {
   updatedAt: number
   twoFactorEnabled: number
   twoFactorSecret: number
+  twoFactorBackupCodes: number
+  emailVerified: number
+  emailVerifiedAt: number
   _all: number
 }
 
@@ -86,6 +93,8 @@ export type UserMinAggregateInputType = {
   updatedAt?: true
   twoFactorEnabled?: true
   twoFactorSecret?: true
+  emailVerified?: true
+  emailVerifiedAt?: true
 }
 
 export type UserMaxAggregateInputType = {
@@ -97,6 +106,8 @@ export type UserMaxAggregateInputType = {
   updatedAt?: true
   twoFactorEnabled?: true
   twoFactorSecret?: true
+  emailVerified?: true
+  emailVerifiedAt?: true
 }
 
 export type UserCountAggregateInputType = {
@@ -108,6 +119,9 @@ export type UserCountAggregateInputType = {
   updatedAt?: true
   twoFactorEnabled?: true
   twoFactorSecret?: true
+  twoFactorBackupCodes?: true
+  emailVerified?: true
+  emailVerifiedAt?: true
   _all?: true
 }
 
@@ -206,6 +220,9 @@ export type UserGroupByOutputType = {
   updatedAt: Date
   twoFactorEnabled: boolean
   twoFactorSecret: string | null
+  twoFactorBackupCodes: string[]
+  emailVerified: boolean
+  emailVerifiedAt: Date | null
   _count: UserCountAggregateOutputType | null
   _avg: UserAvgAggregateOutputType | null
   _sum: UserSumAggregateOutputType | null
@@ -240,6 +257,9 @@ export type UserWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   twoFactorEnabled?: Prisma.BoolFilter<"User"> | boolean
   twoFactorSecret?: Prisma.StringNullableFilter<"User"> | string | null
+  twoFactorBackupCodes?: Prisma.StringNullableListFilter<"User">
+  emailVerified?: Prisma.BoolFilter<"User"> | boolean
+  emailVerifiedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   wallets?: Prisma.WalletListRelationFilter
   transactions?: Prisma.TransactionListRelationFilter
   categories?: Prisma.CategoryListRelationFilter
@@ -250,6 +270,7 @@ export type UserWhereInput = {
   sharedIn?: Prisma.SharedAccessListRelationFilter
   sessions?: Prisma.SessionListRelationFilter
   auditLogs?: Prisma.AuditLogListRelationFilter
+  verificationTokens?: Prisma.VerificationTokenListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -261,6 +282,9 @@ export type UserOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   twoFactorEnabled?: Prisma.SortOrder
   twoFactorSecret?: Prisma.SortOrderInput | Prisma.SortOrder
+  twoFactorBackupCodes?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
+  emailVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   wallets?: Prisma.WalletOrderByRelationAggregateInput
   transactions?: Prisma.TransactionOrderByRelationAggregateInput
   categories?: Prisma.CategoryOrderByRelationAggregateInput
@@ -271,6 +295,7 @@ export type UserOrderByWithRelationInput = {
   sharedIn?: Prisma.SharedAccessOrderByRelationAggregateInput
   sessions?: Prisma.SessionOrderByRelationAggregateInput
   auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput
+  verificationTokens?: Prisma.VerificationTokenOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -285,6 +310,9 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   twoFactorEnabled?: Prisma.BoolFilter<"User"> | boolean
   twoFactorSecret?: Prisma.StringNullableFilter<"User"> | string | null
+  twoFactorBackupCodes?: Prisma.StringNullableListFilter<"User">
+  emailVerified?: Prisma.BoolFilter<"User"> | boolean
+  emailVerifiedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   wallets?: Prisma.WalletListRelationFilter
   transactions?: Prisma.TransactionListRelationFilter
   categories?: Prisma.CategoryListRelationFilter
@@ -295,6 +323,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   sharedIn?: Prisma.SharedAccessListRelationFilter
   sessions?: Prisma.SessionListRelationFilter
   auditLogs?: Prisma.AuditLogListRelationFilter
+  verificationTokens?: Prisma.VerificationTokenListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -306,6 +335,9 @@ export type UserOrderByWithAggregationInput = {
   updatedAt?: Prisma.SortOrder
   twoFactorEnabled?: Prisma.SortOrder
   twoFactorSecret?: Prisma.SortOrderInput | Prisma.SortOrder
+  twoFactorBackupCodes?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
+  emailVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
   _avg?: Prisma.UserAvgOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
@@ -325,6 +357,9 @@ export type UserScalarWhereWithAggregatesInput = {
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   twoFactorEnabled?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   twoFactorSecret?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  twoFactorBackupCodes?: Prisma.StringNullableListFilter<"User">
+  emailVerified?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  emailVerifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
 }
 
 export type UserCreateInput = {
@@ -335,6 +370,9 @@ export type UserCreateInput = {
   updatedAt?: Date | string
   twoFactorEnabled?: boolean
   twoFactorSecret?: string | null
+  twoFactorBackupCodes?: Prisma.UserCreatetwoFactorBackupCodesInput | string[]
+  emailVerified?: boolean
+  emailVerifiedAt?: Date | string | null
   wallets?: Prisma.WalletCreateNestedManyWithoutUserInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutUserInput
   categories?: Prisma.CategoryCreateNestedManyWithoutUserInput
@@ -345,6 +383,7 @@ export type UserCreateInput = {
   sharedIn?: Prisma.SharedAccessCreateNestedManyWithoutSharedWithUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.VerificationTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -356,6 +395,9 @@ export type UserUncheckedCreateInput = {
   updatedAt?: Date | string
   twoFactorEnabled?: boolean
   twoFactorSecret?: string | null
+  twoFactorBackupCodes?: Prisma.UserCreatetwoFactorBackupCodesInput | string[]
+  emailVerified?: boolean
+  emailVerifiedAt?: Date | string | null
   wallets?: Prisma.WalletUncheckedCreateNestedManyWithoutUserInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutUserInput
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutUserInput
@@ -366,6 +408,7 @@ export type UserUncheckedCreateInput = {
   sharedIn?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutSharedWithUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.VerificationTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -376,6 +419,9 @@ export type UserUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorBackupCodes?: Prisma.UserUpdatetwoFactorBackupCodesInput | string[]
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   wallets?: Prisma.WalletUpdateManyWithoutUserNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutUserNestedInput
   categories?: Prisma.CategoryUpdateManyWithoutUserNestedInput
@@ -386,6 +432,7 @@ export type UserUpdateInput = {
   sharedIn?: Prisma.SharedAccessUpdateManyWithoutSharedWithUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.VerificationTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -397,6 +444,9 @@ export type UserUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorBackupCodes?: Prisma.UserUpdatetwoFactorBackupCodesInput | string[]
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   wallets?: Prisma.WalletUncheckedUpdateManyWithoutUserNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutUserNestedInput
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutUserNestedInput
@@ -407,6 +457,7 @@ export type UserUncheckedUpdateInput = {
   sharedIn?: Prisma.SharedAccessUncheckedUpdateManyWithoutSharedWithUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.VerificationTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -418,6 +469,9 @@ export type UserCreateManyInput = {
   updatedAt?: Date | string
   twoFactorEnabled?: boolean
   twoFactorSecret?: string | null
+  twoFactorBackupCodes?: Prisma.UserCreatetwoFactorBackupCodesInput | string[]
+  emailVerified?: boolean
+  emailVerifiedAt?: Date | string | null
 }
 
 export type UserUpdateManyMutationInput = {
@@ -428,6 +482,9 @@ export type UserUpdateManyMutationInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorBackupCodes?: Prisma.UserUpdatetwoFactorBackupCodesInput | string[]
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type UserUncheckedUpdateManyInput = {
@@ -439,6 +496,17 @@ export type UserUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorBackupCodes?: Prisma.UserUpdatetwoFactorBackupCodesInput | string[]
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type StringNullableListFilter<$PrismaModel = never> = {
+  equals?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel> | null
+  has?: string | Prisma.StringFieldRefInput<$PrismaModel> | null
+  hasEvery?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
+  hasSome?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
+  isEmpty?: boolean
 }
 
 export type UserCountOrderByAggregateInput = {
@@ -450,6 +518,9 @@ export type UserCountOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   twoFactorEnabled?: Prisma.SortOrder
   twoFactorSecret?: Prisma.SortOrder
+  twoFactorBackupCodes?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
+  emailVerifiedAt?: Prisma.SortOrder
 }
 
 export type UserAvgOrderByAggregateInput = {
@@ -465,6 +536,8 @@ export type UserMaxOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   twoFactorEnabled?: Prisma.SortOrder
   twoFactorSecret?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
+  emailVerifiedAt?: Prisma.SortOrder
 }
 
 export type UserMinOrderByAggregateInput = {
@@ -476,6 +549,8 @@ export type UserMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   twoFactorEnabled?: Prisma.SortOrder
   twoFactorSecret?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
+  emailVerifiedAt?: Prisma.SortOrder
 }
 
 export type UserSumOrderByAggregateInput = {
@@ -490,6 +565,10 @@ export type UserScalarRelationFilter = {
 export type UserNullableScalarRelationFilter = {
   is?: Prisma.UserWhereInput | null
   isNot?: Prisma.UserWhereInput | null
+}
+
+export type UserCreatetwoFactorBackupCodesInput = {
+  set: string[]
 }
 
 export type StringFieldUpdateOperationsInput = {
@@ -508,12 +587,35 @@ export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
 }
 
+export type UserUpdatetwoFactorBackupCodesInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
 export type IntFieldUpdateOperationsInput = {
   set?: number
   increment?: number
   decrement?: number
   multiply?: number
   divide?: number
+}
+
+export type UserCreateNestedOneWithoutVerificationTokensInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutVerificationTokensInput, Prisma.UserUncheckedCreateWithoutVerificationTokensInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutVerificationTokensInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutVerificationTokensNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutVerificationTokensInput, Prisma.UserUncheckedCreateWithoutVerificationTokensInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutVerificationTokensInput
+  upsert?: Prisma.UserUpsertWithoutVerificationTokensInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutVerificationTokensInput, Prisma.UserUpdateWithoutVerificationTokensInput>, Prisma.UserUncheckedUpdateWithoutVerificationTokensInput>
 }
 
 export type UserCreateNestedOneWithoutSessionsInput = {
@@ -660,6 +762,116 @@ export type UserUpdateOneRequiredWithoutBillsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutBillsInput, Prisma.UserUpdateWithoutBillsInput>, Prisma.UserUncheckedUpdateWithoutBillsInput>
 }
 
+export type UserCreateWithoutVerificationTokensInput = {
+  name: string
+  email: string
+  passwordHash: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  twoFactorEnabled?: boolean
+  twoFactorSecret?: string | null
+  twoFactorBackupCodes?: Prisma.UserCreatetwoFactorBackupCodesInput | string[]
+  emailVerified?: boolean
+  emailVerifiedAt?: Date | string | null
+  wallets?: Prisma.WalletCreateNestedManyWithoutUserInput
+  transactions?: Prisma.TransactionCreateNestedManyWithoutUserInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutUserInput
+  budgets?: Prisma.BudgetCreateNestedManyWithoutUserInput
+  goals?: Prisma.GoalCreateNestedManyWithoutUserInput
+  bills?: Prisma.RecurringBillCreateNestedManyWithoutUserInput
+  sharedOut?: Prisma.SharedAccessCreateNestedManyWithoutOwnerInput
+  sharedIn?: Prisma.SharedAccessCreateNestedManyWithoutSharedWithUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutVerificationTokensInput = {
+  id?: number
+  name: string
+  email: string
+  passwordHash: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  twoFactorEnabled?: boolean
+  twoFactorSecret?: string | null
+  twoFactorBackupCodes?: Prisma.UserCreatetwoFactorBackupCodesInput | string[]
+  emailVerified?: boolean
+  emailVerifiedAt?: Date | string | null
+  wallets?: Prisma.WalletUncheckedCreateNestedManyWithoutUserInput
+  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutUserInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutUserInput
+  budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutUserInput
+  goals?: Prisma.GoalUncheckedCreateNestedManyWithoutUserInput
+  bills?: Prisma.RecurringBillUncheckedCreateNestedManyWithoutUserInput
+  sharedOut?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutOwnerInput
+  sharedIn?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutSharedWithUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutVerificationTokensInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutVerificationTokensInput, Prisma.UserUncheckedCreateWithoutVerificationTokensInput>
+}
+
+export type UserUpsertWithoutVerificationTokensInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutVerificationTokensInput, Prisma.UserUncheckedUpdateWithoutVerificationTokensInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutVerificationTokensInput, Prisma.UserUncheckedCreateWithoutVerificationTokensInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutVerificationTokensInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutVerificationTokensInput, Prisma.UserUncheckedUpdateWithoutVerificationTokensInput>
+}
+
+export type UserUpdateWithoutVerificationTokensInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorBackupCodes?: Prisma.UserUpdatetwoFactorBackupCodesInput | string[]
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  wallets?: Prisma.WalletUpdateManyWithoutUserNestedInput
+  transactions?: Prisma.TransactionUpdateManyWithoutUserNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutUserNestedInput
+  budgets?: Prisma.BudgetUpdateManyWithoutUserNestedInput
+  goals?: Prisma.GoalUpdateManyWithoutUserNestedInput
+  bills?: Prisma.RecurringBillUpdateManyWithoutUserNestedInput
+  sharedOut?: Prisma.SharedAccessUpdateManyWithoutOwnerNestedInput
+  sharedIn?: Prisma.SharedAccessUpdateManyWithoutSharedWithUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutVerificationTokensInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorBackupCodes?: Prisma.UserUpdatetwoFactorBackupCodesInput | string[]
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  wallets?: Prisma.WalletUncheckedUpdateManyWithoutUserNestedInput
+  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutUserNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutUserNestedInput
+  budgets?: Prisma.BudgetUncheckedUpdateManyWithoutUserNestedInput
+  goals?: Prisma.GoalUncheckedUpdateManyWithoutUserNestedInput
+  bills?: Prisma.RecurringBillUncheckedUpdateManyWithoutUserNestedInput
+  sharedOut?: Prisma.SharedAccessUncheckedUpdateManyWithoutOwnerNestedInput
+  sharedIn?: Prisma.SharedAccessUncheckedUpdateManyWithoutSharedWithUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+}
+
 export type UserCreateWithoutSessionsInput = {
   name: string
   email: string
@@ -668,6 +880,9 @@ export type UserCreateWithoutSessionsInput = {
   updatedAt?: Date | string
   twoFactorEnabled?: boolean
   twoFactorSecret?: string | null
+  twoFactorBackupCodes?: Prisma.UserCreatetwoFactorBackupCodesInput | string[]
+  emailVerified?: boolean
+  emailVerifiedAt?: Date | string | null
   wallets?: Prisma.WalletCreateNestedManyWithoutUserInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutUserInput
   categories?: Prisma.CategoryCreateNestedManyWithoutUserInput
@@ -677,6 +892,7 @@ export type UserCreateWithoutSessionsInput = {
   sharedOut?: Prisma.SharedAccessCreateNestedManyWithoutOwnerInput
   sharedIn?: Prisma.SharedAccessCreateNestedManyWithoutSharedWithUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.VerificationTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -688,6 +904,9 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   updatedAt?: Date | string
   twoFactorEnabled?: boolean
   twoFactorSecret?: string | null
+  twoFactorBackupCodes?: Prisma.UserCreatetwoFactorBackupCodesInput | string[]
+  emailVerified?: boolean
+  emailVerifiedAt?: Date | string | null
   wallets?: Prisma.WalletUncheckedCreateNestedManyWithoutUserInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutUserInput
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutUserInput
@@ -697,6 +916,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   sharedOut?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutOwnerInput
   sharedIn?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutSharedWithUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.VerificationTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -723,6 +943,9 @@ export type UserUpdateWithoutSessionsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorBackupCodes?: Prisma.UserUpdatetwoFactorBackupCodesInput | string[]
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   wallets?: Prisma.WalletUpdateManyWithoutUserNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutUserNestedInput
   categories?: Prisma.CategoryUpdateManyWithoutUserNestedInput
@@ -732,6 +955,7 @@ export type UserUpdateWithoutSessionsInput = {
   sharedOut?: Prisma.SharedAccessUpdateManyWithoutOwnerNestedInput
   sharedIn?: Prisma.SharedAccessUpdateManyWithoutSharedWithUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.VerificationTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -743,6 +967,9 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorBackupCodes?: Prisma.UserUpdatetwoFactorBackupCodesInput | string[]
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   wallets?: Prisma.WalletUncheckedUpdateManyWithoutUserNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutUserNestedInput
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutUserNestedInput
@@ -752,6 +979,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   sharedOut?: Prisma.SharedAccessUncheckedUpdateManyWithoutOwnerNestedInput
   sharedIn?: Prisma.SharedAccessUncheckedUpdateManyWithoutSharedWithUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.VerificationTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAuditLogsInput = {
@@ -762,6 +990,9 @@ export type UserCreateWithoutAuditLogsInput = {
   updatedAt?: Date | string
   twoFactorEnabled?: boolean
   twoFactorSecret?: string | null
+  twoFactorBackupCodes?: Prisma.UserCreatetwoFactorBackupCodesInput | string[]
+  emailVerified?: boolean
+  emailVerifiedAt?: Date | string | null
   wallets?: Prisma.WalletCreateNestedManyWithoutUserInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutUserInput
   categories?: Prisma.CategoryCreateNestedManyWithoutUserInput
@@ -771,6 +1002,7 @@ export type UserCreateWithoutAuditLogsInput = {
   sharedOut?: Prisma.SharedAccessCreateNestedManyWithoutOwnerInput
   sharedIn?: Prisma.SharedAccessCreateNestedManyWithoutSharedWithUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.VerificationTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -782,6 +1014,9 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   updatedAt?: Date | string
   twoFactorEnabled?: boolean
   twoFactorSecret?: string | null
+  twoFactorBackupCodes?: Prisma.UserCreatetwoFactorBackupCodesInput | string[]
+  emailVerified?: boolean
+  emailVerifiedAt?: Date | string | null
   wallets?: Prisma.WalletUncheckedCreateNestedManyWithoutUserInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutUserInput
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutUserInput
@@ -791,6 +1026,7 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   sharedOut?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutOwnerInput
   sharedIn?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutSharedWithUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.VerificationTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -817,6 +1053,9 @@ export type UserUpdateWithoutAuditLogsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorBackupCodes?: Prisma.UserUpdatetwoFactorBackupCodesInput | string[]
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   wallets?: Prisma.WalletUpdateManyWithoutUserNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutUserNestedInput
   categories?: Prisma.CategoryUpdateManyWithoutUserNestedInput
@@ -826,6 +1065,7 @@ export type UserUpdateWithoutAuditLogsInput = {
   sharedOut?: Prisma.SharedAccessUpdateManyWithoutOwnerNestedInput
   sharedIn?: Prisma.SharedAccessUpdateManyWithoutSharedWithUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.VerificationTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -837,6 +1077,9 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorBackupCodes?: Prisma.UserUpdatetwoFactorBackupCodesInput | string[]
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   wallets?: Prisma.WalletUncheckedUpdateManyWithoutUserNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutUserNestedInput
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutUserNestedInput
@@ -846,6 +1089,7 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   sharedOut?: Prisma.SharedAccessUncheckedUpdateManyWithoutOwnerNestedInput
   sharedIn?: Prisma.SharedAccessUncheckedUpdateManyWithoutSharedWithUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.VerificationTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSharedOutInput = {
@@ -856,6 +1100,9 @@ export type UserCreateWithoutSharedOutInput = {
   updatedAt?: Date | string
   twoFactorEnabled?: boolean
   twoFactorSecret?: string | null
+  twoFactorBackupCodes?: Prisma.UserCreatetwoFactorBackupCodesInput | string[]
+  emailVerified?: boolean
+  emailVerifiedAt?: Date | string | null
   wallets?: Prisma.WalletCreateNestedManyWithoutUserInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutUserInput
   categories?: Prisma.CategoryCreateNestedManyWithoutUserInput
@@ -865,6 +1112,7 @@ export type UserCreateWithoutSharedOutInput = {
   sharedIn?: Prisma.SharedAccessCreateNestedManyWithoutSharedWithUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.VerificationTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSharedOutInput = {
@@ -876,6 +1124,9 @@ export type UserUncheckedCreateWithoutSharedOutInput = {
   updatedAt?: Date | string
   twoFactorEnabled?: boolean
   twoFactorSecret?: string | null
+  twoFactorBackupCodes?: Prisma.UserCreatetwoFactorBackupCodesInput | string[]
+  emailVerified?: boolean
+  emailVerifiedAt?: Date | string | null
   wallets?: Prisma.WalletUncheckedCreateNestedManyWithoutUserInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutUserInput
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutUserInput
@@ -885,6 +1136,7 @@ export type UserUncheckedCreateWithoutSharedOutInput = {
   sharedIn?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutSharedWithUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.VerificationTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSharedOutInput = {
@@ -900,6 +1152,9 @@ export type UserCreateWithoutSharedInInput = {
   updatedAt?: Date | string
   twoFactorEnabled?: boolean
   twoFactorSecret?: string | null
+  twoFactorBackupCodes?: Prisma.UserCreatetwoFactorBackupCodesInput | string[]
+  emailVerified?: boolean
+  emailVerifiedAt?: Date | string | null
   wallets?: Prisma.WalletCreateNestedManyWithoutUserInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutUserInput
   categories?: Prisma.CategoryCreateNestedManyWithoutUserInput
@@ -909,6 +1164,7 @@ export type UserCreateWithoutSharedInInput = {
   sharedOut?: Prisma.SharedAccessCreateNestedManyWithoutOwnerInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.VerificationTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSharedInInput = {
@@ -920,6 +1176,9 @@ export type UserUncheckedCreateWithoutSharedInInput = {
   updatedAt?: Date | string
   twoFactorEnabled?: boolean
   twoFactorSecret?: string | null
+  twoFactorBackupCodes?: Prisma.UserCreatetwoFactorBackupCodesInput | string[]
+  emailVerified?: boolean
+  emailVerifiedAt?: Date | string | null
   wallets?: Prisma.WalletUncheckedCreateNestedManyWithoutUserInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutUserInput
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutUserInput
@@ -929,6 +1188,7 @@ export type UserUncheckedCreateWithoutSharedInInput = {
   sharedOut?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutOwnerInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.VerificationTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSharedInInput = {
@@ -955,6 +1215,9 @@ export type UserUpdateWithoutSharedOutInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorBackupCodes?: Prisma.UserUpdatetwoFactorBackupCodesInput | string[]
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   wallets?: Prisma.WalletUpdateManyWithoutUserNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutUserNestedInput
   categories?: Prisma.CategoryUpdateManyWithoutUserNestedInput
@@ -964,6 +1227,7 @@ export type UserUpdateWithoutSharedOutInput = {
   sharedIn?: Prisma.SharedAccessUpdateManyWithoutSharedWithUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.VerificationTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSharedOutInput = {
@@ -975,6 +1239,9 @@ export type UserUncheckedUpdateWithoutSharedOutInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorBackupCodes?: Prisma.UserUpdatetwoFactorBackupCodesInput | string[]
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   wallets?: Prisma.WalletUncheckedUpdateManyWithoutUserNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutUserNestedInput
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutUserNestedInput
@@ -984,6 +1251,7 @@ export type UserUncheckedUpdateWithoutSharedOutInput = {
   sharedIn?: Prisma.SharedAccessUncheckedUpdateManyWithoutSharedWithUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.VerificationTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutSharedInInput = {
@@ -1005,6 +1273,9 @@ export type UserUpdateWithoutSharedInInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorBackupCodes?: Prisma.UserUpdatetwoFactorBackupCodesInput | string[]
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   wallets?: Prisma.WalletUpdateManyWithoutUserNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutUserNestedInput
   categories?: Prisma.CategoryUpdateManyWithoutUserNestedInput
@@ -1014,6 +1285,7 @@ export type UserUpdateWithoutSharedInInput = {
   sharedOut?: Prisma.SharedAccessUpdateManyWithoutOwnerNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.VerificationTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSharedInInput = {
@@ -1025,6 +1297,9 @@ export type UserUncheckedUpdateWithoutSharedInInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorBackupCodes?: Prisma.UserUpdatetwoFactorBackupCodesInput | string[]
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   wallets?: Prisma.WalletUncheckedUpdateManyWithoutUserNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutUserNestedInput
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutUserNestedInput
@@ -1034,6 +1309,7 @@ export type UserUncheckedUpdateWithoutSharedInInput = {
   sharedOut?: Prisma.SharedAccessUncheckedUpdateManyWithoutOwnerNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.VerificationTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutWalletsInput = {
@@ -1044,6 +1320,9 @@ export type UserCreateWithoutWalletsInput = {
   updatedAt?: Date | string
   twoFactorEnabled?: boolean
   twoFactorSecret?: string | null
+  twoFactorBackupCodes?: Prisma.UserCreatetwoFactorBackupCodesInput | string[]
+  emailVerified?: boolean
+  emailVerifiedAt?: Date | string | null
   transactions?: Prisma.TransactionCreateNestedManyWithoutUserInput
   categories?: Prisma.CategoryCreateNestedManyWithoutUserInput
   budgets?: Prisma.BudgetCreateNestedManyWithoutUserInput
@@ -1053,6 +1332,7 @@ export type UserCreateWithoutWalletsInput = {
   sharedIn?: Prisma.SharedAccessCreateNestedManyWithoutSharedWithUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.VerificationTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutWalletsInput = {
@@ -1064,6 +1344,9 @@ export type UserUncheckedCreateWithoutWalletsInput = {
   updatedAt?: Date | string
   twoFactorEnabled?: boolean
   twoFactorSecret?: string | null
+  twoFactorBackupCodes?: Prisma.UserCreatetwoFactorBackupCodesInput | string[]
+  emailVerified?: boolean
+  emailVerifiedAt?: Date | string | null
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutUserInput
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutUserInput
   budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutUserInput
@@ -1073,6 +1356,7 @@ export type UserUncheckedCreateWithoutWalletsInput = {
   sharedIn?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutSharedWithUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.VerificationTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutWalletsInput = {
@@ -1099,6 +1383,9 @@ export type UserUpdateWithoutWalletsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorBackupCodes?: Prisma.UserUpdatetwoFactorBackupCodesInput | string[]
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   transactions?: Prisma.TransactionUpdateManyWithoutUserNestedInput
   categories?: Prisma.CategoryUpdateManyWithoutUserNestedInput
   budgets?: Prisma.BudgetUpdateManyWithoutUserNestedInput
@@ -1108,6 +1395,7 @@ export type UserUpdateWithoutWalletsInput = {
   sharedIn?: Prisma.SharedAccessUpdateManyWithoutSharedWithUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.VerificationTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutWalletsInput = {
@@ -1119,6 +1407,9 @@ export type UserUncheckedUpdateWithoutWalletsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorBackupCodes?: Prisma.UserUpdatetwoFactorBackupCodesInput | string[]
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutUserNestedInput
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutUserNestedInput
   budgets?: Prisma.BudgetUncheckedUpdateManyWithoutUserNestedInput
@@ -1128,6 +1419,7 @@ export type UserUncheckedUpdateWithoutWalletsInput = {
   sharedIn?: Prisma.SharedAccessUncheckedUpdateManyWithoutSharedWithUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.VerificationTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCategoriesInput = {
@@ -1138,6 +1430,9 @@ export type UserCreateWithoutCategoriesInput = {
   updatedAt?: Date | string
   twoFactorEnabled?: boolean
   twoFactorSecret?: string | null
+  twoFactorBackupCodes?: Prisma.UserCreatetwoFactorBackupCodesInput | string[]
+  emailVerified?: boolean
+  emailVerifiedAt?: Date | string | null
   wallets?: Prisma.WalletCreateNestedManyWithoutUserInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutUserInput
   budgets?: Prisma.BudgetCreateNestedManyWithoutUserInput
@@ -1147,6 +1442,7 @@ export type UserCreateWithoutCategoriesInput = {
   sharedIn?: Prisma.SharedAccessCreateNestedManyWithoutSharedWithUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.VerificationTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCategoriesInput = {
@@ -1158,6 +1454,9 @@ export type UserUncheckedCreateWithoutCategoriesInput = {
   updatedAt?: Date | string
   twoFactorEnabled?: boolean
   twoFactorSecret?: string | null
+  twoFactorBackupCodes?: Prisma.UserCreatetwoFactorBackupCodesInput | string[]
+  emailVerified?: boolean
+  emailVerifiedAt?: Date | string | null
   wallets?: Prisma.WalletUncheckedCreateNestedManyWithoutUserInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutUserInput
   budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutUserInput
@@ -1167,6 +1466,7 @@ export type UserUncheckedCreateWithoutCategoriesInput = {
   sharedIn?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutSharedWithUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.VerificationTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCategoriesInput = {
@@ -1193,6 +1493,9 @@ export type UserUpdateWithoutCategoriesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorBackupCodes?: Prisma.UserUpdatetwoFactorBackupCodesInput | string[]
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   wallets?: Prisma.WalletUpdateManyWithoutUserNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutUserNestedInput
   budgets?: Prisma.BudgetUpdateManyWithoutUserNestedInput
@@ -1202,6 +1505,7 @@ export type UserUpdateWithoutCategoriesInput = {
   sharedIn?: Prisma.SharedAccessUpdateManyWithoutSharedWithUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.VerificationTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCategoriesInput = {
@@ -1213,6 +1517,9 @@ export type UserUncheckedUpdateWithoutCategoriesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorBackupCodes?: Prisma.UserUpdatetwoFactorBackupCodesInput | string[]
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   wallets?: Prisma.WalletUncheckedUpdateManyWithoutUserNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutUserNestedInput
   budgets?: Prisma.BudgetUncheckedUpdateManyWithoutUserNestedInput
@@ -1222,6 +1529,7 @@ export type UserUncheckedUpdateWithoutCategoriesInput = {
   sharedIn?: Prisma.SharedAccessUncheckedUpdateManyWithoutSharedWithUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.VerificationTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutTransactionsInput = {
@@ -1232,6 +1540,9 @@ export type UserCreateWithoutTransactionsInput = {
   updatedAt?: Date | string
   twoFactorEnabled?: boolean
   twoFactorSecret?: string | null
+  twoFactorBackupCodes?: Prisma.UserCreatetwoFactorBackupCodesInput | string[]
+  emailVerified?: boolean
+  emailVerifiedAt?: Date | string | null
   wallets?: Prisma.WalletCreateNestedManyWithoutUserInput
   categories?: Prisma.CategoryCreateNestedManyWithoutUserInput
   budgets?: Prisma.BudgetCreateNestedManyWithoutUserInput
@@ -1241,6 +1552,7 @@ export type UserCreateWithoutTransactionsInput = {
   sharedIn?: Prisma.SharedAccessCreateNestedManyWithoutSharedWithUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.VerificationTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutTransactionsInput = {
@@ -1252,6 +1564,9 @@ export type UserUncheckedCreateWithoutTransactionsInput = {
   updatedAt?: Date | string
   twoFactorEnabled?: boolean
   twoFactorSecret?: string | null
+  twoFactorBackupCodes?: Prisma.UserCreatetwoFactorBackupCodesInput | string[]
+  emailVerified?: boolean
+  emailVerifiedAt?: Date | string | null
   wallets?: Prisma.WalletUncheckedCreateNestedManyWithoutUserInput
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutUserInput
   budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutUserInput
@@ -1261,6 +1576,7 @@ export type UserUncheckedCreateWithoutTransactionsInput = {
   sharedIn?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutSharedWithUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.VerificationTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutTransactionsInput = {
@@ -1287,6 +1603,9 @@ export type UserUpdateWithoutTransactionsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorBackupCodes?: Prisma.UserUpdatetwoFactorBackupCodesInput | string[]
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   wallets?: Prisma.WalletUpdateManyWithoutUserNestedInput
   categories?: Prisma.CategoryUpdateManyWithoutUserNestedInput
   budgets?: Prisma.BudgetUpdateManyWithoutUserNestedInput
@@ -1296,6 +1615,7 @@ export type UserUpdateWithoutTransactionsInput = {
   sharedIn?: Prisma.SharedAccessUpdateManyWithoutSharedWithUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.VerificationTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTransactionsInput = {
@@ -1307,6 +1627,9 @@ export type UserUncheckedUpdateWithoutTransactionsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorBackupCodes?: Prisma.UserUpdatetwoFactorBackupCodesInput | string[]
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   wallets?: Prisma.WalletUncheckedUpdateManyWithoutUserNestedInput
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutUserNestedInput
   budgets?: Prisma.BudgetUncheckedUpdateManyWithoutUserNestedInput
@@ -1316,6 +1639,7 @@ export type UserUncheckedUpdateWithoutTransactionsInput = {
   sharedIn?: Prisma.SharedAccessUncheckedUpdateManyWithoutSharedWithUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.VerificationTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutBudgetsInput = {
@@ -1326,6 +1650,9 @@ export type UserCreateWithoutBudgetsInput = {
   updatedAt?: Date | string
   twoFactorEnabled?: boolean
   twoFactorSecret?: string | null
+  twoFactorBackupCodes?: Prisma.UserCreatetwoFactorBackupCodesInput | string[]
+  emailVerified?: boolean
+  emailVerifiedAt?: Date | string | null
   wallets?: Prisma.WalletCreateNestedManyWithoutUserInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutUserInput
   categories?: Prisma.CategoryCreateNestedManyWithoutUserInput
@@ -1335,6 +1662,7 @@ export type UserCreateWithoutBudgetsInput = {
   sharedIn?: Prisma.SharedAccessCreateNestedManyWithoutSharedWithUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.VerificationTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutBudgetsInput = {
@@ -1346,6 +1674,9 @@ export type UserUncheckedCreateWithoutBudgetsInput = {
   updatedAt?: Date | string
   twoFactorEnabled?: boolean
   twoFactorSecret?: string | null
+  twoFactorBackupCodes?: Prisma.UserCreatetwoFactorBackupCodesInput | string[]
+  emailVerified?: boolean
+  emailVerifiedAt?: Date | string | null
   wallets?: Prisma.WalletUncheckedCreateNestedManyWithoutUserInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutUserInput
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutUserInput
@@ -1355,6 +1686,7 @@ export type UserUncheckedCreateWithoutBudgetsInput = {
   sharedIn?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutSharedWithUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.VerificationTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutBudgetsInput = {
@@ -1381,6 +1713,9 @@ export type UserUpdateWithoutBudgetsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorBackupCodes?: Prisma.UserUpdatetwoFactorBackupCodesInput | string[]
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   wallets?: Prisma.WalletUpdateManyWithoutUserNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutUserNestedInput
   categories?: Prisma.CategoryUpdateManyWithoutUserNestedInput
@@ -1390,6 +1725,7 @@ export type UserUpdateWithoutBudgetsInput = {
   sharedIn?: Prisma.SharedAccessUpdateManyWithoutSharedWithUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.VerificationTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBudgetsInput = {
@@ -1401,6 +1737,9 @@ export type UserUncheckedUpdateWithoutBudgetsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorBackupCodes?: Prisma.UserUpdatetwoFactorBackupCodesInput | string[]
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   wallets?: Prisma.WalletUncheckedUpdateManyWithoutUserNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutUserNestedInput
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutUserNestedInput
@@ -1410,6 +1749,7 @@ export type UserUncheckedUpdateWithoutBudgetsInput = {
   sharedIn?: Prisma.SharedAccessUncheckedUpdateManyWithoutSharedWithUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.VerificationTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutGoalsInput = {
@@ -1420,6 +1760,9 @@ export type UserCreateWithoutGoalsInput = {
   updatedAt?: Date | string
   twoFactorEnabled?: boolean
   twoFactorSecret?: string | null
+  twoFactorBackupCodes?: Prisma.UserCreatetwoFactorBackupCodesInput | string[]
+  emailVerified?: boolean
+  emailVerifiedAt?: Date | string | null
   wallets?: Prisma.WalletCreateNestedManyWithoutUserInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutUserInput
   categories?: Prisma.CategoryCreateNestedManyWithoutUserInput
@@ -1429,6 +1772,7 @@ export type UserCreateWithoutGoalsInput = {
   sharedIn?: Prisma.SharedAccessCreateNestedManyWithoutSharedWithUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.VerificationTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutGoalsInput = {
@@ -1440,6 +1784,9 @@ export type UserUncheckedCreateWithoutGoalsInput = {
   updatedAt?: Date | string
   twoFactorEnabled?: boolean
   twoFactorSecret?: string | null
+  twoFactorBackupCodes?: Prisma.UserCreatetwoFactorBackupCodesInput | string[]
+  emailVerified?: boolean
+  emailVerifiedAt?: Date | string | null
   wallets?: Prisma.WalletUncheckedCreateNestedManyWithoutUserInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutUserInput
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutUserInput
@@ -1449,6 +1796,7 @@ export type UserUncheckedCreateWithoutGoalsInput = {
   sharedIn?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutSharedWithUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.VerificationTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutGoalsInput = {
@@ -1475,6 +1823,9 @@ export type UserUpdateWithoutGoalsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorBackupCodes?: Prisma.UserUpdatetwoFactorBackupCodesInput | string[]
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   wallets?: Prisma.WalletUpdateManyWithoutUserNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutUserNestedInput
   categories?: Prisma.CategoryUpdateManyWithoutUserNestedInput
@@ -1484,6 +1835,7 @@ export type UserUpdateWithoutGoalsInput = {
   sharedIn?: Prisma.SharedAccessUpdateManyWithoutSharedWithUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.VerificationTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutGoalsInput = {
@@ -1495,6 +1847,9 @@ export type UserUncheckedUpdateWithoutGoalsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorBackupCodes?: Prisma.UserUpdatetwoFactorBackupCodesInput | string[]
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   wallets?: Prisma.WalletUncheckedUpdateManyWithoutUserNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutUserNestedInput
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutUserNestedInput
@@ -1504,6 +1859,7 @@ export type UserUncheckedUpdateWithoutGoalsInput = {
   sharedIn?: Prisma.SharedAccessUncheckedUpdateManyWithoutSharedWithUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.VerificationTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutBillsInput = {
@@ -1514,6 +1870,9 @@ export type UserCreateWithoutBillsInput = {
   updatedAt?: Date | string
   twoFactorEnabled?: boolean
   twoFactorSecret?: string | null
+  twoFactorBackupCodes?: Prisma.UserCreatetwoFactorBackupCodesInput | string[]
+  emailVerified?: boolean
+  emailVerifiedAt?: Date | string | null
   wallets?: Prisma.WalletCreateNestedManyWithoutUserInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutUserInput
   categories?: Prisma.CategoryCreateNestedManyWithoutUserInput
@@ -1523,6 +1882,7 @@ export type UserCreateWithoutBillsInput = {
   sharedIn?: Prisma.SharedAccessCreateNestedManyWithoutSharedWithUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.VerificationTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutBillsInput = {
@@ -1534,6 +1894,9 @@ export type UserUncheckedCreateWithoutBillsInput = {
   updatedAt?: Date | string
   twoFactorEnabled?: boolean
   twoFactorSecret?: string | null
+  twoFactorBackupCodes?: Prisma.UserCreatetwoFactorBackupCodesInput | string[]
+  emailVerified?: boolean
+  emailVerifiedAt?: Date | string | null
   wallets?: Prisma.WalletUncheckedCreateNestedManyWithoutUserInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutUserInput
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutUserInput
@@ -1543,6 +1906,7 @@ export type UserUncheckedCreateWithoutBillsInput = {
   sharedIn?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutSharedWithUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.VerificationTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutBillsInput = {
@@ -1569,6 +1933,9 @@ export type UserUpdateWithoutBillsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorBackupCodes?: Prisma.UserUpdatetwoFactorBackupCodesInput | string[]
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   wallets?: Prisma.WalletUpdateManyWithoutUserNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutUserNestedInput
   categories?: Prisma.CategoryUpdateManyWithoutUserNestedInput
@@ -1578,6 +1945,7 @@ export type UserUpdateWithoutBillsInput = {
   sharedIn?: Prisma.SharedAccessUpdateManyWithoutSharedWithUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.VerificationTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBillsInput = {
@@ -1589,6 +1957,9 @@ export type UserUncheckedUpdateWithoutBillsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   twoFactorEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   twoFactorSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twoFactorBackupCodes?: Prisma.UserUpdatetwoFactorBackupCodesInput | string[]
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   wallets?: Prisma.WalletUncheckedUpdateManyWithoutUserNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutUserNestedInput
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutUserNestedInput
@@ -1598,6 +1969,7 @@ export type UserUncheckedUpdateWithoutBillsInput = {
   sharedIn?: Prisma.SharedAccessUncheckedUpdateManyWithoutSharedWithUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.VerificationTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -1616,6 +1988,7 @@ export type UserCountOutputType = {
   sharedIn: number
   sessions: number
   auditLogs: number
+  verificationTokens: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1629,6 +2002,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   sharedIn?: boolean | UserCountOutputTypeCountSharedInArgs
   sessions?: boolean | UserCountOutputTypeCountSessionsArgs
   auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
+  verificationTokens?: boolean | UserCountOutputTypeCountVerificationTokensArgs
 }
 
 /**
@@ -1711,6 +2085,13 @@ export type UserCountOutputTypeCountAuditLogsArgs<ExtArgs extends runtime.Types.
   where?: Prisma.AuditLogWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountVerificationTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.VerificationTokenWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1721,6 +2102,9 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   updatedAt?: boolean
   twoFactorEnabled?: boolean
   twoFactorSecret?: boolean
+  twoFactorBackupCodes?: boolean
+  emailVerified?: boolean
+  emailVerifiedAt?: boolean
   wallets?: boolean | Prisma.User$walletsArgs<ExtArgs>
   transactions?: boolean | Prisma.User$transactionsArgs<ExtArgs>
   categories?: boolean | Prisma.User$categoriesArgs<ExtArgs>
@@ -1731,6 +2115,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   sharedIn?: boolean | Prisma.User$sharedInArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
+  verificationTokens?: boolean | Prisma.User$verificationTokensArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1743,6 +2128,9 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   updatedAt?: boolean
   twoFactorEnabled?: boolean
   twoFactorSecret?: boolean
+  twoFactorBackupCodes?: boolean
+  emailVerified?: boolean
+  emailVerifiedAt?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1754,6 +2142,9 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   updatedAt?: boolean
   twoFactorEnabled?: boolean
   twoFactorSecret?: boolean
+  twoFactorBackupCodes?: boolean
+  emailVerified?: boolean
+  emailVerifiedAt?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectScalar = {
@@ -1765,9 +2156,12 @@ export type UserSelectScalar = {
   updatedAt?: boolean
   twoFactorEnabled?: boolean
   twoFactorSecret?: boolean
+  twoFactorBackupCodes?: boolean
+  emailVerified?: boolean
+  emailVerifiedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "passwordHash" | "createdAt" | "updatedAt" | "twoFactorEnabled" | "twoFactorSecret", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "passwordHash" | "createdAt" | "updatedAt" | "twoFactorEnabled" | "twoFactorSecret" | "twoFactorBackupCodes" | "emailVerified" | "emailVerifiedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   wallets?: boolean | Prisma.User$walletsArgs<ExtArgs>
   transactions?: boolean | Prisma.User$transactionsArgs<ExtArgs>
@@ -1779,6 +2173,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   sharedIn?: boolean | Prisma.User$sharedInArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
+  verificationTokens?: boolean | Prisma.User$verificationTokensArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1797,6 +2192,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     sharedIn: Prisma.$SharedAccessPayload<ExtArgs>[]
     sessions: Prisma.$SessionPayload<ExtArgs>[]
     auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
+    verificationTokens: Prisma.$VerificationTokenPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1807,6 +2203,9 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     updatedAt: Date
     twoFactorEnabled: boolean
     twoFactorSecret: string | null
+    twoFactorBackupCodes: string[]
+    emailVerified: boolean
+    emailVerifiedAt: Date | null
   }, ExtArgs["result"]["user"]>
   composites: {}
 }
@@ -2211,6 +2610,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   sharedIn<T extends Prisma.User$sharedInArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sharedInArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SharedAccessPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sessions<T extends Prisma.User$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   auditLogs<T extends Prisma.User$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  verificationTokens<T extends Prisma.User$verificationTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$verificationTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VerificationTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2248,6 +2648,9 @@ export interface UserFieldRefs {
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly twoFactorEnabled: Prisma.FieldRef<"User", 'Boolean'>
   readonly twoFactorSecret: Prisma.FieldRef<"User", 'String'>
+  readonly twoFactorBackupCodes: Prisma.FieldRef<"User", 'String[]'>
+  readonly emailVerified: Prisma.FieldRef<"User", 'Boolean'>
+  readonly emailVerifiedAt: Prisma.FieldRef<"User", 'DateTime'>
 }
     
 
@@ -2878,6 +3281,30 @@ export type User$auditLogsArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   distinct?: Prisma.AuditLogScalarFieldEnum | Prisma.AuditLogScalarFieldEnum[]
+}
+
+/**
+ * User.verificationTokens
+ */
+export type User$verificationTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the VerificationToken
+   */
+  select?: Prisma.VerificationTokenSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the VerificationToken
+   */
+  omit?: Prisma.VerificationTokenOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.VerificationTokenInclude<ExtArgs> | null
+  where?: Prisma.VerificationTokenWhereInput
+  orderBy?: Prisma.VerificationTokenOrderByWithRelationInput | Prisma.VerificationTokenOrderByWithRelationInput[]
+  cursor?: Prisma.VerificationTokenWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.VerificationTokenScalarFieldEnum | Prisma.VerificationTokenScalarFieldEnum[]
 }
 
 /**

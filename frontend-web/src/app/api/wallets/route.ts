@@ -43,6 +43,9 @@ export async function POST(req: NextRequest) {
     name: z.string().min(1).max(100),
     type: z.enum(["CHECKING", "CREDIT", "INVESTMENT", "OTHER"]).default("CHECKING"),
     balance: z.number().default(0),
+    creditLimit: z.number().positive().optional(),
+    closingDay: z.number().int().min(1).max(31).optional(),
+    dueDay: z.number().int().min(1).max(31).optional(),
   }).safeParse(body);
 
   if (!parsed.success) {
@@ -55,6 +58,13 @@ export async function POST(req: NextRequest) {
       type: parsed.data.type,
       balance: parsed.data.balance,
       userId,
+      ...(parsed.data.type === "CREDIT"
+        ? {
+            creditLimit: parsed.data.creditLimit ?? null,
+            closingDay: parsed.data.closingDay ?? null,
+            dueDay: parsed.data.dueDay ?? null,
+          }
+        : {}),
     },
   });
 

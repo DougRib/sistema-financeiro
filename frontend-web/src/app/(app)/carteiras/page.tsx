@@ -34,6 +34,9 @@ export default function CarteirasPage() {
   const [newName, setNewName] = useState("");
   const [newType, setNewType] = useState("CHECKING");
   const [newBalance, setNewBalance] = useState("0");
+  const [newCreditLimit, setNewCreditLimit] = useState("");
+  const [newClosingDay, setNewClosingDay] = useState("");
+  const [newDueDay, setNewDueDay] = useState("");
   const [saving, setSaving] = useState(false);
   const toast = useToast();
   const { hidden } = usePrivacy();
@@ -73,14 +76,23 @@ export default function CarteirasPage() {
     }
     setSaving(true);
     try {
+      const body: Record<string, unknown> = {
+        name: newName.trim(),
+        type: newType,
+        balance: parseFloat(newBalance.replace(",", ".")) || 0,
+      };
+      if (newType === "CREDIT") {
+        const limit = parseFloat(newCreditLimit.replace(",", "."));
+        if (!isNaN(limit) && limit > 0) body.creditLimit = limit;
+        const cd = parseInt(newClosingDay);
+        if (!isNaN(cd) && cd >= 1 && cd <= 31) body.closingDay = cd;
+        const dd = parseInt(newDueDay);
+        if (!isNaN(dd) && dd >= 1 && dd <= 31) body.dueDay = dd;
+      }
       const r = await fetch("/api/wallets", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: newName.trim(),
-          type: newType,
-          balance: parseFloat(newBalance.replace(",", ".")) || 0,
-        }),
+        body: JSON.stringify(body),
       });
       const j = await r.json();
       if (!j.ok) {
@@ -88,7 +100,12 @@ export default function CarteirasPage() {
         return;
       }
       toast.success("Carteira criada");
-      setNewName(""); setNewType("CHECKING"); setNewBalance("0");
+      setNewName("");
+      setNewType("CHECKING");
+      setNewBalance("0");
+      setNewCreditLimit("");
+      setNewClosingDay("");
+      setNewDueDay("");
       setShowForm(false);
       fetchWallets();
     } catch {
@@ -300,7 +317,9 @@ export default function CarteirasPage() {
             </select>
           </div>
           <div>
-            <label className="text-[10px] uppercase tracking-widest font-bold text-text-secondary mb-1.5 block">Saldo inicial (R$)</label>
+            <label className="text-[10px] uppercase tracking-widest font-bold text-text-secondary mb-1.5 block">
+              {newType === "CREDIT" ? "Saldo já utilizado (R$)" : "Saldo inicial (R$)"}
+            </label>
             <input
               type="text"
               value={newBalance}
@@ -309,6 +328,57 @@ export default function CarteirasPage() {
               className="w-full bg-card-hover border border-border rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none focus:border-accent transition-colors"
             />
           </div>
+
+          {newType === "CREDIT" && (
+            <>
+              <div>
+                <label className="text-[10px] uppercase tracking-widest font-bold text-text-secondary mb-1.5 block">
+                  Limite de crédito (R$)
+                </label>
+                <input
+                  type="text"
+                  value={newCreditLimit}
+                  onChange={(e) => setNewCreditLimit(e.target.value)}
+                  placeholder="5.000,00"
+                  className="w-full bg-card-hover border border-border rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none focus:border-accent transition-colors"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest font-bold text-text-secondary mb-1.5 block">
+                    Dia fecha
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="31"
+                    value={newClosingDay}
+                    onChange={(e) => setNewClosingDay(e.target.value)}
+                    placeholder="25"
+                    className="w-full bg-card-hover border border-border rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none focus:border-accent transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest font-bold text-text-secondary mb-1.5 block">
+                    Dia vence
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="31"
+                    value={newDueDay}
+                    onChange={(e) => setNewDueDay(e.target.value)}
+                    placeholder="10"
+                    className="w-full bg-card-hover border border-border rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none focus:border-accent transition-colors"
+                  />
+                </div>
+              </div>
+              <p className="text-[10px] text-muted leading-relaxed">
+                Despesas feitas até o dia <strong className="text-text">{newClosingDay || "25"}</strong>{" "}
+                vão na fatura que vence em <strong className="text-text">{newDueDay || "10"}</strong> do mês seguinte.
+              </p>
+            </>
+          )}
         </div>
       </Modal>
     </div>

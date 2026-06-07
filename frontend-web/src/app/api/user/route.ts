@@ -13,7 +13,14 @@ export async function GET(req: NextRequest) {
   const [user, counts] = await Promise.all([
     prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, name: true, email: true, createdAt: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        createdAt: true,
+        emailVerified: true,
+        twoFactorEnabled: true,
+      },
     }),
     Promise.all([
       prisma.transaction.count({ where: { userId } }),

@@ -44,6 +44,9 @@ const CSRF_EXEMPT_PREFIXES = [
   "/api/auth/register",
   "/api/auth/refresh",
   "/api/auth/logout",
+  "/api/auth/forgot-password",
+  "/api/auth/reset-password",
+  "/api/auth/verify-email",
 ];
 
 const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);

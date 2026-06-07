@@ -8,9 +8,14 @@ import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { createSession } from "@/lib/sessions";
 import { setAuthCookies } from "@/lib/auth-cookies";
 import { audit } from "@/lib/audit";
+import {
+  verifyTotpToken,
+  findMatchingBackupCode,
+} from "@/lib/totp";
 
 type LoginResponse =
   | { ok: true; id: number; name: string; email: string }
+  | { ok: true; require2fa: true }
   | { ok: false; error: string };
 
 export async function POST(req: NextRequest) {
@@ -18,7 +23,6 @@ export async function POST(req: NextRequest) {
   const userAgent = req.headers.get("user-agent");
 
   try {
-    // Rate-limit: 5 tentativas/min/IP
     const limited = rateLimit(`login:${ip}`, { max: 5, windowMs: 60_000 });
     if (!limited.ok) {
       return NextResponse.json<LoginResponse>(
@@ -26,10 +30,7 @@ export async function POST(req: NextRequest) {
           ok: false,
           error: `Muitas tentativas. Tente novamente em ${limited.retryAfterSeconds}s.`,
         },
-        {
-          status: 429,
-          headers: { "Retry-After": String(limited.retryAfterSeconds) },
-        },
+        { status: 429, headers: { "Retry-After": String(limited.retryAfterSeconds) } },
       );
     }
 
@@ -43,6 +44,9 @@ export async function POST(req: NextRequest) {
     }
 
     const { email, password } = parsed.data;
+    // body.totp pode vir no segundo POST (após desafio 2FA)
+    const totp = typeof body?.totp === "string" ? (body.totp as string).trim() : "";
+
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
       await audit({ action: "auth.login_failed", ipAddress: ip, userAgent, metadata: { email } });
@@ -67,10 +71,53 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Cria refresh session (DB) e access token (JWT 1h).
-    const session = await createSession({ userId: user.id, userAgent, ipAddress: ip });
-    const accessToken = signJwt({ sub: user.id, sid: session ? "x" : "" });
+    // 2FA challenge — se ativo, exige token TOTP ou backup code.
+    if (user.twoFactorEnabled) {
+      if (!totp) {
+        // primeiro POST: senha OK mas falta o 2º fator
+        return NextResponse.json<LoginResponse>({ ok: true, require2fa: true });
+      }
 
+      const validTotp = user.twoFactorSecret
+        ? verifyTotpToken(totp, user.twoFactorSecret)
+        : false;
+
+      let usedBackup = false;
+      if (!validTotp && user.twoFactorBackupCodes.length > 0) {
+        const matched = findMatchingBackupCode(totp, user.twoFactorBackupCodes);
+        if (matched) {
+          usedBackup = true;
+          // Consome o backup code (single-use)
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { twoFactorBackupCodes: user.twoFactorBackupCodes.filter((h) => h !== matched) },
+          });
+        }
+      }
+
+      if (!validTotp && !usedBackup) {
+        await audit({
+          action: "auth.2fa_failed",
+          userId: user.id,
+          ipAddress: ip,
+          userAgent,
+        });
+        return NextResponse.json<LoginResponse>(
+          { ok: false, error: "Código 2FA inválido" },
+          { status: 401 },
+        );
+      }
+
+      await audit({
+        action: usedBackup ? "auth.2fa_backup_used" : "auth.2fa_success",
+        userId: user.id,
+        ipAddress: ip,
+        userAgent,
+      });
+    }
+
+    const session = await createSession({ userId: user.id, userAgent, ipAddress: ip });
+    const accessToken = signJwt({ sub: user.id });
     await setAuthCookies({ accessToken, refreshToken: session.token });
     await audit({ action: "auth.login", userId: user.id, ipAddress: ip, userAgent });
 

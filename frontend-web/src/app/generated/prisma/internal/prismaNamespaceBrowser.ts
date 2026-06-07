@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
+  VerificationToken: 'VerificationToken',
   Session: 'Session',
   AuditLog: 'AuditLog',
   SharedAccess: 'SharedAccess',
@@ -87,10 +88,26 @@ export const UserScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   twoFactorEnabled: 'twoFactorEnabled',
-  twoFactorSecret: 'twoFactorSecret'
+  twoFactorSecret: 'twoFactorSecret',
+  twoFactorBackupCodes: 'twoFactorBackupCodes',
+  emailVerified: 'emailVerified',
+  emailVerifiedAt: 'emailVerifiedAt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const VerificationTokenScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  tokenHash: 'tokenHash',
+  type: 'type',
+  expiresAt: 'expiresAt',
+  usedAt: 'usedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type VerificationTokenScalarFieldEnum = (typeof VerificationTokenScalarFieldEnum)[keyof typeof VerificationTokenScalarFieldEnum]
 
 
 export const SessionScalarFieldEnum = {
@@ -143,7 +160,10 @@ export const WalletScalarFieldEnum = {
   type: 'type',
   userId: 'userId',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  creditLimit: 'creditLimit',
+  closingDay: 'closingDay',
+  dueDay: 'dueDay'
 } as const
 
 export type WalletScalarFieldEnum = (typeof WalletScalarFieldEnum)[keyof typeof WalletScalarFieldEnum]
@@ -171,6 +191,9 @@ export const TransactionScalarFieldEnum = {
   userId: 'userId',
   categoryId: 'categoryId',
   walletId: 'walletId',
+  installmentGroupId: 'installmentGroupId',
+  installmentNumber: 'installmentNumber',
+  installmentTotal: 'installmentTotal',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

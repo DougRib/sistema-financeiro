@@ -9,6 +9,14 @@
 * 🟢 You can import this file directly.
 */
 
+export const VerificationTokenType = {
+  EMAIL_VERIFY: 'EMAIL_VERIFY',
+  PASSWORD_RESET: 'PASSWORD_RESET'
+} as const
+
+export type VerificationTokenType = (typeof VerificationTokenType)[keyof typeof VerificationTokenType]
+
+
 export const SharePermission = {
   READ: 'READ',
   WRITE: 'WRITE'

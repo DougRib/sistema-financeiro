@@ -47,6 +47,12 @@ export { Prisma }
  */
 export type User = Prisma.UserModel
 /**
+ * Model VerificationToken
+ * Tokens single-use para verificação de email e reset de senha.
+ * Armazenamos só o SHA-256 do token; o texto original vai por email.
+ */
+export type VerificationToken = Prisma.VerificationTokenModel
+/**
  * Model Session
  * Sessão refresh-token. O `tokenHash` é SHA-256 do refresh token.
  * O access-token (JWT curto) não é armazenado.

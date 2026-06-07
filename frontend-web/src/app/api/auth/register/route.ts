@@ -8,6 +8,8 @@ import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { createSession } from "@/lib/sessions";
 import { setAuthCookies } from "@/lib/auth-cookies";
 import { audit } from "@/lib/audit";
+import { createVerificationToken } from "@/lib/verification-tokens";
+import { sendEmail, verifyEmailEmail } from "@/lib/email";
 
 type RegisterResponse =
   | { ok: true; user: { id: number; name: string; email: string } }
@@ -63,6 +65,15 @@ export async function POST(req: NextRequest) {
     const session = await createSession({ userId: user.id, userAgent, ipAddress: ip });
     const accessToken = signJwt({ sub: user.id });
     await setAuthCookies({ accessToken, refreshToken: session.token });
+
+    // Envia email de verificação (best-effort)
+    try {
+      const verifyToken = await createVerificationToken(user.id, "EMAIL_VERIFY");
+      const tpl = verifyEmailEmail(user.name, verifyToken);
+      await sendEmail({ ...tpl, to: user.email });
+    } catch (err) {
+      console.error("[register/sendVerifyEmail]", err);
+    }
 
     await audit({ action: "auth.register", userId: user.id, ipAddress: ip, userAgent });
 

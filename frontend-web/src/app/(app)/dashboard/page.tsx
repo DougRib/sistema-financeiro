@@ -708,6 +708,37 @@ function NewTransactionPanel({ onClose, onCreated }: NewTransactionPanelProps) {
     });
   }, []);
 
+  // Auto-categorização: sugere categoria conforme o usuário digita a descrição.
+  // Debounce 400ms; não sobrescreve se já tem categoria escolhida.
+  const [suggestion, setSuggestion] = useState<{ id: number; name: string } | null>(null);
+  useEffect(() => {
+    const trimmed = description.trim();
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (!cancelled) setSuggestion(null);
+    });
+    if (trimmed.length < 3 || categoryId) return;
+    const timer = setTimeout(() => {
+      fetch("/api/transactions/suggest-category", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ description: trimmed, type }),
+      })
+        .then((r) => r.json())
+        .then((j) => {
+          if (cancelled) return;
+          if (j.ok && j.suggestion) {
+            setSuggestion({ id: j.suggestion.categoryId, name: j.suggestion.categoryName });
+          }
+        })
+        .catch(() => {});
+    }, 400);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [description, type, categoryId]);
+
   async function handleSave() {
     if (!amount || !date || !walletId) {
       toast.error("Preencha valor, data e carteira");
@@ -829,6 +860,15 @@ function NewTransactionPanel({ onClose, onCreated }: NewTransactionPanelProps) {
                 </option>
               ))}
             </select>
+            {suggestion && !categoryId && (
+              <button
+                type="button"
+                onClick={() => setCategoryId(String(suggestion.id))}
+                className="mt-1.5 inline-flex items-center gap-1 text-[10px] text-accent hover:text-accent-hover transition-colors cursor-pointer"
+              >
+                ✨ Sugestão: <span className="font-semibold underline">{suggestion.name}</span>
+              </button>
+            )}
           </Field>
 
           <Field label="Carteira">
