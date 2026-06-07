@@ -20,9 +20,14 @@ model User {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  // 2FA — quando true, login exige TOTP code. UI ainda em desenvolvimento.
+  // 2FA — quando true, login exige TOTP code.
   twoFactorEnabled Boolean @default(false)
   twoFactorSecret  String?
+  twoFactorBackupCodes String[] // hashes dos backup codes (single-use)
+
+  // Email verification
+  emailVerified    Boolean   @default(false)
+  emailVerifiedAt  DateTime?
 
   wallets      Wallet[]
   transactions Transaction[]
@@ -39,6 +44,28 @@ model User {
   // Auth sessions (refresh tokens) e audit log
   sessions     Session[]
   auditLogs    AuditLog[]
+  verificationTokens VerificationToken[]
+}
+
+enum VerificationTokenType {
+  EMAIL_VERIFY
+  PASSWORD_RESET
+}
+
+/// Tokens single-use para verificação de email e reset de senha.
+/// Armazenamos só o SHA-256 do token; o texto original vai por email.
+model VerificationToken {
+  id        Int                   @id @default(autoincrement())
+  userId    Int
+  user      User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String                @unique
+  type      VerificationTokenType
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime              @default(now())
+
+  @@index([userId, type])
+  @@index([expiresAt])
 }
 
 /// Sessão refresh-token. O `tokenHash` é SHA-256 do refresh token.
