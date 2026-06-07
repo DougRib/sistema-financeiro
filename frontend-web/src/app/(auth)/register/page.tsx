@@ -3,8 +3,9 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { User, Mail, Lock, Eye, EyeOff, Sparkles } from "lucide-react";
+import { User, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { registerSchema } from "@/lib/validators";
+import { useToast } from "@/components/ui/Toast";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -13,18 +14,19 @@ export default function RegisterPage() {
   const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const toast = useToast();
 
   async function handleRegister() {
-    setError(null);
     if (password !== confirm) {
-      setError("As senhas não coincidem");
+      toast.error("As senhas não coincidem");
       return;
     }
     const parsed = registerSchema.safeParse({ name, email, password });
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message || "Dados inválidos");
+      toast.error("Dados inválidos", {
+        description: parsed.error.issues[0]?.message,
+      });
       return;
     }
     setLoading(true);
@@ -36,12 +38,17 @@ export default function RegisterPage() {
       });
       if (!r.ok) {
         const j = await r.json().catch(() => ({}));
-        setError(j.error || "Falha no cadastro");
+        toast.error("Falha no cadastro", {
+          description: j.error || "Tente novamente.",
+        });
         return;
       }
+      toast.success("Conta criada com sucesso!");
       window.location.href = "/dashboard";
     } catch {
-      setError("Erro de rede");
+      toast.error("Erro de rede", {
+        description: "Verifique sua conexão e tente novamente.",
+      });
     } finally {
       setLoading(false);
     }
@@ -188,12 +195,6 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {error && (
-              <p className="text-xs text-expense bg-expense/10 border border-expense/30 rounded-lg px-3 py-2 mb-4">
-                {error}
-              </p>
-            )}
-
             <button
               onClick={handleRegister}
               disabled={loading}
@@ -213,11 +214,6 @@ export default function RegisterPage() {
             </p>
           </div>
         </div>
-
-        <Sparkles
-          size={28}
-          className="absolute bottom-8 right-8 text-accent/40 pointer-events-none"
-        />
       </div>
     </div>
   );

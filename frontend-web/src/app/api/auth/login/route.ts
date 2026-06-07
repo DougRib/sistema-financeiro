@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { loginSchema } from "@/lib/validators";
 import { comparePassword, signJwt } from "@/lib/auth";
+import { friendlyError } from "@/lib/api-errors";
 import { cookies } from "next/headers";
 //type LoginResponse
 type LoginResponse =
@@ -57,11 +58,9 @@ export async function POST(req: NextRequest) {
       email: user.email,
     });
   } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Erro interno no servidor";
-//retorna o erro
+    console.error("[/api/auth/login]", err);
     return NextResponse.json<LoginResponse>(
-      { ok: false, error: message },
+      { ok: false, error: friendlyError(err) },
       { status: 500 },
     );
   }

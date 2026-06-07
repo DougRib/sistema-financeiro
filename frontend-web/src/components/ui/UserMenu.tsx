@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { User, LogOut, ChevronUp } from "lucide-react";
+import { User, LogOut, ChevronUp, Eye, EyeOff } from "lucide-react";
+import { usePrivacy } from "./PrivacyContext";
 
 interface UserMenuProps {
   userName: string;
@@ -14,6 +15,7 @@ export function UserMenu({ userName, userEmail }: UserMenuProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const { hidden, toggle } = usePrivacy();
 
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
@@ -73,6 +75,25 @@ export function UserMenu({ userName, userEmail }: UserMenuProps) {
             <User size={13} />
             <span>Perfil & Configurações</span>
           </Link>
+
+          <button
+            onClick={() => {
+              toggle();
+            }}
+            className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-text hover:bg-card-hover hover:text-accent transition-colors cursor-pointer"
+          >
+            {hidden ? <Eye size={13} /> : <EyeOff size={13} />}
+            <span className="flex-1 text-left">Modo privacidade</span>
+            <span
+              className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
+                hidden
+                  ? "bg-accent/15 text-accent"
+                  : "bg-card-hover text-muted"
+              }`}
+            >
+              {hidden ? "ON" : "OFF"}
+            </span>
+          </button>
 
           <div className="h-px bg-border-subtle" />
 

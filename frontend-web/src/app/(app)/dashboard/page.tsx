@@ -13,9 +13,14 @@ import {
   PieChart,
   Pie,
   Cell,
+  LineChart,
+  Line,
 } from "recharts";
 import { MonthPicker } from "@/components/ui/MonthPicker";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { useToast } from "@/components/ui/Toast";
+import { Modal } from "@/components/ui/Modal";
+import { maskValue, usePrivacy } from "@/components/ui/PrivacyContext";
 import {
   formatCurrency,
   formatShortDate,
@@ -52,6 +57,22 @@ interface MeResponse {
   name?: string;
 }
 
+interface ForecastPoint {
+  date: string;
+  day: number;
+  balance: number;
+  upcomingBills: { name: string; amount: number }[];
+}
+
+interface ForecastData {
+  ok: boolean;
+  startingBalance: number;
+  endOfMonthBalance: number;
+  totalUpcoming: number;
+  points: ForecastPoint[];
+  upcomingBills: { id: number; name: string; amount: number; dueDay: number; paid: boolean }[];
+}
+
 const PIE_COLORS = [
   "#e6c879",
   "#d4a857",
@@ -69,12 +90,14 @@ export default function DashboardPage() {
   const [year, setYear] = useState(now.year);
   const [summary, setSummary] = useState<SummaryData | null>(null);
   const [wallets, setWallets] = useState<Wallet[]>([]);
+  const [forecast, setForecast] = useState<ForecastData | null>(null);
   const [userName, setUserName] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { hidden } = usePrivacy();
 
   useEffect(() => {
     let cancelled = false;
@@ -99,17 +122,19 @@ export default function DashboardPage() {
     }
   }, [searchParams, router]);
 
-  // Fetch summary + wallets whenever month/year/refresh changes
+  // Fetch summary + wallets + forecast whenever month/year/refresh changes
   useEffect(() => {
     let cancelled = false;
     Promise.all([
       fetch(`/api/summary?month=${month}&year=${year}`).then((r) => r.json()),
       fetch("/api/wallets").then((r) => r.json()),
+      fetch("/api/forecast").then((r) => r.json()),
     ])
-      .then(([sumJson, wallJson]) => {
+      .then(([sumJson, wallJson, fcJson]) => {
         if (cancelled) return;
         if (sumJson.ok) setSummary(sumJson);
         if (wallJson.ok) setWallets(wallJson.wallets);
+        if (fcJson.ok) setForecast(fcJson);
         setLoading(false);
       })
       .catch(() => {
@@ -190,13 +215,13 @@ export default function DashboardPage() {
                     Saldo Total
                   </p>
                   <p className="text-[24px] lg:text-[28px] font-black text-[#1a1208] mt-2 tracking-tight">
-                    {formatCurrency(totalBalance)}
+                    {maskValue(formatCurrency(totalBalance), hidden)}
                   </p>
                   <p className="text-xs font-semibold text-[#1a4d28] mt-1 flex items-center gap-1">
                     <TrendingUp size={12} />
                     {balanceMonth >= 0
-                      ? `+${formatCurrency(balanceMonth)} este mês`
-                      : `${formatCurrency(balanceMonth)} este mês`}
+                      ? `+${maskValue(formatCurrency(balanceMonth), hidden)} este mês`
+                      : `${maskValue(formatCurrency(balanceMonth), hidden)} este mês`}
                   </p>
                 </div>
                 <button className="flex items-center gap-2 text-[#1a1208] text-xs font-semibold hover:gap-3 transition-all cursor-pointer touch-target -ml-1 self-start">
@@ -305,7 +330,7 @@ export default function DashboardPage() {
                       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                         <span className="text-[9px] text-muted uppercase tracking-widest">Total</span>
                         <span className="text-xs font-bold text-text">
-                          {formatCurrency(totalExpenseForPct)}
+                          {maskValue(formatCurrency(totalExpenseForPct), hidden)}
                         </span>
                       </div>
                     </div>
@@ -335,23 +360,28 @@ export default function DashboardPage() {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <MiniKpi
                 label="Receitas do mês"
-                value={formatCurrency(income)}
+                value={maskValue(formatCurrency(income), hidden)}
                 icon={<TrendingUp size={14} />}
                 color="income"
               />
               <MiniKpi
                 label="Despesas do mês"
-                value={formatCurrency(expense)}
+                value={maskValue(formatCurrency(expense), hidden)}
                 icon={<TrendingDown size={14} />}
                 color="expense"
               />
               <MiniKpi
                 label="Saldo do mês"
-                value={formatCurrency(balanceMonth)}
+                value={maskValue(formatCurrency(balanceMonth), hidden)}
                 icon={<WalletIcon size={14} />}
                 color={balanceMonth >= 0 ? "accent" : "expense"}
               />
             </div>
+
+            {/* Forecast — fim do mês */}
+            {forecast && forecast.points.length > 0 && (
+              <ForecastCard data={forecast} hidden={hidden} />
+            )}
 
             {/* Recent transactions */}
             <div className="card-base p-4 lg:p-5">
@@ -366,7 +396,12 @@ export default function DashboardPage() {
               </div>
 
               {!summary?.transactions?.length ? (
-                <EmptyState icon="💸" title="Nenhuma transação neste mês" />
+                <EmptyState
+                  variant="compact"
+                  Icon={WalletIcon}
+                  title="Nenhuma transação neste mês"
+                  description="Use o botão Nova transação para registrar a primeira."
+                />
               ) : (
                 <>
                   {/* Desktop table header */}
@@ -397,7 +432,7 @@ export default function DashboardPage() {
                             tx.type === "INCOME" ? "text-income" : "text-expense"
                           }`}
                         >
-                          {tx.type === "INCOME" ? "+" : "-"} {formatCurrency(tx.amount)}
+                          {tx.type === "INCOME" ? "+" : "-"} {maskValue(formatCurrency(tx.amount), hidden)}
                         </div>
                         <div className="status-pill">
                           <span className="status-dot" style={{ background: "#5dd49f" }} />
@@ -435,7 +470,7 @@ export default function DashboardPage() {
                               tx.type === "INCOME" ? "text-income" : "text-expense"
                             }`}
                           >
-                            {tx.type === "INCOME" ? "+" : "-"} {formatCurrency(tx.amount)}
+                            {tx.type === "INCOME" ? "+" : "-"} {maskValue(formatCurrency(tx.amount), hidden)}
                           </p>
                         </div>
                       </div>
@@ -466,6 +501,147 @@ function getMonthLabel(month: number, year: number): string {
     month: "long",
     year: "numeric",
   });
+}
+
+// ──────────────────────────────────────────────
+// Forecast card — projection of balance to end-of-month
+// ──────────────────────────────────────────────
+interface ForecastCardProps {
+  data: ForecastData;
+  hidden: boolean;
+}
+
+function ForecastCard({ data, hidden }: ForecastCardProps) {
+  const chartData = data.points.map((p) => ({
+    day: String(p.day).padStart(2, "0"),
+    balance: p.balance,
+  }));
+  const minBalance = Math.min(...chartData.map((p) => p.balance));
+  const willGoNegative = minBalance < 0;
+  const delta = data.endOfMonthBalance - data.startingBalance;
+
+  return (
+    <div className="card-base p-4 lg:p-5">
+      <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <div>
+          <p className="text-sm font-bold text-text flex items-center gap-2">
+            🔮 Projeção do fim do mês
+          </p>
+          <p className="text-[10px] text-muted mt-0.5">
+            Saldo atual cruzado com contas recorrentes ainda não pagas
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] uppercase tracking-widest text-muted">Final</span>
+          <span
+            className={`text-base font-black ${
+              willGoNegative
+                ? "text-expense"
+                : data.endOfMonthBalance >= data.startingBalance
+                  ? "text-income"
+                  : "text-text"
+            }`}
+          >
+            {maskValue(formatCurrency(data.endOfMonthBalance), hidden)}
+          </span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_220px] gap-4 items-start">
+        {/* Line chart */}
+        <ResponsiveContainer width="100%" height={140}>
+          <LineChart data={chartData} margin={{ top: 5, right: 5, bottom: 0, left: 0 }}>
+            <XAxis
+              dataKey="day"
+              tick={{ fontSize: 9, fill: "#5a6378" }}
+              axisLine={false}
+              tickLine={false}
+              interval="preserveStartEnd"
+            />
+            <YAxis
+              tick={{ fontSize: 9, fill: "#5a6378" }}
+              axisLine={false}
+              tickLine={false}
+              tickFormatter={(v: number) => `R$${(v / 1000).toFixed(0)}k`}
+              width={42}
+            />
+            <Tooltip
+              contentStyle={{
+                background: "#0d1730",
+                border: "1px solid rgba(212,175,106,0.3)",
+                borderRadius: 8,
+                fontSize: 11,
+              }}
+              formatter={(v: unknown) => [formatCurrency(Number(v)), "Saldo projetado"]}
+              labelFormatter={(label) => `Dia ${label}`}
+            />
+            <Line
+              type="monotone"
+              dataKey="balance"
+              stroke={willGoNegative ? "#ff6b6b" : "#e6c879"}
+              strokeWidth={2.5}
+              dot={false}
+              activeDot={{ r: 4 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+
+        {/* Upcoming bills list */}
+        <div className="flex flex-col gap-2">
+          <div className="flex items-baseline justify-between">
+            <span className="text-[10px] uppercase tracking-widest text-muted">Pendentes</span>
+            <span className="text-[10px] text-text-secondary">
+              {maskValue(formatCurrency(data.totalUpcoming), hidden)}
+            </span>
+          </div>
+          {data.upcomingBills.length === 0 ? (
+            <p className="text-[11px] text-muted">Tudo em dia este mês ✅</p>
+          ) : (
+            <div className="flex flex-col gap-1.5 max-h-[120px] overflow-y-auto">
+              {data.upcomingBills.slice(0, 5).map((b) => (
+                <div
+                  key={b.id}
+                  className="flex items-center justify-between gap-2 text-[11px]"
+                >
+                  <span className="text-text-secondary truncate flex-1">
+                    Dia {String(b.dueDay).padStart(2, "0")} · {b.name}
+                  </span>
+                  <span className="text-expense font-semibold whitespace-nowrap">
+                    {maskValue(formatCurrency(b.amount), hidden)}
+                  </span>
+                </div>
+              ))}
+              {data.upcomingBills.length > 5 && (
+                <p className="text-[10px] text-muted">
+                  +{data.upcomingBills.length - 5} contas
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {willGoNegative && (
+        <div className="mt-3 flex items-center gap-2 bg-expense/10 border border-expense/30 rounded-lg px-3 py-2">
+          <span className="text-expense text-sm">⚠️</span>
+          <p className="text-[11px] text-text">
+            Atenção: no ritmo atual, seu saldo pode ficar negativo em{" "}
+            <span className="font-bold text-expense">
+              {maskValue(formatCurrency(minBalance), hidden)}
+            </span>{" "}
+            antes do fim do mês.
+          </p>
+        </div>
+      )}
+
+      {!willGoNegative && (
+        <p className="text-[10px] text-muted mt-3">
+          Variação no mês: {delta >= 0 ? "+" : ""}
+          {maskValue(formatCurrency(delta), hidden)}
+        </p>
+      )}
+    </div>
+  );
 }
 
 // ──────────────────────────────────────────────
@@ -516,8 +692,8 @@ function NewTransactionPanel({ onClose, onCreated }: NewTransactionPanelProps) {
   const [walletId, setWalletId] = useState<string>("");
   const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
   const [wallets, setWallets] = useState<{ id: number; name: string }[]>([]);
-  const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const toast = useToast();
 
   useEffect(() => {
     Promise.all([
@@ -534,16 +710,15 @@ function NewTransactionPanel({ onClose, onCreated }: NewTransactionPanelProps) {
 
   async function handleSave() {
     if (!amount || !date || !walletId) {
-      setError("Preencha valor, data e carteira");
+      toast.error("Preencha valor, data e carteira");
       return;
     }
     const amountNum = parseFloat(amount.replace(",", "."));
     if (isNaN(amountNum) || amountNum <= 0) {
-      setError("Valor inválido");
+      toast.error("Valor inválido");
       return;
     }
     setSaving(true);
-    setError(null);
     try {
       const r = await fetch("/api/transactions", {
         method: "POST",
@@ -559,83 +734,93 @@ function NewTransactionPanel({ onClose, onCreated }: NewTransactionPanelProps) {
       });
       const j = await r.json();
       if (!j.ok) {
-        setError(j.error || "Erro ao salvar");
+        toast.error("Não foi possível salvar", { description: j.error });
         return;
       }
+      toast.success(
+        type === "INCOME" ? "Receita registrada" : "Despesa registrada",
+      );
       onCreated();
     } catch {
-      setError("Erro de rede");
+      toast.error("Erro de rede ao salvar transação");
     } finally {
       setSaving(false);
     }
   }
 
   return (
-    <>
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40" onClick={onClose} />
-      <div className="fixed right-0 top-0 h-full w-full max-w-sm sidebar border-l border-border z-50 flex flex-col animate-pop">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border-subtle">
-          <h2 className="text-sm font-bold text-text">Nova transação</h2>
-          <button
-            onClick={onClose}
-            className="text-muted hover:text-text transition-colors cursor-pointer"
-          >
-            ✕
-          </button>
+    <Modal
+      open
+      onClose={onClose}
+      title="Nova transação"
+      description="Registre uma receita ou despesa"
+      icon={<Plus size={18} />}
+      size="md"
+      footer={
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="w-full bg-gradient-to-r from-[#e6c879] to-[#b8893f] text-[#1a1208] text-sm font-bold py-3 rounded-xl transition-all disabled:opacity-50 cursor-pointer hover:shadow-lg hover:shadow-accent/20"
+        >
+          {saving ? "Salvando..." : "Salvar transação"}
+        </button>
+      }
+    >
+      <div className="flex flex-col gap-4">
+        <div className="flex gap-2">
+          {(["INCOME", "EXPENSE"] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => setType(t)}
+              className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                type === t
+                  ? t === "INCOME"
+                    ? "bg-income text-[#0a1224]"
+                    : "bg-expense text-white"
+                  : "bg-card-hover border border-border text-muted hover:text-text"
+              }`}
+            >
+              {t === "INCOME" ? "Receita" : "Despesa"}
+            </button>
+          ))}
         </div>
-        <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-4">
-          <div className="flex gap-2">
-            {(["INCOME", "EXPENSE"] as const).map((t) => (
-              <button
-                key={t}
-                onClick={() => setType(t)}
-                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
-                  type === t
-                    ? t === "INCOME"
-                      ? "bg-income text-[#0a1224]"
-                      : "bg-expense text-white"
-                    : "bg-card border border-border text-muted hover:text-text"
-                }`}
-              >
-                {t === "INCOME" ? "Receita" : "Despesa"}
-              </button>
-            ))}
-          </div>
 
-          <Field label="Valor (R$)">
-            <input
-              type="text"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="0,00"
-              className="w-full bg-card border border-border rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none focus:border-accent transition-colors"
-            />
-          </Field>
+        <Field label="Valor (R$)">
+          <input
+            type="text"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="0,00"
+            autoFocus
+            className="w-full bg-card-hover border border-border rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none focus:border-accent transition-colors"
+          />
+        </Field>
 
-          <Field label="Data">
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="w-full bg-card border border-border rounded-lg px-3 py-2.5 text-sm text-text outline-none focus:border-accent transition-colors"
-            />
-          </Field>
+        <Field label="Data">
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="w-full bg-card-hover border border-border rounded-lg px-3 py-2.5 text-sm text-text outline-none focus:border-accent transition-colors"
+          />
+        </Field>
 
-          <Field label="Descrição">
-            <input
-              type="text"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Opcional"
-              className="w-full bg-card border border-border rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none focus:border-accent transition-colors"
-            />
-          </Field>
+        <Field label="Descrição">
+          <input
+            type="text"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Opcional"
+            className="w-full bg-card-hover border border-border rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none focus:border-accent transition-colors"
+          />
+        </Field>
 
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Field label="Categoria">
             <select
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
-              className="w-full bg-card border border-border rounded-lg px-3 py-2.5 text-sm text-text outline-none focus:border-accent transition-colors cursor-pointer"
+              className="w-full bg-card-hover border border-border rounded-lg px-3 py-2.5 text-sm text-text outline-none focus:border-accent transition-colors cursor-pointer"
             >
               <option value="">Sem categoria</option>
               {categories.map((c) => (
@@ -650,7 +835,7 @@ function NewTransactionPanel({ onClose, onCreated }: NewTransactionPanelProps) {
             <select
               value={walletId}
               onChange={(e) => setWalletId(e.target.value)}
-              className="w-full bg-card border border-border rounded-lg px-3 py-2.5 text-sm text-text outline-none focus:border-accent transition-colors cursor-pointer"
+              className="w-full bg-card-hover border border-border rounded-lg px-3 py-2.5 text-sm text-text outline-none focus:border-accent transition-colors cursor-pointer"
             >
               {wallets.map((w) => (
                 <option key={w.id} value={w.id}>
@@ -659,24 +844,9 @@ function NewTransactionPanel({ onClose, onCreated }: NewTransactionPanelProps) {
               ))}
             </select>
           </Field>
-
-          {error && (
-            <p className="text-xs text-danger bg-expense/10 border border-expense/30 rounded-lg px-3 py-2">
-              {error}
-            </p>
-          )}
-        </div>
-        <div className="px-5 py-4 border-t border-border-subtle">
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="w-full bg-gradient-to-r from-[#e6c879] to-[#b8893f] text-[#1a1208] text-sm font-bold py-3 rounded-xl transition-all disabled:opacity-50 cursor-pointer hover:shadow-lg hover:shadow-accent/20"
-          >
-            {saving ? "Salvando..." : "Salvar transação"}
-          </button>
         </div>
       </div>
-    </>
+    </Modal>
   );
 }
 

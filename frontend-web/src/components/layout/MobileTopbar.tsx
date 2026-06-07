@@ -4,7 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { User, LogOut } from "lucide-react";
+import { User, LogOut, Eye, EyeOff } from "lucide-react";
+import { usePrivacy } from "@/components/ui/PrivacyContext";
 
 interface MobileTopbarProps {
   userName: string;
@@ -15,6 +16,7 @@ export function MobileTopbar({ userName, userEmail }: MobileTopbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const { hidden, toggle } = usePrivacy();
 
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
@@ -80,6 +82,21 @@ export function MobileTopbar({ userName, userEmail }: MobileTopbarProps) {
                 <User size={14} />
                 <span>Perfil & Configurações</span>
               </Link>
+
+              <button
+                onClick={() => toggle()}
+                className="w-full flex items-center gap-2.5 px-3 py-3 text-xs text-text hover:bg-card-hover hover:text-accent transition-colors cursor-pointer touch-target"
+              >
+                {hidden ? <Eye size={14} /> : <EyeOff size={14} />}
+                <span className="flex-1 text-left">Modo privacidade</span>
+                <span
+                  className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
+                    hidden ? "bg-accent/15 text-accent" : "bg-card-hover text-muted"
+                  }`}
+                >
+                  {hidden ? "ON" : "OFF"}
+                </span>
+              </button>
 
               <div className="h-px bg-border-subtle" />
 

@@ -230,6 +230,8 @@ export type UserWhereInput = {
   budgets?: Prisma.BudgetListRelationFilter
   goals?: Prisma.GoalListRelationFilter
   bills?: Prisma.RecurringBillListRelationFilter
+  sharedOut?: Prisma.SharedAccessListRelationFilter
+  sharedIn?: Prisma.SharedAccessListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -245,6 +247,8 @@ export type UserOrderByWithRelationInput = {
   budgets?: Prisma.BudgetOrderByRelationAggregateInput
   goals?: Prisma.GoalOrderByRelationAggregateInput
   bills?: Prisma.RecurringBillOrderByRelationAggregateInput
+  sharedOut?: Prisma.SharedAccessOrderByRelationAggregateInput
+  sharedIn?: Prisma.SharedAccessOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -263,6 +267,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   budgets?: Prisma.BudgetListRelationFilter
   goals?: Prisma.GoalListRelationFilter
   bills?: Prisma.RecurringBillListRelationFilter
+  sharedOut?: Prisma.SharedAccessListRelationFilter
+  sharedIn?: Prisma.SharedAccessListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -303,6 +309,8 @@ export type UserCreateInput = {
   budgets?: Prisma.BudgetCreateNestedManyWithoutUserInput
   goals?: Prisma.GoalCreateNestedManyWithoutUserInput
   bills?: Prisma.RecurringBillCreateNestedManyWithoutUserInput
+  sharedOut?: Prisma.SharedAccessCreateNestedManyWithoutOwnerInput
+  sharedIn?: Prisma.SharedAccessCreateNestedManyWithoutSharedWithUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -318,6 +326,8 @@ export type UserUncheckedCreateInput = {
   budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutUserInput
   goals?: Prisma.GoalUncheckedCreateNestedManyWithoutUserInput
   bills?: Prisma.RecurringBillUncheckedCreateNestedManyWithoutUserInput
+  sharedOut?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutOwnerInput
+  sharedIn?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutSharedWithUserInput
 }
 
 export type UserUpdateInput = {
@@ -332,6 +342,8 @@ export type UserUpdateInput = {
   budgets?: Prisma.BudgetUpdateManyWithoutUserNestedInput
   goals?: Prisma.GoalUpdateManyWithoutUserNestedInput
   bills?: Prisma.RecurringBillUpdateManyWithoutUserNestedInput
+  sharedOut?: Prisma.SharedAccessUpdateManyWithoutOwnerNestedInput
+  sharedIn?: Prisma.SharedAccessUpdateManyWithoutSharedWithUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -347,6 +359,8 @@ export type UserUncheckedUpdateInput = {
   budgets?: Prisma.BudgetUncheckedUpdateManyWithoutUserNestedInput
   goals?: Prisma.GoalUncheckedUpdateManyWithoutUserNestedInput
   bills?: Prisma.RecurringBillUncheckedUpdateManyWithoutUserNestedInput
+  sharedOut?: Prisma.SharedAccessUncheckedUpdateManyWithoutOwnerNestedInput
+  sharedIn?: Prisma.SharedAccessUncheckedUpdateManyWithoutSharedWithUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -436,6 +450,34 @@ export type IntFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type UserCreateNestedOneWithoutSharedOutInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSharedOutInput, Prisma.UserUncheckedCreateWithoutSharedOutInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSharedOutInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutSharedInInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSharedInInput, Prisma.UserUncheckedCreateWithoutSharedInInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSharedInInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutSharedOutNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSharedOutInput, Prisma.UserUncheckedCreateWithoutSharedOutInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSharedOutInput
+  upsert?: Prisma.UserUpsertWithoutSharedOutInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSharedOutInput, Prisma.UserUpdateWithoutSharedOutInput>, Prisma.UserUncheckedUpdateWithoutSharedOutInput>
+}
+
+export type UserUpdateOneRequiredWithoutSharedInNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSharedInInput, Prisma.UserUncheckedCreateWithoutSharedInInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSharedInInput
+  upsert?: Prisma.UserUpsertWithoutSharedInInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSharedInInput, Prisma.UserUpdateWithoutSharedInInput>, Prisma.UserUncheckedUpdateWithoutSharedInInput>
+}
+
 export type UserCreateNestedOneWithoutWalletsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutWalletsInput, Prisma.UserUncheckedCreateWithoutWalletsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutWalletsInput
@@ -522,6 +564,162 @@ export type UserUpdateOneRequiredWithoutBillsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutBillsInput, Prisma.UserUpdateWithoutBillsInput>, Prisma.UserUncheckedUpdateWithoutBillsInput>
 }
 
+export type UserCreateWithoutSharedOutInput = {
+  name: string
+  email: string
+  passwordHash: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  wallets?: Prisma.WalletCreateNestedManyWithoutUserInput
+  transactions?: Prisma.TransactionCreateNestedManyWithoutUserInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutUserInput
+  budgets?: Prisma.BudgetCreateNestedManyWithoutUserInput
+  goals?: Prisma.GoalCreateNestedManyWithoutUserInput
+  bills?: Prisma.RecurringBillCreateNestedManyWithoutUserInput
+  sharedIn?: Prisma.SharedAccessCreateNestedManyWithoutSharedWithUserInput
+}
+
+export type UserUncheckedCreateWithoutSharedOutInput = {
+  id?: number
+  name: string
+  email: string
+  passwordHash: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  wallets?: Prisma.WalletUncheckedCreateNestedManyWithoutUserInput
+  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutUserInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutUserInput
+  budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutUserInput
+  goals?: Prisma.GoalUncheckedCreateNestedManyWithoutUserInput
+  bills?: Prisma.RecurringBillUncheckedCreateNestedManyWithoutUserInput
+  sharedIn?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutSharedWithUserInput
+}
+
+export type UserCreateOrConnectWithoutSharedOutInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSharedOutInput, Prisma.UserUncheckedCreateWithoutSharedOutInput>
+}
+
+export type UserCreateWithoutSharedInInput = {
+  name: string
+  email: string
+  passwordHash: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  wallets?: Prisma.WalletCreateNestedManyWithoutUserInput
+  transactions?: Prisma.TransactionCreateNestedManyWithoutUserInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutUserInput
+  budgets?: Prisma.BudgetCreateNestedManyWithoutUserInput
+  goals?: Prisma.GoalCreateNestedManyWithoutUserInput
+  bills?: Prisma.RecurringBillCreateNestedManyWithoutUserInput
+  sharedOut?: Prisma.SharedAccessCreateNestedManyWithoutOwnerInput
+}
+
+export type UserUncheckedCreateWithoutSharedInInput = {
+  id?: number
+  name: string
+  email: string
+  passwordHash: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  wallets?: Prisma.WalletUncheckedCreateNestedManyWithoutUserInput
+  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutUserInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutUserInput
+  budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutUserInput
+  goals?: Prisma.GoalUncheckedCreateNestedManyWithoutUserInput
+  bills?: Prisma.RecurringBillUncheckedCreateNestedManyWithoutUserInput
+  sharedOut?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutOwnerInput
+}
+
+export type UserCreateOrConnectWithoutSharedInInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSharedInInput, Prisma.UserUncheckedCreateWithoutSharedInInput>
+}
+
+export type UserUpsertWithoutSharedOutInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSharedOutInput, Prisma.UserUncheckedUpdateWithoutSharedOutInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSharedOutInput, Prisma.UserUncheckedCreateWithoutSharedOutInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSharedOutInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSharedOutInput, Prisma.UserUncheckedUpdateWithoutSharedOutInput>
+}
+
+export type UserUpdateWithoutSharedOutInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  wallets?: Prisma.WalletUpdateManyWithoutUserNestedInput
+  transactions?: Prisma.TransactionUpdateManyWithoutUserNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutUserNestedInput
+  budgets?: Prisma.BudgetUpdateManyWithoutUserNestedInput
+  goals?: Prisma.GoalUpdateManyWithoutUserNestedInput
+  bills?: Prisma.RecurringBillUpdateManyWithoutUserNestedInput
+  sharedIn?: Prisma.SharedAccessUpdateManyWithoutSharedWithUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSharedOutInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  wallets?: Prisma.WalletUncheckedUpdateManyWithoutUserNestedInput
+  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutUserNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutUserNestedInput
+  budgets?: Prisma.BudgetUncheckedUpdateManyWithoutUserNestedInput
+  goals?: Prisma.GoalUncheckedUpdateManyWithoutUserNestedInput
+  bills?: Prisma.RecurringBillUncheckedUpdateManyWithoutUserNestedInput
+  sharedIn?: Prisma.SharedAccessUncheckedUpdateManyWithoutSharedWithUserNestedInput
+}
+
+export type UserUpsertWithoutSharedInInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSharedInInput, Prisma.UserUncheckedUpdateWithoutSharedInInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSharedInInput, Prisma.UserUncheckedCreateWithoutSharedInInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSharedInInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSharedInInput, Prisma.UserUncheckedUpdateWithoutSharedInInput>
+}
+
+export type UserUpdateWithoutSharedInInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  wallets?: Prisma.WalletUpdateManyWithoutUserNestedInput
+  transactions?: Prisma.TransactionUpdateManyWithoutUserNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutUserNestedInput
+  budgets?: Prisma.BudgetUpdateManyWithoutUserNestedInput
+  goals?: Prisma.GoalUpdateManyWithoutUserNestedInput
+  bills?: Prisma.RecurringBillUpdateManyWithoutUserNestedInput
+  sharedOut?: Prisma.SharedAccessUpdateManyWithoutOwnerNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSharedInInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  wallets?: Prisma.WalletUncheckedUpdateManyWithoutUserNestedInput
+  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutUserNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutUserNestedInput
+  budgets?: Prisma.BudgetUncheckedUpdateManyWithoutUserNestedInput
+  goals?: Prisma.GoalUncheckedUpdateManyWithoutUserNestedInput
+  bills?: Prisma.RecurringBillUncheckedUpdateManyWithoutUserNestedInput
+  sharedOut?: Prisma.SharedAccessUncheckedUpdateManyWithoutOwnerNestedInput
+}
+
 export type UserCreateWithoutWalletsInput = {
   name: string
   email: string
@@ -533,6 +731,8 @@ export type UserCreateWithoutWalletsInput = {
   budgets?: Prisma.BudgetCreateNestedManyWithoutUserInput
   goals?: Prisma.GoalCreateNestedManyWithoutUserInput
   bills?: Prisma.RecurringBillCreateNestedManyWithoutUserInput
+  sharedOut?: Prisma.SharedAccessCreateNestedManyWithoutOwnerInput
+  sharedIn?: Prisma.SharedAccessCreateNestedManyWithoutSharedWithUserInput
 }
 
 export type UserUncheckedCreateWithoutWalletsInput = {
@@ -547,6 +747,8 @@ export type UserUncheckedCreateWithoutWalletsInput = {
   budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutUserInput
   goals?: Prisma.GoalUncheckedCreateNestedManyWithoutUserInput
   bills?: Prisma.RecurringBillUncheckedCreateNestedManyWithoutUserInput
+  sharedOut?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutOwnerInput
+  sharedIn?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutSharedWithUserInput
 }
 
 export type UserCreateOrConnectWithoutWalletsInput = {
@@ -576,6 +778,8 @@ export type UserUpdateWithoutWalletsInput = {
   budgets?: Prisma.BudgetUpdateManyWithoutUserNestedInput
   goals?: Prisma.GoalUpdateManyWithoutUserNestedInput
   bills?: Prisma.RecurringBillUpdateManyWithoutUserNestedInput
+  sharedOut?: Prisma.SharedAccessUpdateManyWithoutOwnerNestedInput
+  sharedIn?: Prisma.SharedAccessUpdateManyWithoutSharedWithUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutWalletsInput = {
@@ -590,6 +794,8 @@ export type UserUncheckedUpdateWithoutWalletsInput = {
   budgets?: Prisma.BudgetUncheckedUpdateManyWithoutUserNestedInput
   goals?: Prisma.GoalUncheckedUpdateManyWithoutUserNestedInput
   bills?: Prisma.RecurringBillUncheckedUpdateManyWithoutUserNestedInput
+  sharedOut?: Prisma.SharedAccessUncheckedUpdateManyWithoutOwnerNestedInput
+  sharedIn?: Prisma.SharedAccessUncheckedUpdateManyWithoutSharedWithUserNestedInput
 }
 
 export type UserCreateWithoutCategoriesInput = {
@@ -603,6 +809,8 @@ export type UserCreateWithoutCategoriesInput = {
   budgets?: Prisma.BudgetCreateNestedManyWithoutUserInput
   goals?: Prisma.GoalCreateNestedManyWithoutUserInput
   bills?: Prisma.RecurringBillCreateNestedManyWithoutUserInput
+  sharedOut?: Prisma.SharedAccessCreateNestedManyWithoutOwnerInput
+  sharedIn?: Prisma.SharedAccessCreateNestedManyWithoutSharedWithUserInput
 }
 
 export type UserUncheckedCreateWithoutCategoriesInput = {
@@ -617,6 +825,8 @@ export type UserUncheckedCreateWithoutCategoriesInput = {
   budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutUserInput
   goals?: Prisma.GoalUncheckedCreateNestedManyWithoutUserInput
   bills?: Prisma.RecurringBillUncheckedCreateNestedManyWithoutUserInput
+  sharedOut?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutOwnerInput
+  sharedIn?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutSharedWithUserInput
 }
 
 export type UserCreateOrConnectWithoutCategoriesInput = {
@@ -646,6 +856,8 @@ export type UserUpdateWithoutCategoriesInput = {
   budgets?: Prisma.BudgetUpdateManyWithoutUserNestedInput
   goals?: Prisma.GoalUpdateManyWithoutUserNestedInput
   bills?: Prisma.RecurringBillUpdateManyWithoutUserNestedInput
+  sharedOut?: Prisma.SharedAccessUpdateManyWithoutOwnerNestedInput
+  sharedIn?: Prisma.SharedAccessUpdateManyWithoutSharedWithUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCategoriesInput = {
@@ -660,6 +872,8 @@ export type UserUncheckedUpdateWithoutCategoriesInput = {
   budgets?: Prisma.BudgetUncheckedUpdateManyWithoutUserNestedInput
   goals?: Prisma.GoalUncheckedUpdateManyWithoutUserNestedInput
   bills?: Prisma.RecurringBillUncheckedUpdateManyWithoutUserNestedInput
+  sharedOut?: Prisma.SharedAccessUncheckedUpdateManyWithoutOwnerNestedInput
+  sharedIn?: Prisma.SharedAccessUncheckedUpdateManyWithoutSharedWithUserNestedInput
 }
 
 export type UserCreateWithoutTransactionsInput = {
@@ -673,6 +887,8 @@ export type UserCreateWithoutTransactionsInput = {
   budgets?: Prisma.BudgetCreateNestedManyWithoutUserInput
   goals?: Prisma.GoalCreateNestedManyWithoutUserInput
   bills?: Prisma.RecurringBillCreateNestedManyWithoutUserInput
+  sharedOut?: Prisma.SharedAccessCreateNestedManyWithoutOwnerInput
+  sharedIn?: Prisma.SharedAccessCreateNestedManyWithoutSharedWithUserInput
 }
 
 export type UserUncheckedCreateWithoutTransactionsInput = {
@@ -687,6 +903,8 @@ export type UserUncheckedCreateWithoutTransactionsInput = {
   budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutUserInput
   goals?: Prisma.GoalUncheckedCreateNestedManyWithoutUserInput
   bills?: Prisma.RecurringBillUncheckedCreateNestedManyWithoutUserInput
+  sharedOut?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutOwnerInput
+  sharedIn?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutSharedWithUserInput
 }
 
 export type UserCreateOrConnectWithoutTransactionsInput = {
@@ -716,6 +934,8 @@ export type UserUpdateWithoutTransactionsInput = {
   budgets?: Prisma.BudgetUpdateManyWithoutUserNestedInput
   goals?: Prisma.GoalUpdateManyWithoutUserNestedInput
   bills?: Prisma.RecurringBillUpdateManyWithoutUserNestedInput
+  sharedOut?: Prisma.SharedAccessUpdateManyWithoutOwnerNestedInput
+  sharedIn?: Prisma.SharedAccessUpdateManyWithoutSharedWithUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTransactionsInput = {
@@ -730,6 +950,8 @@ export type UserUncheckedUpdateWithoutTransactionsInput = {
   budgets?: Prisma.BudgetUncheckedUpdateManyWithoutUserNestedInput
   goals?: Prisma.GoalUncheckedUpdateManyWithoutUserNestedInput
   bills?: Prisma.RecurringBillUncheckedUpdateManyWithoutUserNestedInput
+  sharedOut?: Prisma.SharedAccessUncheckedUpdateManyWithoutOwnerNestedInput
+  sharedIn?: Prisma.SharedAccessUncheckedUpdateManyWithoutSharedWithUserNestedInput
 }
 
 export type UserCreateWithoutBudgetsInput = {
@@ -743,6 +965,8 @@ export type UserCreateWithoutBudgetsInput = {
   categories?: Prisma.CategoryCreateNestedManyWithoutUserInput
   goals?: Prisma.GoalCreateNestedManyWithoutUserInput
   bills?: Prisma.RecurringBillCreateNestedManyWithoutUserInput
+  sharedOut?: Prisma.SharedAccessCreateNestedManyWithoutOwnerInput
+  sharedIn?: Prisma.SharedAccessCreateNestedManyWithoutSharedWithUserInput
 }
 
 export type UserUncheckedCreateWithoutBudgetsInput = {
@@ -757,6 +981,8 @@ export type UserUncheckedCreateWithoutBudgetsInput = {
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutUserInput
   goals?: Prisma.GoalUncheckedCreateNestedManyWithoutUserInput
   bills?: Prisma.RecurringBillUncheckedCreateNestedManyWithoutUserInput
+  sharedOut?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutOwnerInput
+  sharedIn?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutSharedWithUserInput
 }
 
 export type UserCreateOrConnectWithoutBudgetsInput = {
@@ -786,6 +1012,8 @@ export type UserUpdateWithoutBudgetsInput = {
   categories?: Prisma.CategoryUpdateManyWithoutUserNestedInput
   goals?: Prisma.GoalUpdateManyWithoutUserNestedInput
   bills?: Prisma.RecurringBillUpdateManyWithoutUserNestedInput
+  sharedOut?: Prisma.SharedAccessUpdateManyWithoutOwnerNestedInput
+  sharedIn?: Prisma.SharedAccessUpdateManyWithoutSharedWithUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBudgetsInput = {
@@ -800,6 +1028,8 @@ export type UserUncheckedUpdateWithoutBudgetsInput = {
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutUserNestedInput
   goals?: Prisma.GoalUncheckedUpdateManyWithoutUserNestedInput
   bills?: Prisma.RecurringBillUncheckedUpdateManyWithoutUserNestedInput
+  sharedOut?: Prisma.SharedAccessUncheckedUpdateManyWithoutOwnerNestedInput
+  sharedIn?: Prisma.SharedAccessUncheckedUpdateManyWithoutSharedWithUserNestedInput
 }
 
 export type UserCreateWithoutGoalsInput = {
@@ -813,6 +1043,8 @@ export type UserCreateWithoutGoalsInput = {
   categories?: Prisma.CategoryCreateNestedManyWithoutUserInput
   budgets?: Prisma.BudgetCreateNestedManyWithoutUserInput
   bills?: Prisma.RecurringBillCreateNestedManyWithoutUserInput
+  sharedOut?: Prisma.SharedAccessCreateNestedManyWithoutOwnerInput
+  sharedIn?: Prisma.SharedAccessCreateNestedManyWithoutSharedWithUserInput
 }
 
 export type UserUncheckedCreateWithoutGoalsInput = {
@@ -827,6 +1059,8 @@ export type UserUncheckedCreateWithoutGoalsInput = {
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutUserInput
   budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutUserInput
   bills?: Prisma.RecurringBillUncheckedCreateNestedManyWithoutUserInput
+  sharedOut?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutOwnerInput
+  sharedIn?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutSharedWithUserInput
 }
 
 export type UserCreateOrConnectWithoutGoalsInput = {
@@ -856,6 +1090,8 @@ export type UserUpdateWithoutGoalsInput = {
   categories?: Prisma.CategoryUpdateManyWithoutUserNestedInput
   budgets?: Prisma.BudgetUpdateManyWithoutUserNestedInput
   bills?: Prisma.RecurringBillUpdateManyWithoutUserNestedInput
+  sharedOut?: Prisma.SharedAccessUpdateManyWithoutOwnerNestedInput
+  sharedIn?: Prisma.SharedAccessUpdateManyWithoutSharedWithUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutGoalsInput = {
@@ -870,6 +1106,8 @@ export type UserUncheckedUpdateWithoutGoalsInput = {
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutUserNestedInput
   budgets?: Prisma.BudgetUncheckedUpdateManyWithoutUserNestedInput
   bills?: Prisma.RecurringBillUncheckedUpdateManyWithoutUserNestedInput
+  sharedOut?: Prisma.SharedAccessUncheckedUpdateManyWithoutOwnerNestedInput
+  sharedIn?: Prisma.SharedAccessUncheckedUpdateManyWithoutSharedWithUserNestedInput
 }
 
 export type UserCreateWithoutBillsInput = {
@@ -883,6 +1121,8 @@ export type UserCreateWithoutBillsInput = {
   categories?: Prisma.CategoryCreateNestedManyWithoutUserInput
   budgets?: Prisma.BudgetCreateNestedManyWithoutUserInput
   goals?: Prisma.GoalCreateNestedManyWithoutUserInput
+  sharedOut?: Prisma.SharedAccessCreateNestedManyWithoutOwnerInput
+  sharedIn?: Prisma.SharedAccessCreateNestedManyWithoutSharedWithUserInput
 }
 
 export type UserUncheckedCreateWithoutBillsInput = {
@@ -897,6 +1137,8 @@ export type UserUncheckedCreateWithoutBillsInput = {
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutUserInput
   budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutUserInput
   goals?: Prisma.GoalUncheckedCreateNestedManyWithoutUserInput
+  sharedOut?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutOwnerInput
+  sharedIn?: Prisma.SharedAccessUncheckedCreateNestedManyWithoutSharedWithUserInput
 }
 
 export type UserCreateOrConnectWithoutBillsInput = {
@@ -926,6 +1168,8 @@ export type UserUpdateWithoutBillsInput = {
   categories?: Prisma.CategoryUpdateManyWithoutUserNestedInput
   budgets?: Prisma.BudgetUpdateManyWithoutUserNestedInput
   goals?: Prisma.GoalUpdateManyWithoutUserNestedInput
+  sharedOut?: Prisma.SharedAccessUpdateManyWithoutOwnerNestedInput
+  sharedIn?: Prisma.SharedAccessUpdateManyWithoutSharedWithUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBillsInput = {
@@ -940,6 +1184,8 @@ export type UserUncheckedUpdateWithoutBillsInput = {
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutUserNestedInput
   budgets?: Prisma.BudgetUncheckedUpdateManyWithoutUserNestedInput
   goals?: Prisma.GoalUncheckedUpdateManyWithoutUserNestedInput
+  sharedOut?: Prisma.SharedAccessUncheckedUpdateManyWithoutOwnerNestedInput
+  sharedIn?: Prisma.SharedAccessUncheckedUpdateManyWithoutSharedWithUserNestedInput
 }
 
 
@@ -954,6 +1200,8 @@ export type UserCountOutputType = {
   budgets: number
   goals: number
   bills: number
+  sharedOut: number
+  sharedIn: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -963,6 +1211,8 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   budgets?: boolean | UserCountOutputTypeCountBudgetsArgs
   goals?: boolean | UserCountOutputTypeCountGoalsArgs
   bills?: boolean | UserCountOutputTypeCountBillsArgs
+  sharedOut?: boolean | UserCountOutputTypeCountSharedOutArgs
+  sharedIn?: boolean | UserCountOutputTypeCountSharedInArgs
 }
 
 /**
@@ -1017,6 +1267,20 @@ export type UserCountOutputTypeCountBillsArgs<ExtArgs extends runtime.Types.Exte
   where?: Prisma.RecurringBillWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountSharedOutArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SharedAccessWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountSharedInArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SharedAccessWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1031,6 +1295,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   budgets?: boolean | Prisma.User$budgetsArgs<ExtArgs>
   goals?: boolean | Prisma.User$goalsArgs<ExtArgs>
   bills?: boolean | Prisma.User$billsArgs<ExtArgs>
+  sharedOut?: boolean | Prisma.User$sharedOutArgs<ExtArgs>
+  sharedIn?: boolean | Prisma.User$sharedInArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1069,6 +1335,8 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   budgets?: boolean | Prisma.User$budgetsArgs<ExtArgs>
   goals?: boolean | Prisma.User$goalsArgs<ExtArgs>
   bills?: boolean | Prisma.User$billsArgs<ExtArgs>
+  sharedOut?: boolean | Prisma.User$sharedOutArgs<ExtArgs>
+  sharedIn?: boolean | Prisma.User$sharedInArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1083,6 +1351,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     budgets: Prisma.$BudgetPayload<ExtArgs>[]
     goals: Prisma.$GoalPayload<ExtArgs>[]
     bills: Prisma.$RecurringBillPayload<ExtArgs>[]
+    sharedOut: Prisma.$SharedAccessPayload<ExtArgs>[]
+    sharedIn: Prisma.$SharedAccessPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1491,6 +1761,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   budgets<T extends Prisma.User$budgetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$budgetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BudgetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   goals<T extends Prisma.User$goalsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$goalsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GoalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   bills<T extends Prisma.User$billsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$billsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RecurringBillPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  sharedOut<T extends Prisma.User$sharedOutArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sharedOutArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SharedAccessPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  sharedIn<T extends Prisma.User$sharedInArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sharedInArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SharedAccessPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2060,6 +2332,54 @@ export type User$billsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs
   take?: number
   skip?: number
   distinct?: Prisma.RecurringBillScalarFieldEnum | Prisma.RecurringBillScalarFieldEnum[]
+}
+
+/**
+ * User.sharedOut
+ */
+export type User$sharedOutArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SharedAccess
+   */
+  select?: Prisma.SharedAccessSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SharedAccess
+   */
+  omit?: Prisma.SharedAccessOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SharedAccessInclude<ExtArgs> | null
+  where?: Prisma.SharedAccessWhereInput
+  orderBy?: Prisma.SharedAccessOrderByWithRelationInput | Prisma.SharedAccessOrderByWithRelationInput[]
+  cursor?: Prisma.SharedAccessWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SharedAccessScalarFieldEnum | Prisma.SharedAccessScalarFieldEnum[]
+}
+
+/**
+ * User.sharedIn
+ */
+export type User$sharedInArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SharedAccess
+   */
+  select?: Prisma.SharedAccessSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SharedAccess
+   */
+  omit?: Prisma.SharedAccessOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SharedAccessInclude<ExtArgs> | null
+  where?: Prisma.SharedAccessWhereInput
+  orderBy?: Prisma.SharedAccessOrderByWithRelationInput | Prisma.SharedAccessOrderByWithRelationInput[]
+  cursor?: Prisma.SharedAccessWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SharedAccessScalarFieldEnum | Prisma.SharedAccessScalarFieldEnum[]
 }
 
 /**

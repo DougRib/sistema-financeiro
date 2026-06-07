@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Trash2, Pencil, X, Check } from "lucide-react";
+import { Plus, Trash2, Pencil, X, Check, Wallet as WalletIcon } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatCurrency } from "@/lib/format";
+import { useToast } from "@/components/ui/Toast";
+import { maskValue, usePrivacy } from "@/components/ui/PrivacyContext";
+import { Modal } from "@/components/ui/Modal";
 
 interface Wallet {
   id: number;
@@ -26,14 +29,14 @@ export default function CarteirasPage() {
   const [editId, setEditId] = useState<number | null>(null);
   const [editName, setEditName] = useState("");
   const [deleting, setDeleting] = useState<number | null>(null);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   // New wallet form
   const [newName, setNewName] = useState("");
   const [newType, setNewType] = useState("CHECKING");
   const [newBalance, setNewBalance] = useState("0");
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const toast = useToast();
+  const { hidden } = usePrivacy();
 
   async function fetchWallets() {
     setLoading(true);
@@ -64,9 +67,11 @@ export default function CarteirasPage() {
   }, []);
 
   async function handleCreate() {
-    if (!newName.trim()) { setError("Nome obrigatório"); return; }
+    if (!newName.trim()) {
+      toast.error("Nome obrigatório");
+      return;
+    }
     setSaving(true);
-    setError(null);
     try {
       const r = await fetch("/api/wallets", {
         method: "POST",
@@ -78,10 +83,16 @@ export default function CarteirasPage() {
         }),
       });
       const j = await r.json();
-      if (!j.ok) { setError(j.error || "Erro ao criar"); return; }
+      if (!j.ok) {
+        toast.error("Não foi possível criar a carteira", { description: j.error });
+        return;
+      }
+      toast.success("Carteira criada");
       setNewName(""); setNewType("CHECKING"); setNewBalance("0");
       setShowForm(false);
       fetchWallets();
+    } catch {
+      toast.error("Erro de rede ao criar carteira");
     } finally {
       setSaving(false);
     }
@@ -89,23 +100,38 @@ export default function CarteirasPage() {
 
   async function handleRename(id: number) {
     if (!editName.trim()) return;
-    await fetch(`/api/wallets/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: editName.trim() }),
-    });
-    setEditId(null);
-    fetchWallets();
+    try {
+      const r = await fetch(`/api/wallets/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: editName.trim() }),
+      });
+      const j = await r.json();
+      if (!j.ok) {
+        toast.error("Não foi possível renomear", { description: j.error });
+        return;
+      }
+      toast.success("Carteira renomeada");
+      setEditId(null);
+      fetchWallets();
+    } catch {
+      toast.error("Erro de rede ao renomear");
+    }
   }
 
   async function handleDelete(id: number) {
     setDeleting(id);
-    setDeleteError(null);
     try {
       const r = await fetch(`/api/wallets/${id}`, { method: "DELETE" });
       const j = await r.json();
-      if (!j.ok) { setDeleteError(j.error || "Erro ao excluir"); return; }
+      if (!j.ok) {
+        toast.error("Não foi possível excluir", { description: j.error });
+        return;
+      }
+      toast.success("Carteira excluída");
       setWallets(ws => ws.filter(w => w.id !== id));
+    } catch {
+      toast.error("Erro de rede ao excluir carteira");
     } finally {
       setDeleting(null);
     }
@@ -120,12 +146,12 @@ export default function CarteirasPage() {
         <div className="flex items-center justify-between gap-3">
           <h1 className="text-base font-bold text-text">Carteiras</h1>
           <span className="text-xs text-subtle sm:hidden">
-            <span className="text-accent font-bold">{formatCurrency(totalBalance)}</span>
+            <span className="text-accent font-bold">{maskValue(formatCurrency(totalBalance), hidden)}</span>
           </span>
         </div>
         <div className="flex items-center gap-3">
           <span className="text-xs text-subtle hidden sm:inline">
-            Saldo total: <span className="text-accent font-bold">{formatCurrency(totalBalance)}</span>
+            Saldo total: <span className="text-accent font-bold">{maskValue(formatCurrency(totalBalance), hidden)}</span>
           </span>
           <button
             onClick={() => setShowForm(true)}
@@ -137,21 +163,19 @@ export default function CarteirasPage() {
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 lg:p-6">
-        {deleteError && (
-          <div className="mb-4 text-xs text-danger bg-[#f43f5e10] border border-[#f43f5e30] rounded-lg px-3 py-2">
-            {deleteError}
-          </div>
-        )}
-
         {loading ? (
           <div className="text-center py-12 text-sm text-muted">Carregando...</div>
         ) : wallets.length === 0 && !showForm ? (
           <EmptyState
-            icon="💳"
+            Icon={WalletIcon}
             title="Nenhuma carteira cadastrada"
             description="Adicione uma carteira para começar a registrar transações."
             action={
-              <button onClick={() => setShowForm(true)} className="text-xs text-accent hover:underline cursor-pointer">
+              <button
+                onClick={() => setShowForm(true)}
+                className="inline-flex items-center gap-1.5 bg-gradient-to-r from-[#e6c879] to-[#b8893f] text-[#1a1208] text-xs font-bold px-4 py-2.5 rounded-lg cursor-pointer hover:shadow-md hover:shadow-accent/20 transition-all"
+              >
+                <Plus size={13} />
                 Criar primeira carteira
               </button>
             }
@@ -207,74 +231,86 @@ export default function CarteirasPage() {
                   )}
 
                   <p className={`text-2xl font-black tracking-tight ${isNeg ? "text-expense" : "text-text"}`}>
-                    {formatCurrency(bal)}
+                    {maskValue(formatCurrency(bal), hidden)}
                   </p>
                 </div>
               );
             })}
 
-            {/* Add new card */}
-            {showForm ? (
-              <div className="bg-card border border-accent rounded-xl p-5 flex flex-col gap-3">
-                <p className="text-xs font-semibold text-accent">Nova carteira</p>
-                <div>
-                  <label className="text-[9px] uppercase tracking-widest text-muted mb-1 block">Nome</label>
-                  <input
-                    autoFocus
-                    value={newName}
-                    onChange={(e) => setNewName(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleCreate()}
-                    placeholder="Ex: Nubank, Itaú..."
-                    className="w-full bg-card-hover border border-border rounded-lg px-3 py-2 text-xs text-text placeholder:text-muted outline-none focus:border-accent transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="text-[9px] uppercase tracking-widest text-muted mb-1 block">Tipo</label>
-                  <select
-                    value={newType}
-                    onChange={(e) => setNewType(e.target.value)}
-                    className="w-full bg-card-hover border border-border rounded-lg px-3 py-2 text-xs text-text outline-none focus:border-accent transition-colors cursor-pointer"
-                  >
-                    {Object.entries(TYPE_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-[9px] uppercase tracking-widest text-muted mb-1 block">Saldo inicial</label>
-                  <input
-                    type="text"
-                    value={newBalance}
-                    onChange={(e) => setNewBalance(e.target.value)}
-                    className="w-full bg-card-hover border border-border rounded-lg px-3 py-2 text-xs text-text outline-none focus:border-accent transition-colors"
-                  />
-                </div>
-                {error && <p className="text-[10px] text-danger">{error}</p>}
-                <div className="flex gap-2">
-                  <button
-                    onClick={handleCreate}
-                    disabled={saving}
-                    className="flex-1 bg-accent hover:bg-accent-hover text-white text-xs font-bold py-2 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
-                  >
-                    {saving ? "..." : "Criar"}
-                  </button>
-                  <button onClick={() => { setShowForm(false); setError(null); }} className="px-3 py-2 bg-card-hover border border-border rounded-lg text-xs text-muted hover:text-text transition-colors cursor-pointer">
-                    Cancelar
-                  </button>
-                </div>
+            {/* Add new card (dashed button — opens modal) */}
+            <button
+              onClick={() => setShowForm(true)}
+              className="bg-card border-2 border-dashed border-border hover:border-accent rounded-xl p-5 flex flex-col items-center justify-center gap-2 transition-colors group cursor-pointer min-h-[140px]"
+            >
+              <div className="w-10 h-10 rounded-full bg-accent-soft border border-accent/30 flex items-center justify-center text-accent group-hover:scale-110 transition-transform">
+                <Plus size={18} />
               </div>
-            ) : (
-              <button
-                onClick={() => setShowForm(true)}
-                className="bg-card border-2 border-dashed border-border hover:border-accent rounded-xl p-5 flex flex-col items-center justify-center gap-2 transition-colors group cursor-pointer min-h-[140px]"
-              >
-                <div className="w-8 h-8 rounded-full bg-card-hover flex items-center justify-center text-muted group-hover:text-accent transition-colors">
-                  <Plus size={16} />
-                </div>
-                <span className="text-xs text-muted group-hover:text-accent transition-colors">Adicionar carteira</span>
-              </button>
-            )}
+              <span className="text-xs font-semibold text-text-secondary group-hover:text-accent transition-colors">Adicionar carteira</span>
+            </button>
           </div>
         )}
       </div>
+
+      {/* New wallet modal */}
+      <Modal
+        open={showForm}
+        onClose={() => setShowForm(false)}
+        title="Nova carteira"
+        description="Adicione uma conta, cartão ou investimento"
+        icon={<WalletIcon size={18} />}
+        size="sm"
+        footer={
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowForm(false)}
+              className="flex-1 bg-card-hover border border-border rounded-lg text-xs font-semibold text-text-secondary hover:text-text py-2.5 transition-colors cursor-pointer"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleCreate}
+              disabled={saving}
+              className="flex-1 bg-gradient-to-r from-[#e6c879] to-[#b8893f] text-[#1a1208] text-xs font-bold py-2.5 rounded-lg transition-all disabled:opacity-50 cursor-pointer hover:shadow-md hover:shadow-accent/20"
+            >
+              {saving ? "Criando..." : "Criar carteira"}
+            </button>
+          </div>
+        }
+      >
+        <div className="flex flex-col gap-4">
+          <div>
+            <label className="text-[10px] uppercase tracking-widest font-bold text-text-secondary mb-1.5 block">Nome</label>
+            <input
+              autoFocus
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleCreate()}
+              placeholder="Ex: Nubank, Itaú, Carteira..."
+              className="w-full bg-card-hover border border-border rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none focus:border-accent transition-colors"
+            />
+          </div>
+          <div>
+            <label className="text-[10px] uppercase tracking-widest font-bold text-text-secondary mb-1.5 block">Tipo</label>
+            <select
+              value={newType}
+              onChange={(e) => setNewType(e.target.value)}
+              className="w-full bg-card-hover border border-border rounded-lg px-3 py-2.5 text-sm text-text outline-none focus:border-accent transition-colors cursor-pointer"
+            >
+              {Object.entries(TYPE_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="text-[10px] uppercase tracking-widest font-bold text-text-secondary mb-1.5 block">Saldo inicial (R$)</label>
+            <input
+              type="text"
+              value={newBalance}
+              onChange={(e) => setNewBalance(e.target.value)}
+              placeholder="0,00"
+              className="w-full bg-card-hover border border-border rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none focus:border-accent transition-colors"
+            />
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

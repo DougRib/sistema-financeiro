@@ -1,14 +1,13 @@
 export const runtime = "nodejs";
 import Link from "next/link";
 import Image from "next/image";
-import { Sparkles } from "lucide-react";
 import { MiniFinancialChart } from "@/components/ui/MiniFinancialChart";
 
 // Landing page
 export default function Home() {
   return (
     <main className="min-h-screen login-left-bg flex items-center justify-center px-4 py-10 relative">
-      <div className="w-full max-w-4xl space-y-8 relative z-10">
+      <div className="w-full max-w-4xl space-y-6 relative z-10">
         {/* Logo + Title */}
         <header className="text-center space-y-4">
           <div className="inline-flex items-center justify-center">
@@ -47,7 +46,7 @@ export default function Home() {
               </span>
             </div>
 
-            <p className="text-xs text-text-secondary leading-relaxed mb-3">
+            <p className="text-xs text-text-secondary leading-tight">
               Veja rapidamente quanto entrou, quanto saiu e qual é o seu saldo.
             </p>
 
@@ -55,7 +54,7 @@ export default function Home() {
               <div className="w-full h-16 opacity-90">
                 <MiniFinancialChart />
               </div>
-              <span className="text-[11px] font-mono text-text-secondary/60 -mt-1">
+              <span className="text-[11px] font-mono text-text-secondary/60 -mt-1 group-hover:text-text-secondary transition-colors">
                 R$ •••
               </span>
             </div>
@@ -73,19 +72,19 @@ export default function Home() {
               </span>
             </div>
 
-            <p className="text-xs text-text-secondary leading-relaxed mb-4">
+            <p className="text-xs text-text-secondary leading-tight mb-4">
               Separe seus gastos por categorias e contas para ter tudo sob
               controle.
             </p>
 
-            <div className="flex flex-wrap gap-1.5">
-              <span className="text-[10px] font-semibold px-2 py-1 rounded-full bg-gradient-to-r from-[#e6c879]/25 to-[#b8893f]/15 text-accent border border-accent/30 transition-all hover:from-[#e6c879]/35 hover:to-[#b8893f]/25">
+            <div className="group flex flex-wrap gap-1.5">
+              <span className="text-[10px] font-semibold px-2 py-1 rounded-full bg-card-hover text-text-secondary border border-accent/30 transition-all group-hover:border-accent/50 group-hover:text-accent transition-colors">
                 💳 Cartão
               </span>
-              <span className="text-[10px] px-2 py-1 rounded-full bg-card-hover text-text-secondary border border-border hover:border-accent/30 hover:text-accent transition-colors">
+              <span className="text-[10px] px-2 py-1 rounded-full bg-card-hover text-text-secondary border border-border group-hover:border-accent/50 group-hover:text-accent transition-colors">
                 🍔 Alimentação
               </span>
-              <span className="text-[10px] px-2 py-1 rounded-full bg-card-hover text-text-secondary border border-border hover:border-accent/30 hover:text-accent transition-colors">
+              <span className="text-[10px] px-2 py-1 rounded-full bg-card-hover text-text-secondary border border-border group-hover:border-accent/50 group-hover:text-accent transition-colors">
                 🚍 Transporte
               </span>
             </div>
@@ -103,7 +102,7 @@ export default function Home() {
               </span>
             </div>
 
-            <p className="text-xs text-text-secondary leading-relaxed mb-5">
+            <p className="text-xs text-text-secondary leading-tight mb-5">
               Use os resumos do mês para tomar decisões mais inteligentes.
             </p>
 
@@ -120,51 +119,31 @@ export default function Home() {
                 />
               </div>
               <div className="flex justify-between text-[10px] text-text-secondary">
-                <span>Início do mês</span>
-                <span className="text-accent font-semibold">Objetivo</span>
+                <span className="text-text-secondary transition-colors">
+                  Início do mês
+                </span>
+                <span className="text-accent font-semibold group-hover:text-accent transition-colors">
+                  Objetivo
+                </span>
               </div>
             </div>
           </div>
         </section>
 
-        {/* CTAs */}
+        {/* CTA */}
         <section className="flex flex-col md:flex-row items-center justify-center gap-3">
           <Link
-            href="/dashboard"
-            className="btn-gold w-full md:w-auto text-center px-6 py-3 text-sm cursor-pointer"
-          >
-            Ir para meu dashboard
-          </Link>
-
-          <Link
             href="/login"
-            className="w-full md:w-auto text-center px-6 py-3 rounded-xl border border-accent/30 bg-transparent text-sm font-semibold text-text hover:bg-accent-soft hover:border-accent/60 hover:text-accent transition-all"
+            className="btn-gold w-full md:w-auto text-center px-6 py-3 text-sm cursor-pointer"
           >
             Entrar no sistema
           </Link>
-
-          <Link
-            href="/register"
-            className="w-full md:w-auto text-center px-6 py-3 rounded-xl border border-accent/30 bg-transparent text-sm font-semibold text-text hover:bg-accent-soft hover:border-accent/60 hover:text-accent transition-all"
-          >
-            Criar minha conta
-          </Link>
         </section>
 
-        <footer className="text-xs text-center text-text-secondary">
+        <footer className="text-md text-center text-text-secondary">
           Comece hoje a ter mais controle sobre a sua vida financeira.
         </footer>
       </div>
-
-      {/* Decorative sparkles */}
-      <Sparkles
-        size={28}
-        className="absolute bottom-8 right-8 text-accent/40 pointer-events-none"
-      />
-      <Sparkles
-        size={20}
-        className="absolute top-8 left-8 text-accent/25 pointer-events-none"
-      />
     </main>
   );
 }

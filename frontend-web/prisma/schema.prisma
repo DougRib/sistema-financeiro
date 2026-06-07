@@ -26,6 +26,37 @@ model User {
   budgets      Budget[]
   goals        Goal[]
   bills        RecurringBill[]
+
+  // Shared access — accounts THIS user shares with others
+  sharedOut    SharedAccess[] @relation("SharedOut")
+  // Shared access — accounts shared WITH this user by others
+  sharedIn     SharedAccess[] @relation("SharedIn")
+}
+
+enum SharePermission {
+  READ
+  WRITE
+}
+
+enum ShareStatus {
+  PENDING
+  ACCEPTED
+  REVOKED
+}
+
+model SharedAccess {
+  id               Int             @id @default(autoincrement())
+  ownerId          Int
+  owner            User            @relation("SharedOut", fields: [ownerId], references: [id], onDelete: Cascade)
+  sharedWithUserId Int
+  sharedWithUser   User            @relation("SharedIn", fields: [sharedWithUserId], references: [id], onDelete: Cascade)
+  permission       SharePermission @default(READ)
+  status           ShareStatus     @default(PENDING)
+  createdAt        DateTime        @default(now())
+  acceptedAt       DateTime?
+
+  @@unique([ownerId, sharedWithUserId])
+  @@index([sharedWithUserId])
 }
 
 enum WalletType {

@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Tag as TagIcon } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Tag } from "@/components/ui/Tag";
+import { useToast } from "@/components/ui/Toast";
 
 interface Categoria {
   id: number;
@@ -16,9 +17,9 @@ export default function CategoriasPage() {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [name, setName] = useState("");
   const [icon, setIcon] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [deleting, setDeleting] = useState<number | null>(null);
+  const toast = useToast();
 
   async function fetchCategorias() {
     const r = await fetch("/api/categorias");
@@ -39,8 +40,11 @@ export default function CategoriasPage() {
   }, []);
 
   async function handleCreate() {
-    if (!name.trim()) { setError("Nome obrigatório"); return; }
-    setLoading(true); setError(null);
+    if (!name.trim()) {
+      toast.error("Nome obrigatório");
+      return;
+    }
+    setLoading(true);
     try {
       const r = await fetch("/api/categorias", {
         method: "POST",
@@ -48,9 +52,15 @@ export default function CategoriasPage() {
         body: JSON.stringify({ name: name.trim(), icon: icon.trim() || undefined }),
       });
       const j = await r.json();
-      if (!j.ok) { setError(j.error || "Erro ao criar"); return; }
+      if (!j.ok) {
+        toast.error("Não foi possível criar a categoria", { description: j.error });
+        return;
+      }
+      toast.success("Categoria criada");
       setName(""); setIcon("");
       fetchCategorias();
+    } catch {
+      toast.error("Erro de rede ao criar categoria");
     } finally { setLoading(false); }
   }
 
@@ -59,7 +69,14 @@ export default function CategoriasPage() {
     try {
       const r = await fetch(`/api/categorias/${id}`, { method: "DELETE" });
       const j = await r.json();
-      if (j.ok) setCategorias(cs => cs.filter(c => c.id !== id));
+      if (j.ok) {
+        setCategorias(cs => cs.filter(c => c.id !== id));
+        toast.success("Categoria excluída");
+      } else {
+        toast.error("Não foi possível excluir", { description: j.error });
+      }
+    } catch {
+      toast.error("Erro de rede ao excluir categoria");
     } finally { setDeleting(null); }
   }
 
@@ -97,7 +114,6 @@ export default function CategoriasPage() {
                   className="w-full bg-card-hover border border-border rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none focus:border-accent transition-colors"
                 />
               </div>
-              {error && <p className="text-xs text-expense">{error}</p>}
               <button
                 onClick={handleCreate}
                 disabled={loading}
@@ -116,7 +132,12 @@ export default function CategoriasPage() {
                 Suas categorias ({custom.length})
               </p>
               {custom.length === 0 ? (
-                <EmptyState icon="🏷️" title="Nenhuma categoria criada ainda" />
+                <EmptyState
+                  variant="compact"
+                  Icon={TagIcon}
+                  title="Nenhuma categoria criada ainda"
+                  description="Use o formulário ao lado para criar a primeira."
+                />
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {custom.map(c => (

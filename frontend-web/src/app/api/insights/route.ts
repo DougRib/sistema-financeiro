@@ -230,6 +230,59 @@ export async function GET(req: NextRequest) {
     }
   }
 
+  // Duplicate transactions detection — same amount + same description (or category) within 3 days
+  const expenseTxs = currTxs.filter((t) => t.type === "EXPENSE");
+  const duplicateGroups = new Map<string, typeof expenseTxs>();
+  for (const tx of expenseTxs) {
+    const desc = (tx.description ?? "").trim().toLowerCase();
+    const catName = tx.category?.name ?? "";
+    const key = `${Number(tx.amount).toFixed(2)}|${desc || catName}`;
+    if (!desc && !catName) continue;
+    const arr = duplicateGroups.get(key) ?? [];
+    arr.push(tx);
+    duplicateGroups.set(key, arr);
+  }
+  let dupCount = 0;
+  let dupValue = 0;
+  let dupExample: { description: string; amount: number } | null = null;
+  for (const group of duplicateGroups.values()) {
+    if (group.length < 2) continue;
+    // sort by date and look for clusters within 3 days
+    const sorted = group.slice().sort(
+      (a, b) => new Date(a.occurredAt).getTime() - new Date(b.occurredAt).getTime(),
+    );
+    for (let i = 1; i < sorted.length; i++) {
+      const diffDays = Math.abs(
+        (new Date(sorted[i].occurredAt).getTime() -
+          new Date(sorted[i - 1].occurredAt).getTime()) /
+          (1000 * 60 * 60 * 24),
+      );
+      if (diffDays <= 3) {
+        dupCount++;
+        dupValue += Number(sorted[i].amount);
+        if (!dupExample) {
+          dupExample = {
+            description: sorted[i].description ?? sorted[i].category?.name ?? "transação",
+            amount: Number(sorted[i].amount),
+          };
+        }
+      }
+    }
+  }
+  if (dupCount > 0 && dupExample) {
+    insights.push({
+      id: "duplicates",
+      severity: "warn",
+      icon: "🔁",
+      title: dupCount === 1 ? "Possível transação duplicada" : `${dupCount} possíveis duplicatas`,
+      body:
+        dupCount === 1
+          ? `Detectamos "${dupExample.description}" (${brl(dupExample.amount)}) em datas próximas. Verifique se não foi cobrado duas vezes.`
+          : `Detectamos ${dupCount} pares de transações próximas com mesmo valor totalizando ${brl(dupValue)}. Revise para evitar pagamentos duplicados.`,
+      metric: `${dupCount}x`,
+    });
+  }
+
   // Small frequent expenses
   const smallExpenses = currTxs.filter((t) => t.type === "EXPENSE" && Number(t.amount) <= 30);
   if (smallExpenses.length >= 15) {

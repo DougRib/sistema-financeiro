@@ -12,9 +12,9 @@ import {
   Target,
   Wallet,
   BarChart3,
-  Sparkles,
 } from "lucide-react";
 import { loginSchema } from "@/lib/validators";
+import { useToast } from "@/components/ui/Toast";
 
 const FEATURES = [
   { icon: LayoutDashboard, label: "Dashboard com visão mensal completa" },
@@ -27,14 +27,15 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const toast = useToast();
 
   async function handleLogin() {
-    setError(null);
     const parsed = loginSchema.safeParse({ email, password });
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message || "Dados inválidos");
+      toast.error("Dados inválidos", {
+        description: parsed.error.issues[0]?.message,
+      });
       return;
     }
     setLoading(true);
@@ -46,15 +47,20 @@ export default function LoginPage() {
       });
       if (!r.ok) {
         const j = await r.json().catch(() => ({}));
-        setError(j.error || "Falha no login");
+        toast.error("Falha no login", {
+          description: j.error || "Verifique suas credenciais.",
+        });
         return;
       }
+      toast.success("Bem-vindo de volta!");
       const raw = new URLSearchParams(window.location.search).get("from");
       const from =
         raw && raw.startsWith("/") && !raw.startsWith("//") ? raw : "/dashboard";
       window.location.href = from;
     } catch {
-      setError("Erro de rede");
+      toast.error("Erro de rede", {
+        description: "Verifique sua conexão e tente novamente.",
+      });
     } finally {
       setLoading(false);
     }
@@ -168,12 +174,6 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {error && (
-              <p className="text-xs text-expense bg-expense/10 border border-expense/30 rounded-lg px-3 py-2 mb-4">
-                {error}
-              </p>
-            )}
-
             <button
               onClick={handleLogin}
               disabled={loading}
@@ -193,12 +193,6 @@ export default function LoginPage() {
             </p>
           </div>
         </div>
-
-        {/* Decorative sparkle in bottom-right */}
-        <Sparkles
-          size={28}
-          className="absolute bottom-8 right-8 text-accent/40 pointer-events-none"
-        />
       </div>
     </div>
   );

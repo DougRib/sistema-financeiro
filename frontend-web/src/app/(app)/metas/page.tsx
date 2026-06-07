@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Trash2, X } from "lucide-react";
+import { Plus, Trash2, Target, PiggyBank } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatCurrency } from "@/lib/format";
+import { useToast } from "@/components/ui/Toast";
+import { Modal } from "@/components/ui/Modal";
 
 interface Goal {
   id: number;
@@ -51,7 +53,7 @@ export default function MetasPage() {
   const [current, setCurrent] = useState("0");
   const [deadline, setDeadline] = useState("");
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const toast = useToast();
 
   // Deposit modal
   const [depositGoalId, setDepositGoalId] = useState<number | null>(null);
@@ -85,11 +87,11 @@ export default function MetasPage() {
   }, []);
 
   async function handleCreate() {
-    if (!name.trim() || !target) { setError("Nome e valor alvo são obrigatórios"); return; }
+    if (!name.trim() || !target) { toast.error("Nome e valor alvo são obrigatórios"); return; }
     const targetNum = parseFloat(target.replace(",", "."));
-    if (isNaN(targetNum) || targetNum <= 0) { setError("Valor alvo inválido"); return; }
+    if (isNaN(targetNum) || targetNum <= 0) { toast.error("Valor alvo inválido"); return; }
     const currentNum = parseFloat(current.replace(",", ".")) || 0;
-    setSaving(true); setError(null);
+    setSaving(true);
     try {
       const r = await fetch("/api/goals", {
         method: "POST",
@@ -103,34 +105,61 @@ export default function MetasPage() {
         }),
       });
       const j = await r.json();
-      if (!j.ok) { setError(j.error || "Erro ao criar"); return; }
+      if (!j.ok) {
+        toast.error("Não foi possível criar a meta", { description: j.error });
+        return;
+      }
+      toast.success("Meta criada");
       setName(""); setEmoji("🎯"); setTarget(""); setCurrent("0"); setDeadline("");
       setShowForm(false);
       fetchGoals();
+    } catch {
+      toast.error("Erro de rede ao criar meta");
     } finally { setSaving(false); }
   }
 
   async function handleDeposit() {
     if (!depositGoalId) return;
     const amount = parseFloat(depositAmount.replace(",", "."));
-    if (isNaN(amount) || amount <= 0) return;
+    if (isNaN(amount) || amount <= 0) {
+      toast.error("Valor inválido");
+      return;
+    }
     setDepositing(true);
     try {
       const goal = goals.find(g => g.id === depositGoalId)!;
-      await fetch(`/api/goals/${depositGoalId}`, {
+      const r = await fetch(`/api/goals/${depositGoalId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ currentAmount: goal.currentAmount + amount }),
       });
+      const j = await r.json().catch(() => ({ ok: r.ok }));
+      if (!j.ok) {
+        toast.error("Não foi possível depositar", { description: j.error });
+        return;
+      }
+      toast.success(`+${formatCurrency(amount)} adicionado a ${goal.name}`);
       setDepositGoalId(null);
       setDepositAmount("");
       fetchGoals();
+    } catch {
+      toast.error("Erro de rede ao depositar");
     } finally { setDepositing(false); }
   }
 
   async function handleDelete(id: number) {
-    await fetch(`/api/goals/${id}`, { method: "DELETE" });
-    setGoals(gs => gs.filter(g => g.id !== id));
+    try {
+      const r = await fetch(`/api/goals/${id}`, { method: "DELETE" });
+      const j = await r.json().catch(() => ({ ok: r.ok }));
+      if (j.ok) {
+        setGoals(gs => gs.filter(g => g.id !== id));
+        toast.success("Meta excluída");
+      } else {
+        toast.error("Não foi possível excluir", { description: j.error });
+      }
+    } catch {
+      toast.error("Erro de rede ao excluir meta");
+    }
   }
 
   return (
@@ -150,12 +179,15 @@ export default function MetasPage() {
           <div className="text-center py-12 text-sm text-muted">Carregando...</div>
         ) : goals.length === 0 && !showForm ? (
           <EmptyState
-            icon="🎯"
+            Icon={Target}
             title="Nenhuma meta criada"
-            description="Defina objetivos financeiros e acompanhe seu progresso."
+            description="Defina objetivos financeiros e acompanhe seu progresso com barras visuais."
             action={
-              <button onClick={() => setShowForm(true)} className="text-xs text-accent hover:underline cursor-pointer">
-                Criar primeira meta
+              <button
+                onClick={() => setShowForm(true)}
+                className="inline-flex items-center gap-1.5 bg-gradient-to-r from-[#e6c879] to-[#b8893f] text-[#1a1208] text-xs font-bold px-4 py-2.5 rounded-lg cursor-pointer hover:shadow-md hover:shadow-accent/20 transition-all"
+              >
+                <Plus size={13} /> Criar primeira meta
               </button>
             }
           />
@@ -220,71 +252,120 @@ export default function MetasPage() {
               );
             })}
 
-            {/* Create card */}
-            {showForm && (
-              <div className="bg-card border border-accent rounded-xl p-5 flex flex-col gap-3">
-                <div className="flex items-center justify-between">
-                  <p className="text-xs font-semibold text-accent">Nova meta</p>
-                  <button onClick={() => { setShowForm(false); setError(null); }} className="text-muted hover:text-text cursor-pointer"><X size={14} /></button>
-                </div>
-                {[
-                  { label: "Emoji", value: emoji, onChange: setEmoji, placeholder: "🎯" },
-                  { label: "Nome", value: name, onChange: setName, placeholder: "Ex: Comprar carro" },
-                  { label: "Valor alvo (R$)", value: target, onChange: setTarget, placeholder: "10.000,00" },
-                  { label: "Já guardado (R$)", value: current, onChange: setCurrent, placeholder: "0,00" },
-                ].map(({ label, value, onChange, placeholder }) => (
-                  <div key={label}>
-                    <label className="text-[9px] uppercase tracking-widest text-muted mb-1 block">{label}</label>
-                    <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
-                      className="w-full bg-card-hover border border-border rounded-lg px-3 py-2 text-xs text-text placeholder:text-muted outline-none focus:border-accent transition-colors" />
-                  </div>
-                ))}
-                <div>
-                  <label className="text-[9px] uppercase tracking-widest text-muted mb-1 block">Prazo (opcional)</label>
-                  <input type="month" value={deadline} onChange={e => setDeadline(e.target.value)}
-                    className="w-full bg-card-hover border border-border rounded-lg px-3 py-2 text-xs text-text outline-none focus:border-accent transition-colors" />
-                </div>
-                {error && <p className="text-[10px] text-expense">{error}</p>}
-                <button onClick={handleCreate} disabled={saving}
-                  className="w-full bg-accent hover:bg-accent-hover text-white text-xs font-bold py-2.5 rounded-lg transition-colors disabled:opacity-50 cursor-pointer">
-                  {saving ? "..." : "Criar meta"}
-                </button>
-              </div>
-            )}
           </div>
         )}
       </div>
 
-      {/* Deposit modal */}
-      {depositGoalId && (
-        <>
-          <div className="fixed inset-0 bg-black/60 z-40" onClick={() => setDepositGoalId(null)} />
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="bg-card border border-border rounded-2xl p-6 w-full max-w-sm">
-              <div className="flex items-center justify-between mb-4">
-                <p className="text-sm font-bold text-text">Adicionar valor à meta</p>
-                <button onClick={() => setDepositGoalId(null)} className="text-muted hover:text-text cursor-pointer"><X size={14} /></button>
-              </div>
-              <label className="text-[9px] uppercase tracking-widest text-muted mb-1.5 block">Valor (R$)</label>
+      {/* New goal modal */}
+      <Modal
+        open={showForm}
+        onClose={() => setShowForm(false)}
+        title="Nova meta"
+        description="Defina um objetivo financeiro e acompanhe o progresso"
+        icon={<Target size={18} />}
+        size="md"
+        footer={
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowForm(false)}
+              className="flex-1 bg-card-hover border border-border rounded-lg text-xs font-semibold text-text-secondary hover:text-text py-2.5 transition-colors cursor-pointer"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleCreate}
+              disabled={saving}
+              className="flex-1 bg-gradient-to-r from-[#e6c879] to-[#b8893f] text-[#1a1208] text-xs font-bold py-2.5 rounded-lg transition-all disabled:opacity-50 cursor-pointer hover:shadow-md hover:shadow-accent/20"
+            >
+              {saving ? "Criando..." : "Criar meta"}
+            </button>
+          </div>
+        }
+      >
+        <div className="flex flex-col gap-3">
+          <div className="grid grid-cols-[80px_1fr] gap-3">
+            <div>
+              <label className="text-[10px] uppercase tracking-widest font-bold text-text-secondary mb-1.5 block">Emoji</label>
+              <input
+                value={emoji}
+                onChange={(e) => setEmoji(e.target.value)}
+                placeholder="🎯"
+                className="w-full bg-card-hover border border-border rounded-lg px-3 py-2.5 text-lg text-center text-text outline-none focus:border-accent transition-colors"
+              />
+            </div>
+            <div>
+              <label className="text-[10px] uppercase tracking-widest font-bold text-text-secondary mb-1.5 block">Nome da meta</label>
               <input
                 autoFocus
-                value={depositAmount}
-                onChange={e => setDepositAmount(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && handleDeposit()}
-                placeholder="0,00"
-                className="w-full bg-card-hover border border-border rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none focus:border-accent transition-colors mb-4"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Ex: Reserva de emergência"
+                className="w-full bg-card-hover border border-border rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none focus:border-accent transition-colors"
               />
-              <button
-                onClick={handleDeposit}
-                disabled={depositing}
-                className="w-full bg-accent hover:bg-accent-hover text-white text-sm font-bold py-3 rounded-xl transition-colors disabled:opacity-50 cursor-pointer"
-              >
-                {depositing ? "Salvando..." : "Confirmar"}
-              </button>
             </div>
           </div>
-        </>
-      )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="text-[10px] uppercase tracking-widest font-bold text-text-secondary mb-1.5 block">Valor alvo (R$)</label>
+              <input
+                value={target}
+                onChange={(e) => setTarget(e.target.value)}
+                placeholder="10.000,00"
+                className="w-full bg-card-hover border border-border rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none focus:border-accent transition-colors"
+              />
+            </div>
+            <div>
+              <label className="text-[10px] uppercase tracking-widest font-bold text-text-secondary mb-1.5 block">Já guardado (R$)</label>
+              <input
+                value={current}
+                onChange={(e) => setCurrent(e.target.value)}
+                placeholder="0,00"
+                className="w-full bg-card-hover border border-border rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none focus:border-accent transition-colors"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-[10px] uppercase tracking-widest font-bold text-text-secondary mb-1.5 block">Prazo (opcional)</label>
+            <input
+              type="month"
+              value={deadline}
+              onChange={(e) => setDeadline(e.target.value)}
+              className="w-full bg-card-hover border border-border rounded-lg px-3 py-2.5 text-sm text-text outline-none focus:border-accent transition-colors"
+            />
+          </div>
+        </div>
+      </Modal>
+
+      {/* Deposit modal */}
+      <Modal
+        open={depositGoalId !== null}
+        onClose={() => setDepositGoalId(null)}
+        title="Adicionar valor à meta"
+        description="Quanto você quer guardar agora?"
+        icon={<PiggyBank size={18} />}
+        size="sm"
+        footer={
+          <button
+            onClick={handleDeposit}
+            disabled={depositing}
+            className="w-full bg-gradient-to-r from-[#e6c879] to-[#b8893f] text-[#1a1208] text-sm font-bold py-3 rounded-xl transition-all disabled:opacity-50 cursor-pointer hover:shadow-md hover:shadow-accent/20"
+          >
+            {depositing ? "Salvando..." : "Confirmar depósito"}
+          </button>
+        }
+      >
+        <label className="text-[10px] uppercase tracking-widest font-bold text-text-secondary mb-1.5 block">Valor (R$)</label>
+        <input
+          autoFocus
+          value={depositAmount}
+          onChange={(e) => setDepositAmount(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleDeposit()}
+          placeholder="0,00"
+          className="w-full bg-card-hover border border-border rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none focus:border-accent transition-colors"
+        />
+      </Modal>
     </div>
   );
 }

@@ -4,9 +4,13 @@ import { PrismaPg } from "@prisma/adapter-pg";
 const globalForPrisma = global as unknown as { prisma?: PrismaClient };
 
 function makePrisma() {
-  const adapter = new PrismaPg({
-    connectionString: process.env.DIRECT_DATABASE_URL!,
-  });
+  const connectionString = process.env.DIRECT_DATABASE_URL;
+  if (!connectionString) {
+    throw new Error(
+      "DIRECT_DATABASE_URL não está definido. Configure a variável de ambiente no arquivo .env (ex.: postgresql://user:pass@host:5432/db).",
+    );
+  }
+  const adapter = new PrismaPg({ connectionString });
   return new PrismaClient({
     log: ["warn", "error"],
     adapter,

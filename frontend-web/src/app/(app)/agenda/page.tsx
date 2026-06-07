@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Trash2, Check, AlertTriangle, Clock } from "lucide-react";
+import { Plus, Trash2, Check, AlertTriangle, Clock, CalendarDays } from "lucide-react";
 import { CardBlock } from "@/components/ui/CardBlock";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatCurrency } from "@/lib/format";
+import { useToast } from "@/components/ui/Toast";
+import { Modal } from "@/components/ui/Modal";
 
 interface Bill {
   id: number;
@@ -87,7 +89,7 @@ export default function AgendaPage() {
   const [categoryId, setCategoryId] = useState("");
   const [walletId, setWalletId] = useState("");
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const toast = useToast();
 
   async function fetchBills() {
     setLoading(true);
@@ -126,26 +128,42 @@ export default function AgendaPage() {
   async function handlePay(id: number) {
     setPaying(id);
     try {
-      await fetch(`/api/bills/${id}/pay`, { method: "POST" });
+      const r = await fetch(`/api/bills/${id}/pay`, { method: "POST" });
+      const j = await r.json().catch(() => ({ ok: r.ok }));
+      if (j.ok) {
+        toast.success("Conta marcada como paga");
+      } else {
+        toast.error("Não foi possível pagar", { description: j.error });
+      }
       fetchBills();
+    } catch {
+      toast.error("Erro de rede ao pagar conta");
     } finally { setPaying(null); }
   }
 
   async function handleDelete(id: number) {
     setDeleting(id);
     try {
-      await fetch(`/api/bills/${id}`, { method: "DELETE" });
-      setBills(bs => bs.filter(b => b.id !== id));
+      const r = await fetch(`/api/bills/${id}`, { method: "DELETE" });
+      const j = await r.json().catch(() => ({ ok: r.ok }));
+      if (j.ok) {
+        setBills(bs => bs.filter(b => b.id !== id));
+        toast.success("Conta removida");
+      } else {
+        toast.error("Não foi possível remover", { description: j.error });
+      }
+    } catch {
+      toast.error("Erro de rede ao remover conta");
     } finally { setDeleting(null); }
   }
 
   async function handleCreate() {
-    if (!name.trim() || !amount || !dueDay) { setError("Preencha nome, valor e dia"); return; }
+    if (!name.trim() || !amount || !dueDay) { toast.error("Preencha nome, valor e dia"); return; }
     const amountNum = parseFloat(amount.replace(",", "."));
     const dueDayNum = parseInt(dueDay);
-    if (isNaN(amountNum) || amountNum <= 0) { setError("Valor inválido"); return; }
-    if (isNaN(dueDayNum) || dueDayNum < 1 || dueDayNum > 28) { setError("Dia deve ser entre 1 e 28"); return; }
-    setSaving(true); setError(null);
+    if (isNaN(amountNum) || amountNum <= 0) { toast.error("Valor inválido"); return; }
+    if (isNaN(dueDayNum) || dueDayNum < 1 || dueDayNum > 28) { toast.error("Dia deve ser entre 1 e 28"); return; }
+    setSaving(true);
     try {
       const r = await fetch("/api/bills", {
         method: "POST",
@@ -159,9 +177,15 @@ export default function AgendaPage() {
         }),
       });
       const j = await r.json();
-      if (!j.ok) { setError(j.error || "Erro ao criar"); return; }
+      if (!j.ok) {
+        toast.error("Não foi possível criar a conta", { description: j.error });
+        return;
+      }
+      toast.success("Conta adicionada");
       setName(""); setAmount(""); setDueDay("1"); setCategoryId(""); setShowForm(false);
       fetchBills();
+    } catch {
+      toast.error("Erro de rede ao criar conta");
     } finally { setSaving(false); }
   }
 
@@ -198,7 +222,19 @@ export default function AgendaPage() {
             {loading ? (
               <div className="py-12 text-center text-sm text-muted">Carregando...</div>
             ) : bills.length === 0 ? (
-              <EmptyState icon="📅" title="Nenhuma conta fixa cadastrada" description="Adicione suas contas recorrentes para nunca perder um vencimento." />
+              <EmptyState
+                Icon={CalendarDays}
+                title="Nenhuma conta fixa cadastrada"
+                description="Adicione suas contas recorrentes para nunca perder um vencimento."
+                action={
+                  <button
+                    onClick={() => setShowForm(true)}
+                    className="inline-flex items-center gap-1.5 bg-gradient-to-r from-[#e6c879] to-[#b8893f] text-[#1a1208] text-xs font-bold px-4 py-2.5 rounded-lg cursor-pointer hover:shadow-md hover:shadow-accent/20 transition-all"
+                  >
+                    <Plus size={13} /> Adicionar primeira conta
+                  </button>
+                }
+              />
             ) : (
               <>
                 {overdueBills.length > 0 && (
@@ -238,53 +274,81 @@ export default function AgendaPage() {
               </div>
             </CardBlock>
 
-            {showForm && (
-              <CardBlock title="Nova conta fixa">
-                <div className="flex flex-col gap-3">
-                  {[
-                    { label: "Nome", value: name, onChange: setName, placeholder: "Ex: Aluguel, Netflix..." },
-                    { label: "Valor (R$)", value: amount, onChange: setAmount, placeholder: "0,00" },
-                    { label: "Dia do vencimento", value: dueDay, onChange: setDueDay, placeholder: "1-28" },
-                  ].map(({ label, value, onChange, placeholder }) => (
-                    <div key={label}>
-                      <label className="text-[9px] uppercase tracking-widest text-muted mb-1 block">{label}</label>
-                      <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
-                        className="w-full bg-card-hover border border-border rounded-lg px-3 py-2 text-xs text-text placeholder:text-muted outline-none focus:border-accent transition-colors" />
-                    </div>
-                  ))}
-                  <div>
-                    <label className="text-[9px] uppercase tracking-widest text-muted mb-1 block">Categoria (opcional)</label>
-                    <select value={categoryId} onChange={e => setCategoryId(e.target.value)}
-                      className="w-full bg-card-hover border border-border rounded-lg px-3 py-2 text-xs text-text outline-none focus:border-accent transition-colors cursor-pointer">
-                      <option value="">Sem categoria</option>
-                      {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-[9px] uppercase tracking-widest text-muted mb-1 block">Carteira (opcional)</label>
-                    <select value={walletId} onChange={e => setWalletId(e.target.value)}
-                      className="w-full bg-card-hover border border-border rounded-lg px-3 py-2 text-xs text-text outline-none focus:border-accent transition-colors cursor-pointer">
-                      <option value="">Sem carteira</option>
-                      {wallets.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
-                    </select>
-                  </div>
-                  {error && <p className="text-[10px] text-expense">{error}</p>}
-                  <div className="flex gap-2">
-                    <button onClick={handleCreate} disabled={saving}
-                      className="flex-1 bg-accent hover:bg-accent-hover text-white text-xs font-bold py-2.5 rounded-lg transition-colors disabled:opacity-50 cursor-pointer">
-                      {saving ? "..." : "Adicionar"}
-                    </button>
-                    <button onClick={() => { setShowForm(false); setError(null); }}
-                      className="px-3 py-2 bg-card-hover border border-border rounded-lg text-xs text-muted hover:text-text transition-colors cursor-pointer">
-                      Cancelar
-                    </button>
-                  </div>
-                </div>
-              </CardBlock>
-            )}
           </div>
         </div>
       </div>
+
+      {/* New recurring bill modal */}
+      <Modal
+        open={showForm}
+        onClose={() => setShowForm(false)}
+        title="Nova conta fixa"
+        description="Cadastre uma conta recorrente para acompanhar"
+        icon={<CalendarDays size={18} />}
+        size="md"
+        footer={
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowForm(false)}
+              className="flex-1 bg-card-hover border border-border rounded-lg text-xs font-semibold text-text-secondary hover:text-text py-2.5 transition-colors cursor-pointer"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleCreate}
+              disabled={saving}
+              className="flex-1 bg-gradient-to-r from-[#e6c879] to-[#b8893f] text-[#1a1208] text-xs font-bold py-2.5 rounded-lg transition-all disabled:opacity-50 cursor-pointer hover:shadow-md hover:shadow-accent/20"
+            >
+              {saving ? "Adicionando..." : "Adicionar conta"}
+            </button>
+          </div>
+        }
+      >
+        <div className="flex flex-col gap-3">
+          <div>
+            <label className="text-[10px] uppercase tracking-widest font-bold text-text-secondary mb-1.5 block">Nome</label>
+            <input
+              autoFocus
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Ex: Aluguel, Netflix..."
+              className="w-full bg-card-hover border border-border rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none focus:border-accent transition-colors"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-[10px] uppercase tracking-widest font-bold text-text-secondary mb-1.5 block">Valor (R$)</label>
+              <input value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0,00"
+                className="w-full bg-card-hover border border-border rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none focus:border-accent transition-colors" />
+            </div>
+            <div>
+              <label className="text-[10px] uppercase tracking-widest font-bold text-text-secondary mb-1.5 block">Dia do vencimento</label>
+              <input value={dueDay} onChange={(e) => setDueDay(e.target.value)} placeholder="1-28" type="number" min="1" max="28"
+                className="w-full bg-card-hover border border-border rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none focus:border-accent transition-colors" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="text-[10px] uppercase tracking-widest font-bold text-text-secondary mb-1.5 block">Categoria</label>
+              <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}
+                className="w-full bg-card-hover border border-border rounded-lg px-3 py-2.5 text-sm text-text outline-none focus:border-accent transition-colors cursor-pointer">
+                <option value="">Sem categoria</option>
+                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-[10px] uppercase tracking-widest font-bold text-text-secondary mb-1.5 block">Carteira</label>
+              <select value={walletId} onChange={(e) => setWalletId(e.target.value)}
+                className="w-full bg-card-hover border border-border rounded-lg px-3 py-2.5 text-sm text-text outline-none focus:border-accent transition-colors cursor-pointer">
+                <option value="">Sem carteira</option>
+                {wallets.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
+              </select>
+            </div>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

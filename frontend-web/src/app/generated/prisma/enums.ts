@@ -9,6 +9,23 @@
 * 🟢 You can import this file directly.
 */
 
+export const SharePermission = {
+  READ: 'READ',
+  WRITE: 'WRITE'
+} as const
+
+export type SharePermission = (typeof SharePermission)[keyof typeof SharePermission]
+
+
+export const ShareStatus = {
+  PENDING: 'PENDING',
+  ACCEPTED: 'ACCEPTED',
+  REVOKED: 'REVOKED'
+} as const
+
+export type ShareStatus = (typeof ShareStatus)[keyof typeof ShareStatus]
+
+
 export const WalletType = {
   CHECKING: 'CHECKING',
   CREDIT: 'CREDIT',

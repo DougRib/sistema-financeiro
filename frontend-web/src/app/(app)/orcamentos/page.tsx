@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Trash2, ChevronLeft, ChevronRight, Target } from "lucide-react";
 import { CardBlock } from "@/components/ui/CardBlock";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatCurrency, formatMonthYear, currentMonth } from "@/lib/format";
+import { useToast } from "@/components/ui/Toast";
+import { Modal } from "@/components/ui/Modal";
 
 interface BudgetItem {
   id: number;
@@ -42,7 +44,7 @@ export default function OrcamentosPage() {
   const [categoryId, setCategoryId] = useState("");
   const [limit, setLimit] = useState("");
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const toast = useToast();
 
   async function fetchBudgets() {
     setLoading(true);
@@ -95,10 +97,10 @@ export default function OrcamentosPage() {
   }, []);
 
   async function handleCreate() {
-    if (!categoryId || !limit) { setError("Preencha todos os campos"); return; }
+    if (!categoryId || !limit) { toast.error("Preencha todos os campos"); return; }
     const limitNum = parseFloat(limit.replace(",", "."));
-    if (isNaN(limitNum) || limitNum <= 0) { setError("Limite inválido"); return; }
-    setSaving(true); setError(null);
+    if (isNaN(limitNum) || limitNum <= 0) { toast.error("Limite inválido"); return; }
+    setSaving(true);
     try {
       const r = await fetch("/api/budgets", {
         method: "POST",
@@ -106,15 +108,31 @@ export default function OrcamentosPage() {
         body: JSON.stringify({ categoryId: Number(categoryId), month, year, limit: limitNum }),
       });
       const j = await r.json();
-      if (!j.ok) { setError(j.error || "Erro"); return; }
+      if (!j.ok) {
+        toast.error("Não foi possível salvar o orçamento", { description: j.error });
+        return;
+      }
+      toast.success("Orçamento definido");
       setLimit(""); setShowForm(false);
       fetchBudgets();
+    } catch {
+      toast.error("Erro de rede ao salvar orçamento");
     } finally { setSaving(false); }
   }
 
   async function handleDelete(id: number) {
-    await fetch(`/api/budgets/${id}`, { method: "DELETE" });
-    fetchBudgets();
+    try {
+      const r = await fetch(`/api/budgets/${id}`, { method: "DELETE" });
+      const j = await r.json().catch(() => ({ ok: r.ok }));
+      if (j.ok) {
+        toast.success("Orçamento removido");
+      } else {
+        toast.error("Não foi possível remover", { description: j.error });
+      }
+      fetchBudgets();
+    } catch {
+      toast.error("Erro de rede ao remover orçamento");
+    }
   }
 
   function prevMonth() { if (month === 1) { setMonth(12); setYear(y => y - 1); } else setMonth(m => m - 1); }
@@ -150,9 +168,17 @@ export default function OrcamentosPage() {
                 <div className="py-8 text-center text-xs text-muted">Carregando...</div>
               ) : budgets.length === 0 ? (
                 <EmptyState
-                  icon="🎯"
+                  Icon={Target}
                   title="Nenhum orçamento definido"
                   description="Defina limites por categoria para controlar seus gastos."
+                  action={
+                    <button
+                      onClick={() => setShowForm(true)}
+                      className="inline-flex items-center gap-1.5 bg-gradient-to-r from-[#e6c879] to-[#b8893f] text-[#1a1208] text-xs font-bold px-4 py-2.5 rounded-lg cursor-pointer hover:shadow-md hover:shadow-accent/20 transition-all"
+                    >
+                      <Plus size={13} /> Definir primeiro orçamento
+                    </button>
+                  }
                 />
               ) : (
                 <div className="flex flex-col gap-5">
@@ -220,40 +246,59 @@ export default function OrcamentosPage() {
               </div>
             </CardBlock>
 
-            {/* Create form */}
-            {showForm && (
-              <CardBlock title="Novo orçamento">
-                <div className="flex flex-col gap-3">
-                  <div>
-                    <label className="text-[9px] uppercase tracking-widest text-muted mb-1 block">Categoria</label>
-                    <select value={categoryId} onChange={e => setCategoryId(e.target.value)}
-                      className="w-full bg-card-hover border border-border rounded-lg px-3 py-2 text-xs text-text outline-none focus:border-accent transition-colors cursor-pointer">
-                      {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-[9px] uppercase tracking-widest text-muted mb-1 block">Limite (R$)</label>
-                    <input value={limit} onChange={e => setLimit(e.target.value)}
-                      placeholder="0,00"
-                      className="w-full bg-card-hover border border-border rounded-lg px-3 py-2 text-xs text-text placeholder:text-muted outline-none focus:border-accent transition-colors" />
-                  </div>
-                  {error && <p className="text-[10px] text-expense">{error}</p>}
-                  <div className="flex gap-2">
-                    <button onClick={handleCreate} disabled={saving}
-                      className="flex-1 bg-accent hover:bg-accent-hover text-white text-xs font-bold py-2 rounded-lg transition-colors disabled:opacity-50 cursor-pointer">
-                      {saving ? "..." : "Salvar"}
-                    </button>
-                    <button onClick={() => { setShowForm(false); setError(null); }}
-                      className="px-3 py-2 bg-card-hover border border-border rounded-lg text-xs text-muted hover:text-text transition-colors cursor-pointer">
-                      Cancelar
-                    </button>
-                  </div>
-                </div>
-              </CardBlock>
-            )}
           </div>
         </div>
       </div>
+
+      {/* New budget modal */}
+      <Modal
+        open={showForm}
+        onClose={() => setShowForm(false)}
+        title="Novo orçamento"
+        description="Defina um limite mensal para uma categoria"
+        icon={<Target size={18} />}
+        size="sm"
+        footer={
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowForm(false)}
+              className="flex-1 bg-card-hover border border-border rounded-lg text-xs font-semibold text-text-secondary hover:text-text py-2.5 transition-colors cursor-pointer"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleCreate}
+              disabled={saving}
+              className="flex-1 bg-gradient-to-r from-[#e6c879] to-[#b8893f] text-[#1a1208] text-xs font-bold py-2.5 rounded-lg transition-all disabled:opacity-50 cursor-pointer hover:shadow-md hover:shadow-accent/20"
+            >
+              {saving ? "Salvando..." : "Salvar orçamento"}
+            </button>
+          </div>
+        }
+      >
+        <div className="flex flex-col gap-3">
+          <div>
+            <label className="text-[10px] uppercase tracking-widest font-bold text-text-secondary mb-1.5 block">Categoria</label>
+            <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}
+              className="w-full bg-card-hover border border-border rounded-lg px-3 py-2.5 text-sm text-text outline-none focus:border-accent transition-colors cursor-pointer">
+              {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="text-[10px] uppercase tracking-widest font-bold text-text-secondary mb-1.5 block">Limite mensal (R$)</label>
+            <input
+              autoFocus
+              value={limit}
+              onChange={(e) => setLimit(e.target.value)}
+              placeholder="0,00"
+              className="w-full bg-card-hover border border-border rounded-lg px-3 py-2.5 text-sm text-text placeholder:text-muted outline-none focus:border-accent transition-colors"
+            />
+          </div>
+          <p className="text-[10px] text-muted">
+            Você será avisado quando atingir 80% e 100% do limite.
+          </p>
+        </div>
+      </Modal>
     </div>
   );
 }

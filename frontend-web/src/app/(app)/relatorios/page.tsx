@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, BarChart3 } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -146,9 +146,9 @@ export default function RelatoriosPage() {
           <div className="py-12 text-center text-sm text-muted">Carregando...</div>
         ) : !hasData ? (
           <EmptyState
-            icon="📈"
+            Icon={BarChart3}
             title="Sem dados para este ano"
-            description="Registre transações para ver os relatórios."
+            description="Registre transações para que possamos gerar relatórios anuais."
           />
         ) : (
           <div className="flex flex-col gap-4">

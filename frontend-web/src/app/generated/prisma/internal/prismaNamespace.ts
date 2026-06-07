@@ -385,6 +385,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   User: 'User',
+  SharedAccess: 'SharedAccess',
   Wallet: 'Wallet',
   Category: 'Category',
   Transaction: 'Transaction',
@@ -406,7 +407,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "wallet" | "category" | "transaction" | "budget" | "goal" | "recurringBill"
+    modelProps: "user" | "sharedAccess" | "wallet" | "category" | "transaction" | "budget" | "goal" | "recurringBill"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -481,6 +482,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.UserCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.UserCountAggregateOutputType> | number
+        }
+      }
+    }
+    SharedAccess: {
+      payload: Prisma.$SharedAccessPayload<ExtArgs>
+      fields: Prisma.SharedAccessFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SharedAccessFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SharedAccessPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SharedAccessFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SharedAccessPayload>
+        }
+        findFirst: {
+          args: Prisma.SharedAccessFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SharedAccessPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SharedAccessFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SharedAccessPayload>
+        }
+        findMany: {
+          args: Prisma.SharedAccessFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SharedAccessPayload>[]
+        }
+        create: {
+          args: Prisma.SharedAccessCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SharedAccessPayload>
+        }
+        createMany: {
+          args: Prisma.SharedAccessCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SharedAccessCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SharedAccessPayload>[]
+        }
+        delete: {
+          args: Prisma.SharedAccessDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SharedAccessPayload>
+        }
+        update: {
+          args: Prisma.SharedAccessUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SharedAccessPayload>
+        }
+        deleteMany: {
+          args: Prisma.SharedAccessDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SharedAccessUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SharedAccessUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SharedAccessPayload>[]
+        }
+        upsert: {
+          args: Prisma.SharedAccessUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SharedAccessPayload>
+        }
+        aggregate: {
+          args: Prisma.SharedAccessAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSharedAccess>
+        }
+        groupBy: {
+          args: Prisma.SharedAccessGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SharedAccessGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SharedAccessCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SharedAccessCountAggregateOutputType> | number
         }
       }
     }
@@ -979,6 +1054,19 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+export const SharedAccessScalarFieldEnum = {
+  id: 'id',
+  ownerId: 'ownerId',
+  sharedWithUserId: 'sharedWithUserId',
+  permission: 'permission',
+  status: 'status',
+  createdAt: 'createdAt',
+  acceptedAt: 'acceptedAt'
+} as const
+
+export type SharedAccessScalarFieldEnum = (typeof SharedAccessScalarFieldEnum)[keyof typeof SharedAccessScalarFieldEnum]
+
+
 export const WalletScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -1135,6 +1223,34 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'DateTime[]'
  */
 export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+/**
+ * Reference to a field of type 'SharePermission'
+ */
+export type EnumSharePermissionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SharePermission'>
+    
+
+
+/**
+ * Reference to a field of type 'SharePermission[]'
+ */
+export type ListEnumSharePermissionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SharePermission[]'>
+    
+
+
+/**
+ * Reference to a field of type 'ShareStatus'
+ */
+export type EnumShareStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ShareStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ShareStatus[]'
+ */
+export type ListEnumShareStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ShareStatus[]'>
     
 
 
@@ -1311,6 +1427,7 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
+  sharedAccess?: Prisma.SharedAccessOmit
   wallet?: Prisma.WalletOmit
   category?: Prisma.CategoryOmit
   transaction?: Prisma.TransactionOmit

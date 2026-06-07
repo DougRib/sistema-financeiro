@@ -158,9 +158,9 @@ export default function InsightsPage() {
           ) : !data || data.insights.length === 0 ? (
             <CardBlock>
               <EmptyState
-                icon="✨"
+                Icon={Sparkles}
                 title="Sem insights por enquanto"
-                description="Registre mais transações para obter análises."
+                description="Registre mais transações para que possamos analisar padrões."
               />
             </CardBlock>
           ) : (

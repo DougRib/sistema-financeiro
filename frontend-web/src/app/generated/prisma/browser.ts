@@ -23,6 +23,11 @@ export * from './enums';
  */
 export type User = Prisma.UserModel
 /**
+ * Model SharedAccess
+ * 
+ */
+export type SharedAccess = Prisma.SharedAccessModel
+/**
  * Model Wallet
  * 
  */

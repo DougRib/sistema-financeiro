@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { User, Lock, LogOut, AlertCircle, CheckCircle2 } from "lucide-react";
+import { User, Lock, LogOut, Users, Trash2, Check, X } from "lucide-react";
 import { CardBlock } from "@/components/ui/CardBlock";
 import { formatDate } from "@/lib/format";
+import { useToast } from "@/components/ui/Toast";
 
 interface UserProfile {
   id: number;
@@ -20,7 +21,16 @@ interface Stats {
   goalCount: number;
 }
 
-type Tab = "perfil" | "senha";
+type Tab = "perfil" | "senha" | "compartilhar";
+
+interface SharedUser {
+  id: number;
+  user: { id: number; name: string; email: string };
+  permission: "READ" | "WRITE";
+  status: "PENDING" | "ACCEPTED" | "REVOKED";
+  createdAt: string;
+  acceptedAt: string | null;
+}
 
 export default function ConfiguracoesPage() {
   const router = useRouter();
@@ -29,32 +39,137 @@ export default function ConfiguracoesPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const toast = useToast();
+
   // Profile form
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
-  const [profileError, setProfileError] = useState<string | null>(null);
-  const [profileSuccess, setProfileSuccess] = useState(false);
 
   // Password form
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [savingPassword, setSavingPassword] = useState(false);
-  const [passwordError, setPasswordError] = useState<string | null>(null);
-  const [passwordSuccess, setPasswordSuccess] = useState(false);
+
+  // Shared access
+  const [sharedOut, setSharedOut] = useState<SharedUser[]>([]);
+  const [sharedIn, setSharedIn] = useState<SharedUser[]>([]);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [invitePermission, setInvitePermission] = useState<"READ" | "WRITE">("READ");
+  const [inviting, setInviting] = useState(false);
+
+  async function fetchShared() {
+    try {
+      const r = await fetch("/api/shared-access");
+      const j = await r.json();
+      if (j.ok) {
+        setSharedOut(j.sharedOut);
+        setSharedIn(j.sharedIn);
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+
+  async function handleInvite(e: React.FormEvent) {
+    e.preventDefault();
+    if (!inviteEmail.trim()) {
+      toast.error("Informe um email");
+      return;
+    }
+    setInviting(true);
+    try {
+      const r = await fetch("/api/shared-access", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: inviteEmail.trim(), permission: invitePermission }),
+      });
+      const j = await r.json();
+      if (!j.ok) {
+        toast.error("Não foi possível convidar", { description: j.error });
+        return;
+      }
+      toast.success("Convite enviado");
+      setInviteEmail("");
+      fetchShared();
+    } catch {
+      toast.error("Erro de rede ao convidar");
+    } finally {
+      setInviting(false);
+    }
+  }
+
+  async function handleAccept(id: number) {
+    try {
+      const r = await fetch(`/api/shared-access/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "ACCEPT" }),
+      });
+      const j = await r.json();
+      if (j.ok) {
+        toast.success("Convite aceito");
+        fetchShared();
+      } else {
+        toast.error("Não foi possível aceitar", { description: j.error });
+      }
+    } catch {
+      toast.error("Erro de rede ao aceitar");
+    }
+  }
+
+  async function handleRevoke(id: number) {
+    try {
+      const r = await fetch(`/api/shared-access/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "REVOKE" }),
+      });
+      const j = await r.json();
+      if (j.ok) {
+        toast.success("Acesso revogado");
+        fetchShared();
+      } else {
+        toast.error("Não foi possível revogar", { description: j.error });
+      }
+    } catch {
+      toast.error("Erro de rede ao revogar");
+    }
+  }
+
+  async function handleDeleteShare(id: number) {
+    try {
+      const r = await fetch(`/api/shared-access/${id}`, { method: "DELETE" });
+      const j = await r.json().catch(() => ({ ok: r.ok }));
+      if (j.ok) {
+        toast.success("Compartilhamento removido");
+        fetchShared();
+      } else {
+        toast.error("Não foi possível remover", { description: j.error });
+      }
+    } catch {
+      toast.error("Erro de rede ao remover");
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/user")
-      .then((r) => r.json())
-      .then((j) => {
+    Promise.all([
+      fetch("/api/user").then((r) => r.json()),
+      fetch("/api/shared-access").then((r) => r.json()),
+    ])
+      .then(([uj, sj]) => {
         if (cancelled) return;
-        if (j.ok) {
-          setUser(j.user);
-          setStats(j.stats);
-          setName(j.user.name);
-          setEmail(j.user.email);
+        if (uj.ok) {
+          setUser(uj.user);
+          setStats(uj.stats);
+          setName(uj.user.name);
+          setEmail(uj.user.email);
+        }
+        if (sj.ok) {
+          setSharedOut(sj.sharedOut);
+          setSharedIn(sj.sharedIn);
         }
         setLoading(false);
       })
@@ -68,8 +183,6 @@ export default function ConfiguracoesPage() {
 
   async function handleProfileSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setProfileError(null);
-    setProfileSuccess(false);
     setSavingProfile(true);
     try {
       const r = await fetch("/api/user", {
@@ -79,12 +192,15 @@ export default function ConfiguracoesPage() {
       });
       const j = await r.json();
       if (!j.ok) {
-        setProfileError(j.error ?? "Erro ao atualizar perfil");
+        toast.error("Não foi possível salvar o perfil", {
+          description: j.error,
+        });
         return;
       }
       setUser((prev) => (prev ? { ...prev, name: j.user.name, email: j.user.email } : prev));
-      setProfileSuccess(true);
-      setTimeout(() => setProfileSuccess(false), 3000);
+      toast.success("Perfil atualizado com sucesso");
+    } catch {
+      toast.error("Erro de rede ao salvar o perfil");
     } finally {
       setSavingProfile(false);
     }
@@ -92,11 +208,9 @@ export default function ConfiguracoesPage() {
 
   async function handlePasswordSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setPasswordError(null);
-    setPasswordSuccess(false);
 
     if (newPassword !== confirmPassword) {
-      setPasswordError("Nova senha e confirmação não coincidem");
+      toast.error("Nova senha e confirmação não coincidem");
       return;
     }
 
@@ -109,14 +223,17 @@ export default function ConfiguracoesPage() {
       });
       const j = await r.json();
       if (!j.ok) {
-        setPasswordError(j.error ?? "Erro ao atualizar senha");
+        toast.error("Não foi possível atualizar a senha", {
+          description: j.error,
+        });
         return;
       }
-      setPasswordSuccess(true);
+      toast.success("Senha atualizada com sucesso");
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-      setTimeout(() => setPasswordSuccess(false), 3000);
+    } catch {
+      toast.error("Erro de rede ao atualizar a senha");
     } finally {
       setSavingPassword(false);
     }
@@ -209,25 +326,23 @@ export default function ConfiguracoesPage() {
                   <Lock size={12} />
                   Senha
                 </button>
+                <button
+                  onClick={() => setTab("compartilhar")}
+                  className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md cursor-pointer transition-colors ${
+                    tab === "compartilhar"
+                      ? "bg-accent text-white font-semibold"
+                      : "text-muted hover:text-text"
+                  }`}
+                >
+                  <Users size={12} />
+                  Compartilhar
+                </button>
               </div>
 
               {/* Profile tab */}
               {tab === "perfil" && (
                 <CardBlock title="Editar perfil">
                   <form onSubmit={handleProfileSubmit} className="flex flex-col gap-3">
-                    {profileError && (
-                      <div className="flex items-center gap-2 bg-card-hover border border-expense/30 rounded-lg p-3">
-                        <AlertCircle size={14} className="text-expense flex-shrink-0" />
-                        <p className="text-xs text-text">{profileError}</p>
-                      </div>
-                    )}
-                    {profileSuccess && (
-                      <div className="flex items-center gap-2 bg-card-hover border border-income/30 rounded-lg p-3">
-                        <CheckCircle2 size={14} className="text-income flex-shrink-0" />
-                        <p className="text-xs text-text">Perfil atualizado com sucesso.</p>
-                      </div>
-                    )}
-
                     <div>
                       <label className="text-[10px] uppercase tracking-widest text-muted mb-1 block">
                         Nome
@@ -270,19 +385,6 @@ export default function ConfiguracoesPage() {
               {tab === "senha" && (
                 <CardBlock title="Alterar senha">
                   <form onSubmit={handlePasswordSubmit} className="flex flex-col gap-3">
-                    {passwordError && (
-                      <div className="flex items-center gap-2 bg-card-hover border border-expense/30 rounded-lg p-3">
-                        <AlertCircle size={14} className="text-expense flex-shrink-0" />
-                        <p className="text-xs text-text">{passwordError}</p>
-                      </div>
-                    )}
-                    {passwordSuccess && (
-                      <div className="flex items-center gap-2 bg-card-hover border border-income/30 rounded-lg p-3">
-                        <CheckCircle2 size={14} className="text-income flex-shrink-0" />
-                        <p className="text-xs text-text">Senha atualizada com sucesso.</p>
-                      </div>
-                    )}
-
                     <div>
                       <label className="text-[10px] uppercase tracking-widest text-muted mb-1 block">
                         Senha atual
@@ -340,6 +442,79 @@ export default function ConfiguracoesPage() {
                   </form>
                 </CardBlock>
               )}
+
+              {/* Shared access tab */}
+              {tab === "compartilhar" && (
+                <div className="flex flex-col gap-4">
+                  <CardBlock title="Convidar alguém">
+                    <p className="text-[11px] text-text-secondary mb-3">
+                      Compartilhe acesso às suas finanças com seu cônjuge ou parceiro(a).
+                      Eles precisam ter uma conta no FinControl.
+                    </p>
+                    <form onSubmit={handleInvite} className="flex flex-col sm:flex-row gap-2">
+                      <input
+                        type="email"
+                        value={inviteEmail}
+                        onChange={(e) => setInviteEmail(e.target.value)}
+                        placeholder="email@exemplo.com"
+                        className="flex-1 bg-card-hover border border-border rounded-lg px-3 py-2 text-xs text-text placeholder:text-muted outline-none focus:border-accent transition-colors"
+                      />
+                      <select
+                        value={invitePermission}
+                        onChange={(e) => setInvitePermission(e.target.value as "READ" | "WRITE")}
+                        className="bg-card-hover border border-border rounded-lg px-3 py-2 text-xs text-text outline-none focus:border-accent transition-colors cursor-pointer"
+                      >
+                        <option value="READ">Apenas leitura</option>
+                        <option value="WRITE">Leitura + edição</option>
+                      </select>
+                      <button
+                        type="submit"
+                        disabled={inviting || !inviteEmail.trim()}
+                        className="bg-gradient-to-r from-[#e6c879] to-[#b8893f] text-[#1a1208] disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold px-4 py-2 rounded-lg cursor-pointer transition-all"
+                      >
+                        {inviting ? "Enviando..." : "Convidar"}
+                      </button>
+                    </form>
+                  </CardBlock>
+
+                  <CardBlock title={`Pessoas com acesso (${sharedOut.length})`}>
+                    {sharedOut.length === 0 ? (
+                      <p className="text-xs text-muted py-2">Nenhum convite enviado.</p>
+                    ) : (
+                      <div className="flex flex-col gap-2">
+                        {sharedOut.map((s) => (
+                          <ShareRow
+                            key={s.id}
+                            share={s}
+                            isOwner
+                            onRevoke={() => handleRevoke(s.id)}
+                            onDelete={() => handleDeleteShare(s.id)}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </CardBlock>
+
+                  <CardBlock title={`Convites recebidos (${sharedIn.length})`}>
+                    {sharedIn.length === 0 ? (
+                      <p className="text-xs text-muted py-2">Nenhum convite recebido.</p>
+                    ) : (
+                      <div className="flex flex-col gap-2">
+                        {sharedIn.map((s) => (
+                          <ShareRow
+                            key={s.id}
+                            share={s}
+                            isOwner={false}
+                            onAccept={() => handleAccept(s.id)}
+                            onRevoke={() => handleRevoke(s.id)}
+                            onDelete={() => handleDeleteShare(s.id)}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </CardBlock>
+                </div>
+              )}
             </>
           ) : (
             <CardBlock>
@@ -347,6 +522,77 @@ export default function ConfiguracoesPage() {
             </CardBlock>
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────
+// Share row — used in both sharedOut and sharedIn lists
+// ──────────────────────────────────────────────
+interface ShareRowProps {
+  share: SharedUser;
+  isOwner: boolean;
+  onAccept?: () => void;
+  onRevoke?: () => void;
+  onDelete?: () => void;
+}
+
+function ShareRow({ share, isOwner, onAccept, onRevoke, onDelete }: ShareRowProps) {
+  const statusLabel = {
+    PENDING: { label: "Pendente", className: "bg-yellow-500/15 text-yellow-400" },
+    ACCEPTED: { label: "Aceito", className: "bg-income/15 text-income" },
+    REVOKED: { label: "Revogado", className: "bg-card-hover text-muted" },
+  }[share.status];
+
+  return (
+    <div className="flex items-center justify-between gap-3 bg-card-hover border border-border-subtle rounded-lg px-3 py-2.5">
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#e6c879] to-[#b8893f] flex items-center justify-center text-[#1a1208] text-xs font-bold flex-shrink-0">
+          {share.user.name.charAt(0).toUpperCase()}
+        </div>
+        <div className="min-w-0">
+          <p className="text-xs font-semibold text-text truncate">{share.user.name}</p>
+          <p className="text-[10px] text-muted truncate">{share.user.email}</p>
+        </div>
+      </div>
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <span className="text-[9px] uppercase tracking-widest font-bold text-text-secondary">
+          {share.permission === "WRITE" ? "Editar" : "Leitura"}
+        </span>
+        <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${statusLabel.className}`}>
+          {statusLabel.label}
+        </span>
+        {/* Actions */}
+        {!isOwner && share.status === "PENDING" && onAccept && (
+          <button
+            onClick={onAccept}
+            className="touch-target text-income hover:bg-income/15 rounded-md p-1.5 cursor-pointer transition-colors"
+            aria-label="Aceitar"
+          >
+            <Check size={14} />
+          </button>
+        )}
+        {share.status === "ACCEPTED" && onRevoke && (
+          <button
+            onClick={onRevoke}
+            className="touch-target text-muted hover:text-yellow-400 rounded-md p-1.5 cursor-pointer transition-colors"
+            aria-label="Revogar"
+            title="Revogar acesso"
+          >
+            <X size={14} />
+          </button>
+        )}
+        {onDelete && (
+          <button
+            onClick={onDelete}
+            className="touch-target text-muted hover:text-expense rounded-md p-1.5 cursor-pointer transition-colors"
+            aria-label="Remover"
+            title="Remover permanentemente"
+          >
+            <Trash2 size={13} />
+          </button>
+        )}
       </div>
     </div>
   );

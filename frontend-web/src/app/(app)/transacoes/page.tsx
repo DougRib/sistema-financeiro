@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
+import { Search, Trash2, FileSearch } from "lucide-react";
 import { CardBlock } from "@/components/ui/CardBlock";
 import { Tag } from "@/components/ui/Tag";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { formatCurrency, formatDate, formatMonthYear, currentMonth } from "@/lib/format";
+import { formatCurrency, formatDate } from "@/lib/format";
+import { useToast } from "@/components/ui/Toast";
+import { maskValue, usePrivacy } from "@/components/ui/PrivacyContext";
+import { PeriodPicker, buildPeriod, type PeriodValue } from "@/components/ui/PeriodPicker";
 
 interface Transaction {
   id: number;
@@ -29,9 +32,7 @@ interface Wallet {
 }
 
 export default function TransacoesPage() {
-  const now = currentMonth();
-  const [month, setMonth] = useState(now.month);
-  const [year, setYear] = useState(now.year);
+  const [period, setPeriod] = useState<PeriodValue>(() => buildPeriod("month"));
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [wallets, setWallets] = useState<Wallet[]>([]);
@@ -43,11 +44,13 @@ export default function TransacoesPage() {
   const [categoryFilter, setCategoryFilter] = useState("");
   const [walletFilter, setWalletFilter] = useState("");
   const [search, setSearch] = useState("");
+  const toast = useToast();
+  const { hidden } = usePrivacy();
 
   // Fetch transactions when filters change
   useEffect(() => {
     let cancelled = false;
-    const params = new URLSearchParams({ month: String(month), year: String(year) });
+    const params = new URLSearchParams({ from: period.from, to: period.to });
     if (typeFilter) params.set("type", typeFilter);
     if (categoryFilter) params.set("categoryId", categoryFilter);
     if (walletFilter) params.set("walletId", walletFilter);
@@ -67,7 +70,7 @@ export default function TransacoesPage() {
     return () => {
       cancelled = true;
     };
-  }, [month, year, typeFilter, categoryFilter, walletFilter, search]);
+  }, [period, typeFilter, categoryFilter, walletFilter, search]);
 
   // One-shot fetch for categories + wallets
   useEffect(() => {
@@ -90,19 +93,17 @@ export default function TransacoesPage() {
     try {
       const r = await fetch(`/api/transactions/${id}`, { method: "DELETE" });
       const j = await r.json();
-      if (j.ok) setTransactions(txs => txs.filter(t => t.id !== id));
+      if (j.ok) {
+        setTransactions(txs => txs.filter(t => t.id !== id));
+        toast.success("Transação excluída");
+      } else {
+        toast.error("Não foi possível excluir", { description: j.error });
+      }
+    } catch {
+      toast.error("Erro de rede ao excluir transação");
     } finally {
       setDeleting(null);
     }
-  }
-
-  function prevMonth() {
-    if (month === 1) { setMonth(12); setYear(y => y - 1); }
-    else setMonth(m => m - 1);
-  }
-  function nextMonth() {
-    if (month === 12) { setMonth(1); setYear(y => y + 1); }
-    else setMonth(m => m + 1);
   }
 
   const income = transactions.filter(t => t.type === "INCOME").reduce((s, t) => s + Number(t.amount), 0);
@@ -114,21 +115,11 @@ export default function TransacoesPage() {
       <div className="border-b border-border-subtle px-4 lg:px-6 py-3 lg:h-14 lg:py-0 flex-shrink-0 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
         <div className="flex items-center gap-3 flex-wrap">
           <h1 className="text-base font-bold text-text">Transações</h1>
-          <div className="flex items-center gap-1 bg-card border border-border rounded-lg px-1">
-            <button onClick={prevMonth} className="touch-target p-1.5 text-muted hover:text-text transition-colors cursor-pointer">
-              <ChevronLeft size={14} />
-            </button>
-            <span className="text-xs font-semibold text-text-secondary px-1 min-w-[100px] text-center capitalize">
-              {formatMonthYear(month, year)}
-            </span>
-            <button onClick={nextMonth} className="touch-target p-1.5 text-muted hover:text-text transition-colors cursor-pointer">
-              <ChevronRight size={14} />
-            </button>
-          </div>
+          <PeriodPicker value={period} onChange={setPeriod} />
         </div>
         <div className="flex items-center gap-3 text-[11px] lg:text-xs text-subtle">
-          <span className="text-income font-bold">↑ {formatCurrency(income)}</span>
-          <span className="text-expense font-bold">↓ {formatCurrency(expense)}</span>
+          <span className="text-income font-bold">↑ {maskValue(formatCurrency(income), hidden)}</span>
+          <span className="text-expense font-bold">↓ {maskValue(formatCurrency(expense), hidden)}</span>
           <span className="text-text-secondary hidden sm:inline">{transactions.length} transações</span>
         </div>
       </div>
@@ -188,7 +179,11 @@ export default function TransacoesPage() {
           {loading ? (
             <div className="py-8 text-center text-xs text-muted">Carregando...</div>
           ) : transactions.length === 0 ? (
-            <EmptyState icon="📋" title="Nenhuma transação encontrada" description="Tente ajustar os filtros ou mude o período." />
+            <EmptyState
+              Icon={FileSearch}
+              title="Nenhuma transação encontrada"
+              description="Tente ajustar os filtros ou mude o período acima."
+            />
           ) : (
             transactions.map((tx, i) => {
               const walletName = wallets.find(w => w.id === tx.walletId)?.name ?? "—";
@@ -216,7 +211,7 @@ export default function TransacoesPage() {
                     </div>
                     <div className="text-xs text-subtle truncate">{walletName}</div>
                     <div className={`text-xs font-bold ${tx.type === "INCOME" ? "text-income" : "text-expense"}`}>
-                      {tx.type === "INCOME" ? "+" : "-"} {formatCurrency(tx.amount)}
+                      {tx.type === "INCOME" ? "+" : "-"} {maskValue(formatCurrency(tx.amount), hidden)}
                     </div>
                     <button
                       onClick={() => handleDelete(tx.id)}
@@ -263,7 +258,7 @@ export default function TransacoesPage() {
                           tx.type === "INCOME" ? "text-income" : "text-expense"
                         }`}
                       >
-                        {tx.type === "INCOME" ? "+" : "-"} {formatCurrency(tx.amount)}
+                        {tx.type === "INCOME" ? "+" : "-"} {maskValue(formatCurrency(tx.amount), hidden)}
                       </p>
                     </div>
                   </div>

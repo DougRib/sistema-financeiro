@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
+  SharedAccess: 'SharedAccess',
   Wallet: 'Wallet',
   Category: 'Category',
   Transaction: 'Transaction',
@@ -86,6 +87,19 @@ export const UserScalarFieldEnum = {
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const SharedAccessScalarFieldEnum = {
+  id: 'id',
+  ownerId: 'ownerId',
+  sharedWithUserId: 'sharedWithUserId',
+  permission: 'permission',
+  status: 'status',
+  createdAt: 'createdAt',
+  acceptedAt: 'acceptedAt'
+} as const
+
+export type SharedAccessScalarFieldEnum = (typeof SharedAccessScalarFieldEnum)[keyof typeof SharedAccessScalarFieldEnum]
 
 
 export const WalletScalarFieldEnum = {

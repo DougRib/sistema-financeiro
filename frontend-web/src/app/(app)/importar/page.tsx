@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Upload, FileText, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Upload, FileText, FileQuestion } from "lucide-react";
 import { CardBlock } from "@/components/ui/CardBlock";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatCurrency, formatDate } from "@/lib/format";
+import { useToast } from "@/components/ui/Toast";
 
 interface PreviewRow {
   occurredAt: string;
@@ -47,8 +48,7 @@ export default function ImportarPage() {
   const [rowOverrides, setRowOverrides] = useState<Record<number, "INCLUDE" | "SKIP">>({});
   const [previewing, setPreviewing] = useState(false);
   const [importing, setImporting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState<{ imported: number } | null>(null);
+  const toast = useToast();
 
   useEffect(() => {
     Promise.all([
@@ -75,12 +75,9 @@ export default function ImportarPage() {
     }
     setPreview(null);
     setRowOverrides({});
-    setDone(null);
   }
 
   async function runPreview() {
-    setError(null);
-    setDone(null);
     setPreviewing(true);
     try {
       const r = await fetch("/api/import/preview", {
@@ -90,12 +87,17 @@ export default function ImportarPage() {
       });
       const j: PreviewResponse = await r.json();
       if (!j.ok) {
-        setError(j.error ?? "Erro ao processar arquivo");
+        toast.error("Erro ao processar arquivo", { description: j.error });
         setPreview(null);
         return;
       }
       setPreview(j);
       setRowOverrides({});
+      if (j.summary && j.summary.count > 0) {
+        toast.info(`${j.summary.count} transações reconhecidas`);
+      }
+    } catch {
+      toast.error("Erro de rede ao processar arquivo");
     } finally {
       setPreviewing(false);
     }
@@ -103,7 +105,6 @@ export default function ImportarPage() {
 
   async function runImport() {
     if (!preview?.rows || !walletId) return;
-    setError(null);
     setImporting(true);
     try {
       const rowsToSend = preview.rows
@@ -118,7 +119,7 @@ export default function ImportarPage() {
         }));
 
       if (rowsToSend.length === 0) {
-        setError("Nenhuma transação selecionada para importar");
+        toast.error("Nenhuma transação selecionada para importar");
         return;
       }
 
@@ -129,13 +130,15 @@ export default function ImportarPage() {
       });
       const j = await r.json();
       if (!j.ok) {
-        setError(j.error ?? "Erro ao importar");
+        toast.error("Erro ao importar", { description: j.error });
         return;
       }
-      setDone({ imported: j.imported });
+      toast.success(`${j.imported} transações importadas com sucesso`);
       setPreview(null);
       setContent("");
       setRowOverrides({});
+    } catch {
+      toast.error("Erro de rede ao importar");
     } finally {
       setImporting(false);
     }
@@ -161,22 +164,6 @@ export default function ImportarPage() {
 
       <div className="flex-1 overflow-y-auto p-4 lg:p-6">
         <div className="flex flex-col gap-4 max-w-5xl">
-          {done && (
-            <div className="bg-card border border-income/30 rounded-xl p-4 flex items-center gap-3">
-              <CheckCircle2 className="text-income flex-shrink-0" size={20} />
-              <p className="text-sm text-text">
-                <span className="font-semibold">{done.imported}</span> transações importadas com sucesso.
-              </p>
-            </div>
-          )}
-
-          {error && (
-            <div className="bg-card border border-expense/30 rounded-xl p-4 flex items-center gap-3">
-              <AlertCircle className="text-expense flex-shrink-0" size={20} />
-              <p className="text-sm text-text">{error}</p>
-            </div>
-          )}
-
           {/* Step 1: file / paste */}
           <CardBlock title="1. Arquivo">
             <div className="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-4">
@@ -314,9 +301,10 @@ export default function ImportarPage() {
 
               {preview.rows.length === 0 ? (
                 <EmptyState
-                  icon="📄"
+                  variant="compact"
+                  Icon={FileQuestion}
                   title="Nenhuma transação reconhecida"
-                  description="Verifique o formato do arquivo."
+                  description="Verifique o formato do arquivo e tente novamente."
                 />
               ) : (
                 <>

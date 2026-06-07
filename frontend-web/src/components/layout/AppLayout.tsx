@@ -35,18 +35,18 @@ export async function AppLayout({ children }: AppLayoutProps) {
   }
 
   return (
-    <div className="flex min-h-screen bg-sidebar">
-      {/* Desktop sidebar */}
-      <div className="hidden lg:block">
+    <div className="flex h-screen bg-sidebar overflow-hidden">
+      {/* Desktop sidebar — fixed, never scrolls with content */}
+      <div className="hidden lg:flex flex-shrink-0 sticky top-0 h-screen">
         <Sidebar userName={userName} userEmail={userEmail} />
       </div>
 
-      <main className="flex-1 min-w-0 flex flex-col">
+      <main className="flex-1 min-w-0 flex flex-col h-screen overflow-hidden">
         {/* Mobile topbar — replaces desktop sidebar at <lg */}
         <MobileTopbar userName={userName} userEmail={userEmail} />
 
-        {/* Page content — reserves room above bottom-nav on mobile */}
-        <div className="flex-1 flex flex-col pb-bottom-nav lg:pb-0">
+        {/* Page content — scrollable region; reserves room above bottom-nav on mobile */}
+        <div className="flex-1 min-h-0 flex flex-col overflow-hidden pb-bottom-nav lg:pb-0">
           {children}
         </div>
       </main>

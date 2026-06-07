@@ -72,7 +72,7 @@ export function Sidebar({ userName = "Usuário", userEmail }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside className="w-[240px] min-h-screen sidebar border-r border-border-subtle flex flex-col flex-shrink-0">
+    <aside className="w-[240px] h-screen sidebar border-r border-border-subtle flex flex-col flex-shrink-0">
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-5 py-5">
         <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#e6c879] to-[#b8893f] flex items-center justify-center shadow-lg shadow-accent/20">

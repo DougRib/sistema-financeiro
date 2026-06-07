@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { registerSchema } from "@/lib/validators";
 import { hashPassword, signJwt } from "@/lib/auth";
+import { friendlyError } from "@/lib/api-errors";
 import { cookies } from "next/headers";
 //type RegisterResponse
 type RegisterResponse =
@@ -87,11 +88,9 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Erro interno no servidor";
-
+    console.error("[/api/auth/register]", err);
     return NextResponse.json<RegisterResponse>(
-      { ok: false, error: message },
+      { ok: false, error: friendlyError(err) },
       { status: 500 },
     );
   }

@@ -25,17 +25,27 @@ export async function GET(req: NextRequest) {
   // base do filtro: sempre pelo userId
   const where: Prisma.TransactionWhereInput = { userId };
 
-  // se month e year foram informados, filtra pelas datas do mês
-  if (month && year) {
+  // Date range filter: explicit from/to wins over month/year
+  const fromParam = url.searchParams.get("from");
+  const toParam = url.searchParams.get("to");
+
+  if (fromParam || toParam) {
+    const range: { gte?: Date; lt?: Date } = {};
+    if (fromParam) {
+      const d = new Date(fromParam);
+      if (!isNaN(d.getTime())) range.gte = d;
+    }
+    if (toParam) {
+      const d = new Date(toParam);
+      if (!isNaN(d.getTime())) range.lt = d;
+    }
+    if (range.gte || range.lt) where.occurredAt = range;
+  } else if (month && year) {
     const m = Number(month);
     const y = Number(year);
     const start = new Date(Date.UTC(y, m - 1, 1));
     const end = new Date(Date.UTC(y, m, 1));
-
-    where.occurredAt = {
-      gte: start,
-      lt: end,
-    };
+    where.occurredAt = { gte: start, lt: end };
   }
 
   // type filter
