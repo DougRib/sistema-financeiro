@@ -20,6 +20,10 @@ model User {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
+  // 2FA — quando true, login exige TOTP code. UI ainda em desenvolvimento.
+  twoFactorEnabled Boolean @default(false)
+  twoFactorSecret  String?
+
   wallets      Wallet[]
   transactions Transaction[]
   categories   Category[] @relation("UserCategories")
@@ -31,6 +35,45 @@ model User {
   sharedOut    SharedAccess[] @relation("SharedOut")
   // Shared access — accounts shared WITH this user by others
   sharedIn     SharedAccess[] @relation("SharedIn")
+
+  // Auth sessions (refresh tokens) e audit log
+  sessions     Session[]
+  auditLogs    AuditLog[]
+}
+
+/// Sessão refresh-token. O `tokenHash` é SHA-256 do refresh token.
+/// O access-token (JWT curto) não é armazenado.
+model Session {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash    String   @unique
+  userAgent    String?
+  ipAddress    String?
+  createdAt    DateTime @default(now())
+  lastUsedAt   DateTime @default(now())
+  expiresAt    DateTime
+  revokedAt    DateTime?
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+/// Log de ações sensíveis: login, logout, mudança de senha, compartilhamento, etc.
+model AuditLog {
+  id           Int      @id @default(autoincrement())
+  userId       Int?
+  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action       String   // ex: "auth.login", "auth.logout", "user.password_change", "share.invite"
+  resourceType String?  // ex: "user", "wallet", "share"
+  resourceId   String?  // ex: "42"
+  ipAddress    String?
+  userAgent    String?
+  metadata     Json?    // payload livre (e.g. email convidado, motivo)
+  createdAt    DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
 }
 
 enum SharePermission {

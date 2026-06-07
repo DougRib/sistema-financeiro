@@ -39,10 +39,18 @@ export async function GET(req: NextRequest) {
   });
 
   // retorna todas as categorias juntas
-  return NextResponse.json({
-    ok: true,
-    categorias: [...defaults, ...userCats],
-  });
+  // Cache privado de 60s — categorias mudam pouco; reduz round-trips.
+  return NextResponse.json(
+    {
+      ok: true,
+      categorias: [...defaults, ...userCats],
+    },
+    {
+      headers: {
+        "Cache-Control": "private, max-age=60, stale-while-revalidate=120",
+      },
+    },
+  );
 }
 
 // cria uma nova categoria para o usuário logado e verifica se o usuario esta logado

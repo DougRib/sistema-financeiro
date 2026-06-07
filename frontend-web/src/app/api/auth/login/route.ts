@@ -4,53 +4,76 @@ import { prisma } from "@/lib/prisma";
 import { loginSchema } from "@/lib/validators";
 import { comparePassword, signJwt } from "@/lib/auth";
 import { friendlyError } from "@/lib/api-errors";
-import { cookies } from "next/headers";
-//type LoginResponse
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { createSession } from "@/lib/sessions";
+import { setAuthCookies } from "@/lib/auth-cookies";
+import { audit } from "@/lib/audit";
+
 type LoginResponse =
   | { ok: true; id: number; name: string; email: string }
   | { ok: false; error: string };
-//post login e validação
+
 export async function POST(req: NextRequest) {
+  const ip = getClientIp(req);
+  const userAgent = req.headers.get("user-agent");
+
   try {
+    // Rate-limit: 5 tentativas/min/IP
+    const limited = rateLimit(`login:${ip}`, { max: 5, windowMs: 60_000 });
+    if (!limited.ok) {
+      return NextResponse.json<LoginResponse>(
+        {
+          ok: false,
+          error: `Muitas tentativas. Tente novamente em ${limited.retryAfterSeconds}s.`,
+        },
+        {
+          status: 429,
+          headers: { "Retry-After": String(limited.retryAfterSeconds) },
+        },
+      );
+    }
+
     const body = await req.json();
     const parsed = loginSchema.safeParse(body);
-
     if (!parsed.success) {
       return NextResponse.json<LoginResponse>(
         { ok: false, error: "Credenciais inválidas" },
         { status: 400 },
       );
     }
-//extração dos dados
+
     const { email, password } = parsed.data;
-//busca o usuario
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
+      await audit({ action: "auth.login_failed", ipAddress: ip, userAgent, metadata: { email } });
       return NextResponse.json<LoginResponse>(
         { ok: false, error: "Usuário ou senha incorretos" },
         { status: 401 },
       );
     }
-//compara a senha
+
     const ok = await comparePassword(password, user.passwordHash);
     if (!ok) {
+      await audit({
+        action: "auth.login_failed",
+        userId: user.id,
+        ipAddress: ip,
+        userAgent,
+        metadata: { email, reason: "wrong_password" },
+      });
       return NextResponse.json<LoginResponse>(
         { ok: false, error: "Usuário ou senha incorretos" },
         { status: 401 },
       );
     }
-//gera um token
-    const token = signJwt({ sub: user.id });
-//cria um cookie
-    const cookieStore = await cookies();
-    cookieStore.set("token", token, {
-      httpOnly: true,
-      sameSite: "lax",
-      path: "/",
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24 * 7,
-    });
-//retorna os dados do usuario
+
+    // Cria refresh session (DB) e access token (JWT 1h).
+    const session = await createSession({ userId: user.id, userAgent, ipAddress: ip });
+    const accessToken = signJwt({ sub: user.id, sid: session ? "x" : "" });
+
+    await setAuthCookies({ accessToken, refreshToken: session.token });
+    await audit({ action: "auth.login", userId: user.id, ipAddress: ip, userAgent });
+
     return NextResponse.json<LoginResponse>({
       ok: true,
       id: user.id,

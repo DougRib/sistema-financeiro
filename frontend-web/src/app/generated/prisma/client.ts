@@ -47,6 +47,17 @@ export { Prisma }
  */
 export type User = Prisma.UserModel
 /**
+ * Model Session
+ * Sessão refresh-token. O `tokenHash` é SHA-256 do refresh token.
+ * O access-token (JWT curto) não é armazenado.
+ */
+export type Session = Prisma.SessionModel
+/**
+ * Model AuditLog
+ * Log de ações sensíveis: login, logout, mudança de senha, compartilhamento, etc.
+ */
+export type AuditLog = Prisma.AuditLogModel
+/**
  * Model SharedAccess
  * 
  */

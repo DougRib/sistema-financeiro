@@ -514,10 +514,6 @@ export type EnumShareStatusFieldUpdateOperationsInput = {
   set?: $Enums.ShareStatus
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type SharedAccessCreateWithoutOwnerInput = {
   permission?: $Enums.SharePermission
   status?: $Enums.ShareStatus

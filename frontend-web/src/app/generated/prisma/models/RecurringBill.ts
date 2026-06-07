@@ -628,10 +628,6 @@ export type RecurringBillUncheckedUpdateManyWithoutCategoryNestedInput = {
   deleteMany?: Prisma.RecurringBillScalarWhereInput | Prisma.RecurringBillScalarWhereInput[]
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type RecurringBillCreateWithoutUserInput = {
   name: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string

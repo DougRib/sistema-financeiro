@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { User, Lock, LogOut, Users, Trash2, Check, X } from "lucide-react";
+import { User, Lock, LogOut, Users, Trash2, Check, X, ShieldCheck } from "lucide-react";
 import { CardBlock } from "@/components/ui/CardBlock";
 import { formatDate } from "@/lib/format";
 import { useToast } from "@/components/ui/Toast";
@@ -21,7 +21,7 @@ interface Stats {
   goalCount: number;
 }
 
-type Tab = "perfil" | "senha" | "compartilhar";
+type Tab = "perfil" | "senha" | "compartilhar" | "seguranca";
 
 interface SharedUser {
   id: number;
@@ -337,6 +337,17 @@ export default function ConfiguracoesPage() {
                   <Users size={12} />
                   Compartilhar
                 </button>
+                <button
+                  onClick={() => setTab("seguranca")}
+                  className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md cursor-pointer transition-colors ${
+                    tab === "seguranca"
+                      ? "bg-accent text-white font-semibold"
+                      : "text-muted hover:text-text"
+                  }`}
+                >
+                  <ShieldCheck size={12} />
+                  Segurança
+                </button>
               </div>
 
               {/* Profile tab */}
@@ -512,6 +523,45 @@ export default function ConfiguracoesPage() {
                         ))}
                       </div>
                     )}
+                  </CardBlock>
+                </div>
+              )}
+
+              {/* Security tab — sessões + 2FA */}
+              {tab === "seguranca" && (
+                <div className="flex flex-col gap-4">
+                  <CardBlock title="Autenticação em dois fatores (2FA)">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-accent-soft border border-accent/30 flex items-center justify-center text-accent flex-shrink-0">
+                        <ShieldCheck size={18} />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-bold text-text">2FA por TOTP</p>
+                        <p className="text-[11px] text-text-secondary mt-1 leading-relaxed">
+                          Adicione uma camada extra de proteção exigindo um código de 6 dígitos do seu app autenticador
+                          (Google Authenticator, 1Password, Authy) a cada login.
+                        </p>
+                        <span className="inline-block mt-3 text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full bg-yellow-500/15 text-yellow-400">
+                          Em breve
+                        </span>
+                      </div>
+                    </div>
+                  </CardBlock>
+
+                  <CardBlock title="Sessões ativas">
+                    <p className="text-[11px] text-text-secondary mb-3 leading-relaxed">
+                      Toda vez que você faz login, criamos uma sessão. Trocar a senha encerra todas as sessões em outros
+                      dispositivos automaticamente.
+                    </p>
+                    <button
+                      onClick={async () => {
+                        await fetch("/api/auth/logout", { method: "POST" });
+                        router.push("/login");
+                      }}
+                      className="text-xs font-semibold text-expense hover:underline cursor-pointer"
+                    >
+                      Encerrar a sessão atual
+                    </button>
                   </CardBlock>
                 </div>
               )}

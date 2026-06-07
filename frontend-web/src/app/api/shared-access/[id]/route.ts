@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserId } from "@/lib/get-user-id";
 import { friendlyError } from "@/lib/api-errors";
+import { audit } from "@/lib/audit";
+import { getClientIp } from "@/lib/rate-limit";
 import { z } from "zod";
 
 const updateSchema = z.object({
@@ -39,6 +41,9 @@ export async function PATCH(
       return NextResponse.json({ ok: false, error: "Compartilhamento não encontrado" }, { status: 404 });
     }
 
+    const ip = getClientIp(req);
+    const userAgent = req.headers.get("user-agent");
+
     if (parsed.data.action === "ACCEPT") {
       if (share.sharedWithUserId !== userId) {
         return NextResponse.json({ ok: false, error: "Apenas o convidado pode aceitar." }, { status: 403 });
@@ -46,6 +51,14 @@ export async function PATCH(
       const updated = await prisma.sharedAccess.update({
         where: { id: shareId },
         data: { status: "ACCEPTED", acceptedAt: new Date() },
+      });
+      await audit({
+        action: "share.accept",
+        userId,
+        resourceType: "share",
+        resourceId: shareId,
+        ipAddress: ip,
+        userAgent,
       });
       return NextResponse.json({ ok: true, share: updated });
     }
@@ -57,6 +70,14 @@ export async function PATCH(
     const updated = await prisma.sharedAccess.update({
       where: { id: shareId },
       data: { status: "REVOKED" },
+    });
+    await audit({
+      action: "share.revoke",
+      userId,
+      resourceType: "share",
+      resourceId: shareId,
+      ipAddress: ip,
+      userAgent,
     });
     return NextResponse.json({ ok: true, share: updated });
   } catch (err) {

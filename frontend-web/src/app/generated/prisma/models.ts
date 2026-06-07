@@ -9,6 +9,8 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/User'
+export type * from './models/Session'
+export type * from './models/AuditLog'
 export type * from './models/SharedAccess'
 export type * from './models/Wallet'
 export type * from './models/Category'

@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserId } from "@/lib/get-user-id";
 import { updateProfileSchema } from "@/lib/validators";
+import { audit } from "@/lib/audit";
+import { getClientIp } from "@/lib/rate-limit";
 
 export async function GET(req: NextRequest) {
   const userId = getUserId(req);
@@ -57,6 +59,13 @@ export async function PUT(req: NextRequest) {
       where: { id: userId },
       data: { name, email },
       select: { id: true, name: true, email: true },
+    });
+    await audit({
+      action: "user.profile_update",
+      userId,
+      ipAddress: getClientIp(req),
+      userAgent: req.headers.get("user-agent"),
+      metadata: { name, email },
     });
     return NextResponse.json({ ok: true, user: updated });
   } catch (err: unknown) {

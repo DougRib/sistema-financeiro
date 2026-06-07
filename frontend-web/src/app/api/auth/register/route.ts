@@ -1,30 +1,36 @@
 export const runtime = "nodejs";
-import { NextRequest, NextResponse } from "next/server"; 
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { registerSchema } from "@/lib/validators";
 import { hashPassword, signJwt } from "@/lib/auth";
 import { friendlyError } from "@/lib/api-errors";
-import { cookies } from "next/headers";
-//type RegisterResponse
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { createSession } from "@/lib/sessions";
+import { setAuthCookies } from "@/lib/auth-cookies";
+import { audit } from "@/lib/audit";
+
 type RegisterResponse =
-  | {
-      ok: true;
-      user: {
-        id: number;
-        name: string;
-        email: string;
-      };
-    }
-  | {
-      ok: false;
-      error: string;
-    };
+  | { ok: true; user: { id: number; name: string; email: string } }
+  | { ok: false; error: string };
 
 export async function POST(req: NextRequest) {
-  try {
-    const json = await req.json();
+  const ip = getClientIp(req);
+  const userAgent = req.headers.get("user-agent");
 
-    // valida dados com Zod
+  try {
+    // Rate-limit: 3 cadastros/hora/IP
+    const limited = rateLimit(`register:${ip}`, { max: 3, windowMs: 60 * 60 * 1000 });
+    if (!limited.ok) {
+      return NextResponse.json<RegisterResponse>(
+        {
+          ok: false,
+          error: `Muitas contas criadas deste endereço. Tente novamente em ${Math.ceil(limited.retryAfterSeconds / 60)} min.`,
+        },
+        { status: 429, headers: { "Retry-After": String(limited.retryAfterSeconds) } },
+      );
+    }
+
+    const json = await req.json();
     const parsed = registerSchema.safeParse(json);
     if (!parsed.success) {
       return NextResponse.json<RegisterResponse>(
@@ -35,11 +41,7 @@ export async function POST(req: NextRequest) {
 
     const { name, email, password } = parsed.data;
 
-    // verifica se email já existe
-    const exists = await prisma.user.findUnique({
-      where: { email },
-    });
-
+    const exists = await prisma.user.findUnique({ where: { email } });
     if (exists) {
       return NextResponse.json<RegisterResponse>(
         { ok: false, error: "E-mail já cadastrado" },
@@ -47,45 +49,26 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // gera hash da senha
     const passwordHash = await hashPassword(password);
 
-    // cria usuário + carteira padrão
     const user = await prisma.user.create({
       data: {
         name,
         email,
         passwordHash,
-        wallets: {
-          create: {
-            name: "Carteira",
-            balance: 0,
-          },
-        },
+        wallets: { create: { name: "Carteira", balance: 0 } },
       },
     });
 
+    const session = await createSession({ userId: user.id, userAgent, ipAddress: ip });
+    const accessToken = signJwt({ sub: user.id });
+    await setAuthCookies({ accessToken, refreshToken: session.token });
 
-    
-    const token = signJwt({ sub: user.id });
+    await audit({ action: "auth.register", userId: user.id, ipAddress: ip, userAgent });
 
-    // seta cookie httpOnly
-    const cookieStore = await cookies(); 
-    cookieStore.set("token", token, {
-      httpOnly: true,
-      path: "/",
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24 * 7,
-    });
-//retorna os dados do usuario
     return NextResponse.json<RegisterResponse>({
       ok: true,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-      },
+      user: { id: user.id, name: user.name, email: user.email },
     });
   } catch (err: unknown) {
     console.error("[/api/auth/register]", err);

@@ -1,0 +1,53 @@
+{
+  "name": "FinControl - Sistema Financeiro",
+  "short_name": "FinControl",
+  "description": "Sistema financeiro completo para controle de receitas, despesas, fluxo de caixa e relatórios.",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#07111F",
+  "theme_color": "#07111F",
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "categories": ["finance", "productivity", "business"],
+  "icons": [
+    {
+      "src": "/fc-icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/fc-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/fc-icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nova transação",
+      "short_name": "Nova",
+      "description": "Registrar uma nova receita ou despesa",
+      "url": "/dashboard?new=1",
+      "icons": [{ "src": "/fc-icon.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Transações",
+      "short_name": "Transações",
+      "url": "/transacoes"
+    },
+    {
+      "name": "Relatórios",
+      "short_name": "Relatórios",
+      "url": "/relatorios"
+    }
+  ]
+}

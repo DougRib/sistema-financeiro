@@ -8,9 +8,10 @@ if (!JWT_SECRET) {
   throw new Error("JWT_SECRET não definido. Configure a variável de ambiente JWT_SECRET.");
 }
 
-// assina um token para o usuário
-export function signJwt(payload: object) {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
+// assina um access-token curto (1h por padrão).
+// O refresh-token (7d) é manejado em src/lib/sessions.ts.
+export function signJwt(payload: object, expiresIn: string | number = "1h") {
+  return jwt.sign(payload, JWT_SECRET, { expiresIn } as jwt.SignOptions);
 }
 
 // verifica se o token é válido

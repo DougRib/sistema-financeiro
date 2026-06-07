@@ -21,8 +21,15 @@ export async function GET(req: NextRequest) {
     orderBy: { name: "asc" },
   });
 
-  // retorna as carteiras
-  return NextResponse.json({ ok: true, wallets });
+  // retorna as carteiras (cache privado curto — saldo muda mas no horizonte de 15s é estável)
+  return NextResponse.json(
+    { ok: true, wallets },
+    {
+      headers: {
+        "Cache-Control": "private, max-age=15, stale-while-revalidate=60",
+      },
+    },
+  );
 }
 
 export async function POST(req: NextRequest) {

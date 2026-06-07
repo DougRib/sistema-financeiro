@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserId } from "@/lib/get-user-id";
 import { friendlyError } from "@/lib/api-errors";
+import { audit } from "@/lib/audit";
+import { getClientIp } from "@/lib/rate-limit";
 import { z } from "zod";
 
 const inviteSchema = z.object({
@@ -122,6 +124,16 @@ export async function POST(req: NextRequest) {
         permission,
         status: "PENDING",
       },
+    });
+
+    await audit({
+      action: "share.invite",
+      userId,
+      resourceType: "share",
+      resourceId: created.id,
+      ipAddress: getClientIp(req),
+      userAgent: req.headers.get("user-agent"),
+      metadata: { invitedEmail: email, permission },
     });
 
     return NextResponse.json({ ok: true, share: created });

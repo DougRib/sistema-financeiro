@@ -1,12 +1,71 @@
 export const runtime = "nodejs";
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { MiniFinancialChart } from "@/components/ui/MiniFinancialChart";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://fincontrol.com.br";
+
+export const metadata: Metadata = {
+  title: "Controle total das suas finanças",
+  description:
+    "FinControl: sistema completo de controle financeiro pessoal. Dashboard, orçamentos por categoria, metas de economia, fluxo de caixa, relatórios e insights com IA.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "FinControl — Controle total das suas finanças",
+    description:
+      "Acompanhe gastos, organize contas e visualize para onde seu dinheiro está indo.",
+    url: SITE_URL,
+    type: "website",
+  },
+};
+
+// JSON-LD: Organization + SoftwareApplication (rich results em buscas)
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${SITE_URL}#organization`,
+      name: "FinControl",
+      url: SITE_URL,
+      logo: `${SITE_URL}/fc-logo.png`,
+      sameAs: [],
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_URL}#website`,
+      url: SITE_URL,
+      name: "FinControl",
+      publisher: { "@id": `${SITE_URL}#organization` },
+      inLanguage: "pt-BR",
+    },
+    {
+      "@type": "SoftwareApplication",
+      name: "FinControl",
+      operatingSystem: "Web, iOS, Android",
+      applicationCategory: "FinanceApplication",
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "BRL",
+      },
+      description:
+        "Sistema de controle financeiro pessoal com dashboard, orçamentos, metas e relatórios.",
+      url: SITE_URL,
+    },
+  ],
+};
 
 // Landing page
 export default function Home() {
   return (
     <main className="min-h-screen login-left-bg flex items-center justify-center px-4 py-10 relative">
+      {/* JSON-LD para rich results no Google */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="w-full max-w-4xl space-y-6 relative z-10">
         {/* Logo + Title */}
         <header className="text-center space-y-4">
